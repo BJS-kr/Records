@@ -1,0 +1,59 @@
+# 삼자간 상호신뢰 시스템
+# 이를 대신할 라이브러리도 존재하나, 원리를 이해하지 못하면 라이브러리도 활용성 ↓↓
+# Federated Identity
+# Oauth의 궁극의 목적은 API를 제어하는 것
+
+0. Oauth2의 세 당사자
+  a) Resource Server : Users의 정보를 저장하고 있는 서버. Google, Facebook 등. Authorization Server라는 인증처리 전담 서버가 따로 있지만 Resource측이므로 간략화.
+  b) Resource Owner : 정보의 소유자 즉, User
+  c) Client : Resource Server에 Resource Owner의 정보를 요청하는 자
+  
+1. Client가 Resource Server에 register하는 과정
+  Three Essentials
+    a) Client ID : Resource Server로부터 부여받는 식별ID
+    b) Client Secret : 절대로 노출되면 안되는 PW. 보안사고 위험 인지
+    c) Authorized redirect URLs : Resource Server가 권한을 부여하는 과정에서, Authorization Code를 전달해줄 URL(ex: https://client/callback). 이 외의 주소에서는 요청해도 무시됨
+    
+2. Resource Owner의 승인
+  a) Resource Owner는 Client의 접근을 승인하는 과정을 거치게 된다. Client는 'Login for Google'등의 링크를 통해 Resource Owner의 정보접근 승인을 요청하게 되는데,
+     예를 들어 아래와 같은 링크로 Resource Owner는 Resource Server로 접속하게 된다.
+     https://resource.server/
+     ?client id=1 → Resource Server는 이와 같은 Client ID가 존재하는지 확인
+     &scope=B,C → Resource Server에 저장되어 이용할 수 있는 Resource Owner의 A-Z까지의 정보, 기능 중 B,C에 대한 접근 승인을 요청
+     &redirect_url=https://client/callback → 위의 Client ID의 Authorized redirect URLs가 자신이 요청받은 URL과 같은지 확인
+  b) Resource Server는 Resource Owner에게 이 접근을 승인 할 것인지를 최종적으로 확인하고, 승인이 완료되면 이를 저장함
+  
+3. Resource Server의 승인
+  Authorization Code: Access Token 발급 전 절차. 임시 비밀번호 개념
+    a) Resource Server는 예를 들어 Location:https://client/callback?code=3이라는 header로 Resource Owner의 웹 브라우저를 Client측으로 Redirect시킴
+    b) Client는 a)의 redirection을 통해 Authorization Code가 3임을 알게 됨
+    c) Client는 이제 Resource Server에 직접 접속할 수 있게 됨. 예를 들어,
+       https://resource.server/token?grant_type=authorization_code& → Authorization Code를 통한 접속임을 나타냄. 이러한 인증방식은 여러가지가 있음
+       code=3&
+       redirect_url=https://client/callback&
+       client_id=1&
+       client_secret=2
+       와 같은 주소로 Resource Server에 접속하게 되면, Authorization Code를 발급한 Client ID가 일치하는지 확인. Client ID의 Secret과 URL의 일치여부를 확인
+       
+4. Access Token
+  a) 임시 비밀번호였던 Authorization Code는 삭제됨 
+  b) Resource Server는 Client에게 AccessToken을 발급함. Client가 가지게 된 AccessToken은 데이터베이스등에 내부적으로 저장하게 됨.
+  c) AccessToken은 이후, Client가 ResourceServer에 저장된 Resource Owner 1 이 승인했던 B,C 정보에 접근하고자 할때 이를 허용할 수 있게 하는 Key의 역할을 하게 됨
+  
+5. API 호출
+  a) Client가 Resource Server를 제어할 수 있는 조작 방식 Application Programmable Interface
+  b) AccessToken을 가져오는 방법은 각 Apllication별로 상이할 수 있음
+  c) 각 application별로 AccessToken을 사용하여 API를 활용하는 방법을 제공함. 예를 들어,
+     https://developers.google.com/identity/protocols/oauth2/web-server#httprest_4 의 Calling Google APIs의 HTTP/REST참조
+     
+6. RefreshToken(RFC 6749의 RefreshToken항목이 가장 정확한 설명이므로 참조 할 것)
+  a) AccessToken은 수명이 있음. 몇 시간부터 90일에 이르는 것까지 다양. 기한이 지나면 AccessToken은 동작하지 않음
+  b) Authorizaiton Server는 Client에게 AccessToken을 발급할 때, RefreshToken을 함께 발급함.
+  c) AccessToken이 invalid 혹은 expired되면 Client는 RefreshToken을 Authorization Server에게 전송함
+  d) Authorization Server는 RefreshToken을 통해 Client에게 AccessToken과 Optional RefreshToken을 새로이 발급함
+     (Optional은 말 그대로 발급 받을지 말지 선택가능하다는 것. Refreshing하는 방법은 각 application별로 기술문서 참조)
+
+-더 공부해볼 내용
+  1. Facebook, Google등은 Federated Identity를 더욱 쉽게 구현하는 방법들을 제공하고 있다. 이에 대해 알아보자
+  2. Oauth의 목적인 API 제어와 관련된 지식 즉, Restful, JSON, XML에 대하여 알아보자
+    
