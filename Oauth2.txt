@@ -55,5 +55,7 @@
 
 -더 공부해볼 내용
   1. Facebook, Google등은 Federated Identity를 더욱 쉽게 구현하는 방법들을 제공하고 있다. 이에 대해 알아보자
+     (Javascript로 Google login 구현할 때 Google 인증 API를 통한 구현을 해보면 될듯? 해보고 업데이트하자)
+  
   2. Oauth의 목적인 API 제어와 관련된 지식 즉, Restful, JSON, XML에 대하여 알아보자
     
