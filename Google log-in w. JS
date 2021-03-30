@@ -2,6 +2,8 @@
 # this content is for implementation on javascript only(with Google SDK), not for server-side
 # you have to register on Google Oauth2.0 first
 # reference : https://developers.google.com/identity/sign-in/web/sign-in
+              https://developers.google.com/identity/sign-in/web/reference
+
 
 1. Load the Google Platform Library
   ▶<script src="https://apis.google.com/js/platform.js" async defer></script>
@@ -25,3 +27,12 @@
     }
     :get users information above
     
+5. Using Google Auth API
+  ▶<script src="https://apis.google.com/js/platform.js?onload=init" async defer></script>
+    :load the Google APIs platform library to create the gapi object
+  ▶function init() {
+      gapi.load('auth2', function() {
+        /* Ready. Make a call to gapi.auth2.init or some other API */
+      });
+    }
+    :
