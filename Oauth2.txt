@@ -12,7 +12,7 @@
   Three Essentials
     a) Client ID : Resource Server로부터 부여받는 식별ID
     b) Client Secret : 절대로 노출되면 안되는 PW. 보안사고 위험 인지
-    c) Authorized redirect URLs : Resource Server가 권한을 부여하는 과정에서, Authorization Code를 전달해줄 URL(ex: https://client/callback). 이 외의 주소에서는 요청해도 무시됨
+    c) Authorized redirect URIs : Resource Server가 권한을 부여하는 과정에서, Authorization Code를 전달해줄 URI(ex: https://client/callback). 이 외의 주소에서는 요청해도 무시됨
     
 2. Resource Owner의 승인
   a) Resource Owner는 Client의 접근을 승인하는 과정을 거치게 된다. Client는 'Login for Google'등의 링크를 통해 Resource Owner의 정보접근 승인을 요청하게 되는데,
@@ -20,7 +20,7 @@
      https://resource.server/
      ?client id=1 → Resource Server는 이와 같은 Client ID가 존재하는지 확인
      &scope=B,C → Resource Server에 저장되어 이용할 수 있는 Resource Owner의 A-Z까지의 정보, 기능 중 B,C에 대한 접근 승인을 요청
-     &redirect_url=https://client/callback → 위의 Client ID의 Authorized redirect URLs가 자신이 요청받은 URL과 같은지 확인
+     &redirect_url=https://client/callback → 위의 Client ID의 Authorized redirect URIs가 자신이 요청받은 URL과 같은지 확인
   b) Resource Server는 Resource Owner에게 이 접근을 승인 할 것인지를 최종적으로 확인하고, 승인이 완료되면 이를 저장함
   
 3. Resource Server의 승인
