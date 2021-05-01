@@ -1,3 +1,5 @@
+//
+개괄
 
 From RFC 3986:
 
@@ -16,14 +18,22 @@ these are Uniform Resource Names (URNs). The web technologies that use URIs are 
 
 이해를 돕는 설명:
 https://stackoverflow.com/a/1984225/22656
+//
 
-0. 용어
 
+0. 용어 (IBM 공식문서 참조. 전체 내용이 길어 자세한 내용은 읽어보시길 권해드립니다)
+  (links)Internet, TCP/IP, and HTTP concepts : https://www.ibm.com/docs/en/cics-ts/5.1?topic=web-internet-tcpip-http-concepts
+         The components of a URL : https://www.ibm.com/docs/en/cics-ts/5.1?topic=concepts-components-url
  
- scheme : 
- port :
- path :
- query :
+ scheme : 자원에 접근하기 위한 프로토콜을 정한다.  HTTP (without SSL) or HTTPS (with SSL) 등.
+ 
+ host :  자원을 소유하고 있는 host를 정한다. 예를 들어, www.example.com과 같다. 서버는 host의 이름 하에 서비스를 제공하지만, 
+         host와 서버는 1 to 1 mapping이 아니다(하나의 호스트 하에 여러ip를 가진 여러 서버 존재 가능). host에는 port가 따르며, 보통 생략된다(http:80,https:443)
+ 
+ path : 호스트 내의 웹 클라이언트가 접근하고자 하는 특정 자원을 정한다.
+ 
+ query : 특정 목적을 위해 path에 종속(후술). 보통 name=value 페어로 이루어진다. ampersand(&)로 분리된다 (ex.term=bluebird&source=browser-search)
+ 
  fragment : 문자열로 이루어지며 주자원에 종속된 자원을 가리킨다. fragment는 query를 따르며, clients는 server에 요청할 때, fragment는 전송하지 않는다. 
             ex)크롬에서 #:~:text=foo가 주소에 포함되면 페이지 내에서 foo가 포함된 문자열을 찾고, 하이라이트 표시하며, 그 위치로 스크롤을 자동으로 내린다. 
             
@@ -35,7 +45,7 @@ https://stackoverflow.com/a/1984225/22656
  
  참고 2)path vs query 언제 사용하면 좋을까?
  
- 요약하자면 path는 단어 뜻 그대로 자원 위치를 표시하는 경로이고, query는 위치 내에서 자원을 sort하거나 filter해서 추출하는데 사용
+ 요약하자면 path는 단어 뜻 그대로 자원을 표시하는 경로이고, query는 그 위치 내에서 자원을 sort하거나 filter해서 추출하는데 사용.
  path만으로도 지정은 가능하다.
  ex) path만 사용한다면 users/123
      query를 사용한다면 users?id=123
@@ -59,7 +69,7 @@ URL은 인터넷에 존재하는 수많은 자원의 위치(Location)를 정확�
 
 구성:
 scheme://<user>:<password>@<host>:<port>/<url-path>
-
+=scheme://host:port/path?query(위와 같은 형태입니다. 좀더 직관적인 표현)
 일반적으로 사용되는 형태:
 http://<host>:<port>/<path>?<searchpart>
 ->URL은 URI와는 달리, #<fragment>를 포함하지 않으며, ?<query>까지만 포함한다.
