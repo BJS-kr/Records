@@ -1,0 +1,31 @@
+
+
+통합 자원 식별자(Uniform Resource Identifier, URI)는 인터넷에 있는 자원을 나타내는 유일한 주소이다.
+URI의 하위개념으로 URL, URN 이 있다.
+
+▶️ RESOURCE : URI로 식별할 수 있는 모든 것 (제한 없음)
+(ex. HTML파일, 실시간 교통정보 등등 그 외 우리가 구분할 수 있는 모든것)
+
+ scheme:[//[user[:password]@]host[:port]][/path][?query][#fragment]
+ scheme://<user>:<password>@<host>:<port>/<url-path>
+ 
+  URL은 리소스의 위치를 지정
+ URN은 리소스의 이름을 부여
+ 
+ URN은 이름만으로 실제 리소스를 찾을 수 있는 방법이 보편화 되어있지 않기 때문에 거의 URL만 사용한다.
+ 
+ ▶️ UNIFORM : 리소스를 식별하는 통일된 방식
+▶️ RESOURCE : URI로 식별할 수 있는 모든 것 (제한 없음)
+(ex. HTML파일, 실시간 교통정보 등등 그 외 우리가 구분할 수 있는 모든것)
+▶️ IDENTIFIER : 다른 항목과 구분하는데 필요한 정보 (ID)
+fragment
+html 내부 북마크 등에 사용되며 서버에 전송되는 정보는 아니다.
+
+path : 위치정보
+query string : 위치 내에서 특정기준으로 정렬 혹은 필터
+
+path만으로도 원하는 정보를 가져올 순 있다. 그러나 권장되지 않음.
+users/123과 users?id=123 의 차이.
+
+https://stackoverflow.com/questions/176264/what-is-the-difference-between-a-uri-a-url-and-a-urn
+https://medium.com/@fullsour/when-should-you-use-path-variable-and-query-parameter-a346790e8a6d
