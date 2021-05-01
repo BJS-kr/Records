@@ -6,12 +6,46 @@ in addition to identifying a resource, provide a means of locating the resource 
 The term "Uniform Resource Name" (URN) has been used historically to refer to both URIs under the "urn" scheme [RFC2141], 
 which are required to remain globally unique and persistent even when the resource ceases to exist or becomes unavailable, and to any other URI with the properties of a name.
 
+From Wikipedia:
 
+A Uniform Resource Identifier (URI) is a unique sequence of characters that identifies a logical or physical resource used by web technologies. 
+URIs may be used to identify anything, including real-world objects, such as people and places, concepts, or information resources such as web pages and books. 
+Some URIs provide a means of locating and retrieving information resources on a network (either on the Internet or on another private network, such as a computer filesystem or an Intranet), 
+these are Uniform Resource Locators (URLs). Other URIs provide only a unique name, without a means of locating or retrieving the resource or information about it, 
+these are Uniform Resource Names (URNs). The web technologies that use URIs are not limited to web browsers
 
-1.URI
+이해를 돕는 설명:
+https://stackoverflow.com/a/1984225/22656
+
+0. 용어
+
+ 
+ scheme : 
+ port :
+ path :
+ query :
+ fragment : 문자열로 이루어지며 주자원에 종속된 자원을 가리킨다. fragment는 query를 따르며, clients는 server에 요청할 때, fragment는 전송하지 않는다. 
+            ex)크롬에서 #:~:text=foo가 주소에 포함되면 페이지 내에서 foo가 포함된 문자열을 찾고, 하이라이트 표시하며, 그 위치로 스크롤을 자동으로 내린다. 
+            
+ 
+ 참고 1) 왜 http의 기본포트는 80이고 https의 기본포트는 443일까?
+ 
+ 기술적인 이유는 아니고, http는 처음부터 80으로 지정해두었고 443포트는 빈포트 였는데 나중에 https에 배정함
+ 참조 : https://johngrib.github.io/wiki/why-http-80-https-443/
+ 
+ 참고 2)path vs query 언제 사용하면 좋을까?
+ 
+ 요약하자면 path는 단어 뜻 그대로 자원 위치를 표시하는 경로이고, query는 위치 내에서 자원을 sort하거나 filter해서 추출하는데 사용
+ path만으로도 지정은 가능하다.
+ ex) path만 사용한다면 users/123
+     query를 사용한다면 users?id=123
+ 참조 : https://medium.com/@fullsour/when-should-you-use-path-variable-and-query-parameter-a346790e8a6d
+
+1. URI
 
 통합 자원 식별자(Uniform Resource Identifier, URI)는 인터넷에 있는 자원을 나타내는 유일한 주소이다.
-URI의 하위개념으로 URL, URN 이 있다.
+URI는 현물을 포함해 사람, 장소, 개념, 웹 페이지나 책등 모든 것을 식별하는데 사용될 수 있다.
+URI의 하위개념으로 URL, URN 이 있다. URL도 URI이고, URN도 URI이다.
 
 구성:
 scheme:[//[user[:password]@]host[:port]][/path][?query][#fragment]
@@ -21,11 +55,14 @@ scheme:[//[user[:password]@]host[:port]][/path][?query][#fragment]
 URI는 HTML 페이지, XML문서, 이미지, 멀티미디어 파일 등 웹 상의 자원을 식별하는 표준 메커니즘으로 IETF RFC3968에서 
 규격화되어 있다. 하지만 보통 우리는 URI라는 용어보다는 URL이란 용어를 더 잘 알고 있고 많이 사용하고 있다. 
 URL은 인터넷에 존재하는 수많은 자원의 위치(Location)를 정확하고 편리하게 표현하기 위한 방법으로 간단한 문자열로 구성된다. 
-즉, URL에는 일반적으로 해당 자원을 위해 사용되는 ftp, http, gopher, mailto, news, telnet 등 프로토콜과 
-호스트명, 포트번호, 디렉토리, 파일명 등이 포함된다.
+즉, URL에는 일반적으로 해당 자원을 위해 사용되는 ftp, http, gopher, mailto, news, telnet 등 프로토콜과  호스트명, 포트번호, 디렉토리, 파일명 등이 포함된다.
 
 구성:
 scheme://<user>:<password>@<host>:<port>/<url-path>
+
+일반적으로 사용되는 형태:
+http://<host>:<port>/<path>?<searchpart>
+->URL은 URI와는 달리, #<fragment>를 포함하지 않으며, ?<query>까지만 포함한다.
 
 3. URN
 
@@ -46,32 +83,9 @@ URL 기반의 인터넷 자원 식별체계는 위치에 상응하는 자원이 
 urn:<NID>:<NSS>
 
 
-
-▶️ RESOURCE : URI로 식별할 수 있는 모든 것 (제한 없음)
-(ex. HTML파일, 실시간 교통정보 등등 그 외 우리가 구분할 수 있는 모든것)
-
- scheme:[//[user[:password]@]host[:port]][/path][?query][#fragment]
- scheme://<user>:<password>@<host>:<port>/<url-path>
- 
-  URL은 리소스의 위치를 지정
- URN은 리소스의 이름을 부여
- 
- URN은 이름만으로 실제 리소스를 찾을 수 있는 방법이 보편화 되어있지 않기 때문에 거의 URL만 사용한다.
- 
- ▶️ UNIFORM : 리소스를 식별하는 통일된 방식
-▶️ RESOURCE : URI로 식별할 수 있는 모든 것 (제한 없음)
-(ex. HTML파일, 실시간 교통정보 등등 그 외 우리가 구분할 수 있는 모든것)
-▶️ IDENTIFIER : 다른 항목과 구분하는데 필요한 정보 (ID)
-fragment
-html 내부 북마크 등에 사용되며 서버에 전송되는 정보는 아니다.
-
-path : 위치정보
-query string : 위치 내에서 특정기준으로 정렬 혹은 필터
-
-path만으로도 원하는 정보를 가져올 순 있다. 그러나 권장되지 않음.
-users/123과 users?id=123 의 차이.
-
 reference:
+https://www.ibm.com/docs/en/cics-ts/5.1?topic=concepts-components-url
+https://en.wikipedia.org/wiki/URI_fragment
 https://www.ietf.org/rfc/rfc3986.txt
 http://weekly.tta.or.kr/weekly/files/20115719045730_admin.pdf
 https://stackoverflow.com/questions/176264/what-is-the-difference-between-a-uri-a-url-and-a-urn
