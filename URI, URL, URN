@@ -1,12 +1,49 @@
 
+From RFC 3986:
+
+A URI can be further classified as a locator, a name, or both. The term "Uniform Resource Locator" (URL) refers to the subset of URIs that, 
+in addition to identifying a resource, provide a means of locating the resource by describing its primary access mechanism (e.g., its network "location"). 
+The term "Uniform Resource Name" (URN) has been used historically to refer to both URIs under the "urn" scheme [RFC2141], 
+which are required to remain globally unique and persistent even when the resource ceases to exist or becomes unavailable, and to any other URI with the properties of a name.
+
+
+
 1.URI
 
 통합 자원 식별자(Uniform Resource Identifier, URI)는 인터넷에 있는 자원을 나타내는 유일한 주소이다.
 URI의 하위개념으로 URL, URN 이 있다.
 
+구성:
+scheme:[//[user[:password]@]host[:port]][/path][?query][#fragment]
+
 2. URL
 
+URI는 HTML 페이지, XML문서, 이미지, 멀티미디어 파일 등 웹 상의 자원을 식별하는 표준 메커니즘으로 IETF RFC3968에서 
+규격화되어 있다. 하지만 보통 우리는 URI라는 용어보다는 URL이란 용어를 더 잘 알고 있고 많이 사용하고 있다. 
+URL은 인터넷에 존재하는 수많은 자원의 위치(Location)를 정확하고 편리하게 표현하기 위한 방법으로 간단한 문자열로 구성된다. 
+즉, URL에는 일반적으로 해당 자원을 위해 사용되는 ftp, http, gopher, mailto, news, telnet 등 프로토콜과 
+호스트명, 포트번호, 디렉토리, 파일명 등이 포함된다.
+
+구성:
+scheme://<user>:<password>@<host>:<port>/<url-path>
+
 3. URN
+
+URL 기반의 인터넷 자원 식별체계는 위치에 상응하는 자원이 없어지거나 더 이상 이용할 수 없게 되는 경우에는 검색 수단으로써의 기능을 상실하는 등 
+정확한 식별기능이 떨어져 자원 유통에 적합하지 않을 수 있다. URN은 이러한 URL의 단점을 보완하기 위하여 정의된 것으로 특정 자원, 구체적으로 말해서 
+콘텐츠(Content)의 인터넷 식별자라고 할 수 있다. 간단히 말해서, URN은 콘텐츠 위치, 프로토콜, 호스트 등에 의존하지 않고 각각의 콘텐츠를 식별하는 
+메커니즘이다. IETF 표준 규격[RFC 2141, RFC 3406]에 의하면 URN은 유일성ㆍ영속성ㆍ확장성ㆍ융통성ㆍ규모성 등을 제공할 수 있어야 한다.
+
+즉, URL은 어떤 특정 서버에 있는 콘텐츠를 가리키는 반면 URN은 콘텐츠의 물리적인 위치와 상관없이 콘텐츠 자체를 지시한다는 점이다. 
+따라서 웹 사이트에 있는 어떤 콘텐츠가 다른 웹 서버로 이동하거나 주소가 바뀌더라도 URN은 여전히 그 문서를 가리키고 있기 때문에 사용자는 
+그 콘텐츠에 대한 URN을 갖고 있으면 그 콘텐츠가 어떤 웹 서버로 이동되어 있더라도 그 콘텐츠를 찾을 수 있는 것이다. 
+
+대표적인 예로 도서식별번호인 ISBN이 있다.
+
+구성:
+<URN> ::= "urn:" <NID> ":" <NSS>
+실제 사용시:
+urn:<NID>:<NSS>
 
 
 
@@ -34,5 +71,8 @@ query string : 위치 내에서 특정기준으로 정렬 혹은 필터
 path만으로도 원하는 정보를 가져올 순 있다. 그러나 권장되지 않음.
 users/123과 users?id=123 의 차이.
 
+reference:
+https://www.ietf.org/rfc/rfc3986.txt
+http://weekly.tta.or.kr/weekly/files/20115719045730_admin.pdf
 https://stackoverflow.com/questions/176264/what-is-the-difference-between-a-uri-a-url-and-a-urn
 https://medium.com/@fullsour/when-should-you-use-path-variable-and-query-parameter-a346790e8a6d
