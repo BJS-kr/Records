@@ -1,7 +1,14 @@
 
+1.URI
 
 통합 자원 식별자(Uniform Resource Identifier, URI)는 인터넷에 있는 자원을 나타내는 유일한 주소이다.
 URI의 하위개념으로 URL, URN 이 있다.
+
+2. URL
+
+3. URN
+
+
 
 ▶️ RESOURCE : URI로 식별할 수 있는 모든 것 (제한 없음)
 (ex. HTML파일, 실시간 교통정보 등등 그 외 우리가 구분할 수 있는 모든것)
