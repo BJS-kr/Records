@@ -48,7 +48,9 @@ TCP는 UDP와 달리 연결지향이다. 데이터가 전송되기전에, Browse
 
 <img src="http://lh6.ggpht.com/_Os5qf5urx_A/S6uTJRx1y3I/AAAAAAAABQo/O428v-3M8xc/s800/d8495.png" width="50%" height="50%">
 1. Browser -> Server : 서버의 통신가능 여부를 확인한다(SYN).  
+
 2. Server -> Browser : 서버가 준비됐으니 데이터를 전송하라는 신호를 보낸다(SYN-ACK).  
+
 3. Browser -> Server : 데이터를 전송하겠다는 신호를 보낸다(ACK).  
 
 통신선로를 하나 만들기 위해서는 3번의 데이타 전송이 일어나게 되므로, 이것을 three way handshake이라고 한다. 
