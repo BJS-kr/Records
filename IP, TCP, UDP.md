@@ -98,10 +98,12 @@ TCP의 장점인 손실무효화는 실시간 스트리밍 서비스에서는 �
 
 <img src="https://blog.kakaocdn.net/dn/csLXm8/btqzttm3Ntc/EMbBrxFEBmQ0jMsuXr64P0/img.png" width="70%" height="70%">  
 
-TCP Flow     
+TCP Flow  
+
 <img src="https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdn%2FcOn9Mu%2FbtqCLMk1DSM%2Fp6rV91JbfCa4I136YjyKik%2Fimg.png "width="40%" height="40%">  
 
 UDP Flow   
+
 <img src="https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdn%2FdAFbbs%2FbtqCO0I111S%2Fed63wVTWv1KzUp5t7DSZ11%2Fimg.png "width="40%" height="40%">
 
 
