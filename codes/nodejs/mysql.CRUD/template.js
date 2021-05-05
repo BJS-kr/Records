@@ -1,4 +1,4 @@
-// 코드는 똑같이 동작하지만 효율성 높이기 및 정리를 리팩토링이라고 부름.
+
 module.exports = {
   HTML:function(title, list, body, control){
     return `
