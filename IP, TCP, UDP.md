@@ -12,6 +12,8 @@
 
 4. OSI 7 계층과 TCP/IP 4 계층
 ![그림1](https://media.vlpt.us/images/gparkkii/post/5b82f13c-e62f-4c37-afae-8059154b897b/F3C5A0A2-62C3-4BAE-8266-F9FFCFC2EBBF.png){: width="50%" height="50%"}
+<img src="https://media.vlpt.us/images/gparkkii/post/5b82f13c-e62f-4c37-afae-8059154b897b/F3C5A0A2-62C3-4BAE-8266-F9FFCFC2EBBF.png" width="50%" height="50%">
+
 5. tcp vs udp
 
 reference:  
