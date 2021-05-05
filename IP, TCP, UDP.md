@@ -13,11 +13,11 @@
 # 4. OSI 7 계층과 TCP/IP 4 계층
 
 <img src="https://media.vlpt.us/images/gparkkii/post/5b82f13c-e62f-4c37-afae-8059154b897b/F3C5A0A2-62C3-4BAE-8266-F9FFCFC2EBBF.png" width="70%" height="70%">
-| Tables   |      Are      |  Cool |
-|----------|:-------------:|------:|
-| col 1 is |  left-aligned | $1600 |
-| col 2 is |    centered   |   $12 |
-| col 3 is | right-aligned |    $1 |
+
+| Command | Description |
+| --- | --- |
+| git status | List all new or modified files |
+| git diff | Show file differences that haven't been staged |
 
 # 5. TCP vs UDP  
 
