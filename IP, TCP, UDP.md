@@ -19,6 +19,8 @@ TCP는 연결형 서비스를 지원하는 프로토콜로 인터넷 환경에�
 
 ![패킷 교환](https://thumbs.gfycat.com/GlamorousCharmingBallpython-small.gif)
 
+**데이터그램 교환방식에 TCP와 User Datagram Protocol 즉, UDP가 모두 포함된다. 데이터그램방식 = User Datagram Protocol 이 아니므로 오해가 없도록 한다.
+
 ## 연결 지향이란
 TCP는 UDP와 달리 연결지향이다. 데이터가 전송되기전에, Browser 와 Server 간의 연결을 성립하는 과정이 데이타를 전송하는 과정전에 이루어지게 된다. Browser와 Server는 정식 데이타를 교환하기 위한 통신선로를 개설하게 된다.
 1. Brower -> Server : 서버의 상태를 확인한다.
@@ -27,7 +29,7 @@ TCP는 UDP와 달리 연결지향이다. 데이터가 전송되기전에, Browse
 
 <img src="http://lh6.ggpht.com/_Os5qf5urx_A/S6uTJRx1y3I/AAAAAAAABQo/O428v-3M8xc/s800/d8495.png" width="50%" height="50%">
 
-통신선로를 하나 만들기 위해서는 3번의 데이타 전송이 일어나게 되므로, 이것을 three way handshake이라고 한다. UDP는 이러한 과정이 없이 단순히 데이타만을 전송하므로 "데이터그램" 프로토콜이라고 부른다.
+통신선로를 하나 만들기 위해서는 3번의 데이타 전송이 일어나게 되므로, 이것을 three way handshake이라고 한다. 
 
 ### 참고) 패킷(packet)이란?
   인터넷 내에서 데이터를 보내기 위한 경로배정(라우팅)을 효율적으로 하기 위해서 데이터를 여러 개의 조각들로 나누어 전송을 하는데 이때, 이 조각을 패킷이라고 합니다.
@@ -74,14 +76,14 @@ TCP는 UDP와 달리 연결지향이다. 데이터가 전송되기전에, Browse
 오늘날에는 대부분 이더넷 스위치를 사용하여 스위치 방식의 네트워크(switched network)를 구성하는데, 이 경우 충돌이 일어나지 않는다.
 
 ### 참고) LAN과 WAN
+<img src="http://lh5.ggpht.com/_Os5qf5urx_A/S6uTJW742tI/AAAAAAAABQk/egP74kF-ZCA/s800/99595.png" width="40%" height="40%">
 LAN : 비교적 근거리 통신망을 의미한다. 연결 형식에 따라 링, 버스, 스타 세가지 Topology형태로 구분된다.
 WAN : 여러개의 LAN이 모여 이루는 지역, 국가 등 넓은 범위의 통신망이다. 둘 이상의 LAN이 소통하기 위해선 Router가 필요하며, Router간의 연결을 inter-networking(OSI 3 계층)이라고 한다.
 
 # 6. TCP vs UDP  
 
 ## UDP란?  
-User Datagram Protocol로 컴퓨터가 다른 컴퓨터와 데이터 통신을 하기 위한 프로토콜이다. 데이터 전달 및 순서가 보장되지 않지만 단순하고 빠른 작용을 한다.
-IP와 거의 비슷하다. IP기능 + PORT, 체크섬 등만 추가되어있다.
+UDP의 전송 방식은 너무 단순해서 서비스의 신뢰성이 낮고, 데이터그램 도착 순서가 바뀌거나, 중복되거나, 심지어는 통보 없이 누락시키기도 한다. UDP는 일반적으로 오류의 검사와 수정이 필요 없는 애플리케이션에서 수행할 것으로 가정한다. User Datagram Protocol이다.
 
 ## UDP는 왜 사용하는가?
 TCP의 장점인 손실무효화는 실시간 스트리밍 서비스에서는 걸림돌로 작용한다. 전체 영상에서 점 하나 못 받은 것 때문에 버퍼링 돌린다고 재생이 중지되거나, 
@@ -94,9 +96,11 @@ TCP의 장점인 손실무효화는 실시간 스트리밍 서비스에서는 �
 흐름제어는 데이터를 송신하는 곳과 수신하는 곳의 데이터 처리 속도를 조절하여 수신자의 버퍼 오버플로우를 방지하는 것입니다. 예를 들어 송신하는 곳에서 감당이 안되게 데이터를 빠르게 많이 보내면 수신자에서 문제가 발생하기 때문입니다. 혼잡제어는 네트워크 내의 패킷 수가 넘치게 증가하지 않도록 방지하는 것입니다. 만약 정보의 소통량이 과다하면 패킷을 조금만 전송하여 혼잡 붕괴 현상이 일어나는 것을 막습니다.
 
 <img src="https://blog.kakaocdn.net/dn/csLXm8/btqzttm3Ntc/EMbBrxFEBmQ0jMsuXr64P0/img.png" width="70%" height="70%">  
-TCP Flow
+
+*TCP Flow
 <img src="https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdn%2FcOn9Mu%2FbtqCLMk1DSM%2Fp6rV91JbfCa4I136YjyKik%2Fimg.png "width="40%" height="40%">  
-UDP Flow
+
+*UDP Flow
 <img src="https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdn%2FdAFbbs%2FbtqCO0I111S%2Fed63wVTWv1KzUp5t7DSZ11%2Fimg.png "width="40%" height="40%">
 
 
