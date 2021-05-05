@@ -77,7 +77,7 @@ TCP는 UDP와 달리 연결지향이다. 데이터가 전송되기전에, Browse
 
 ### 참고) LAN과 WAN
 <img src="http://lh5.ggpht.com/_Os5qf5urx_A/S6uTJW742tI/AAAAAAAABQk/egP74kF-ZCA/s800/99595.png" width="40%" height="40%">
-LAN : 비교적 근거리 통신망을 의미한다. 연결 형식에 따라 링, 버스, 스타 세가지 Topology형태로 구분된다.
+LAN : 비교적 근거리 통신망을 의미한다. 연결 형식에 따라 링, 버스, 스타 세가지 Topology형태로 구분된다.  
 WAN : 여러개의 LAN이 모여 이루는 지역, 국가 등 넓은 범위의 통신망이다. 둘 이상의 LAN이 소통하기 위해선 Router가 필요하며, Router간의 연결을 inter-networking(OSI 3 계층)이라고 한다.
 
 # 6. TCP vs UDP  
