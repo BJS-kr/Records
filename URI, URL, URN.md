@@ -93,9 +93,9 @@ urn:<NID>:<NSS>
 
 
 reference:
-[](https://www.ibm.com/docs/en/cics-ts/5.1?topic=concepts-components-url)
-[](https://en.wikipedia.org/wiki/URI_fragment)
-[](https://www.ietf.org/rfc/rfc3986.txt)
-[](http://weekly.tta.or.kr/weekly/files/20115719045730_admin.pdf)
-[](https://stackoverflow.com/questions/176264/what-is-the-difference-between-a-uri-a-url-and-a-urn)
-[](https://medium.com/@fullsour/when-should-you-use-path-variable-and-query-parameter-a346790e8a6d)
+![](https://www.ibm.com/docs/en/cics-ts/5.1?topic=concepts-components-url)
+![](https://en.wikipedia.org/wiki/URI_fragment)
+![](https://www.ietf.org/rfc/rfc3986.txt)
+![](http://weekly.tta.or.kr/weekly/files/20115719045730_admin.pdf)
+![](https://stackoverflow.com/questions/176264/what-is-the-difference-between-a-uri-a-url-and-a-urn)
+![](https://medium.com/@fullsour/when-should-you-use-path-variable-and-query-parameter-a346790e8a6d)
