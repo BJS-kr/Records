@@ -26,7 +26,7 @@ these are Uniform Resource Names (URNs). The web technologies that use URIs are 
  
  scheme : 자원에 접근하기 위한 프로토콜을 정한다.  HTTP (without SSL) or HTTPS (with SSL) 등.
  
- host :  자원을 소유하고 있는 host를 정한다. 예를 들어, www.example.com과 같다. 서버는 host의 이름 하에 서비스를 제공하지만, 
+ host :  자원을 소유하고 있는 host를 정한다. 예를 들어, *www.example.com*과 같다. 서버는 host의 이름 하에 서비스를 제공하지만, 
          host와 서버는 1 to 1 mapping이 아니다(하나의 호스트 하에 여러ip를 가진 여러 서버 존재 가능). host에는 port가 따르며, 보통 생략된다(http:80,https:443)
  
  path : 호스트 내의 웹 클라이언트가 접근하고자 하는 특정 자원을 정한다.
