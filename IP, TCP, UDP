@@ -1,0 +1,25 @@
+
+
+
+추가적으로 4계층 등 찾아볼것
+
+1. TCP/IP
+  
+  TCP는 *패킷을 추적 및 관리
+  
+  참고 1) 패킷 통신이란?
+  참고 2) LAN과 WAN
+
+2. IP
+
+3. TCP
+  동작원리
+
+4. OSI 7 계층과 TCP/IP 4 계층
+
+5. tcp vs udp
+
+reference:
+https://mangkyu.tistory.com/15 (TCP vs UDP)
+https://www.joinc.co.kr/w/Site/Network_Programing/Documents/IntroTCPIP (TCP/IP 개론)
+
