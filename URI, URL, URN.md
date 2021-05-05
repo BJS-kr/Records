@@ -91,11 +91,10 @@ URL 기반의 인터넷 자원 식별체계는 위치에 상응하는 자원이 
 실제 사용시:
 urn:<NID>:<NSS>
 
-
 reference:
-![](https://www.ibm.com/docs/en/cics-ts/5.1?topic=concepts-components-url)
-![](https://en.wikipedia.org/wiki/URI_fragment)
-![](https://www.ietf.org/rfc/rfc3986.txt)
-![](http://weekly.tta.or.kr/weekly/files/20115719045730_admin.pdf)
-![](https://stackoverflow.com/questions/176264/what-is-the-difference-between-a-uri-a-url-and-a-urn)
-![](https://medium.com/@fullsour/when-should-you-use-path-variable-and-query-parameter-a346790e8a6d)
+![Components of URL](https://www.ibm.com/docs/en/cics-ts/5.1?topic=concepts-components-url)
+![URI Fragment](https://en.wikipedia.org/wiki/URI_fragment)
+![rfc3986](https://www.ietf.org/rfc/rfc3986.txt)
+![URN 표준규격 업데이트 현황](http://weekly.tta.or.kr/weekly/files/20115719045730_admin.pdf)
+![Difference between URI, URL, URN](https://stackoverflow.com/questions/176264/what-is-the-difference-between-a-uri-a-url-and-a-urn)
+![Path vs Query](https://medium.com/@fullsour/when-should-you-use-path-variable-and-query-parameter-a346790e8a6d)
