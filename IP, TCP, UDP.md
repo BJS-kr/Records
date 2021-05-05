@@ -12,9 +12,11 @@
 # 2. IP
 
 # 3. TCP
-  패킷을 극복하기 위해!
+
+## 패킷 교환
+패킷 교환(Packet switching)은 컴퓨터 네트워크와 통신의 방식 중 하나로 현재 가장 많은 사람들이 사용하는 통신 방식이다. 작은 블록의 패킷으로 데이터를 전송하며 데이터를 전송하는 동안만 네트워크 자원을 사용하도록 하는 방법을 말한다. 정보 전달의 단위인 패킷은 여러 통신 지점(Node)을 연결하는 데이터 연결 상의 모든 노드들 사이에 개별적으로 경로가 제어된다. 이 방식은 통신 기간 동안 독점적인 사용을 위해 두 통신 노드 사이를 연결하는 회선 교환 방식과는 달리 짤막한 데이터 트래픽에 적합하다. 개별 데이터는 발신지 주소, 목적지 주소가 추가되어 하나의 단일한 패킷이 된다. 이런 패킷들의 나열(sequence)는 차례로 목적지까지 보내지고, 목적지에서는 이런 패킷 나열을 다시 원본 파일로 재구성하는 작업이 이루어진다. 각 패킷은 개별적으로 경로가 제어(라우팅)된다. 회선 교환망(전화)에서도 회선의 경로를 찾기 위해서 마찬가지로 경로제어를 수행한다. 그러나 회선교환 네트워크에서는 일단 경로가 설정되면 데이터를 패킷으로 나누지도 않고 개별적으로 경로를 제어하지도 않는다. 그저 이전 경로를 따라 지속적이고 안정적으로 전송한다.
   
-  <img src="https://upload.wikimedia.org/wikipedia/commons/f/f6/Packet_Switching.gif" width="70%" height="70%">
+  <img src="https://upload.wikimedia.org/wikipedia/commons/f/f6/Packet_Switching.gif">
 
 # 4. OSI 7 계층과 TCP/IP 4 계층
 
@@ -64,7 +66,7 @@ UDP Flow
 <img src="https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdn%2FdAFbbs%2FbtqCO0I111S%2Fed63wVTWv1KzUp5t7DSZ11%2Fimg.png "width="40%" height="40%">
 
 
-References:  
+# References:  
 [TCP vs UDP](https://mangkyu.tistory.com/15)  
 [TCP/IP 개론](https://www.joinc.co.kr/w/Site/Network_Programing/Documents/IntroTCPIP)  
 [인터넷 네트워크 : TCP/UDP](https://velog.io/@gparkkii/HTTPTCPUPD)  
@@ -72,6 +74,7 @@ References:
 [IP란 무엇인가](https://study-recording.tistory.com/7)  
 [나무위키 IP](https://namu.wiki/w/IP)  
 [나무위키 TCP](https://namu.wiki/w/TCP)  
-[나무위키 OSI 7계층](https://namu.wiki/w/OSI%20%EB%AA%A8%ED%98%95)   
+[나무위키 OSI 7계층](https://namu.wiki/w/OSI%20%EB%AA%A8%ED%98%95)  
+[패킷교환](https://ko.wikipedia.org/wiki/%ED%8C%A8%ED%82%B7_%EA%B5%90%ED%99%98)
 
 <img src="https://upload.wikimedia.org/wikipedia/commons/f/f6/Packet_Switching.gif" width="70%" height="70%">
