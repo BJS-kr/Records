@@ -44,7 +44,7 @@ these are Uniform Resource Names (URNs). The web technologies that use URIs are 
  
  ### 참고 2)path vs query 언제 사용하면 좋을까?
  
- 요약하자면 path는 단어 뜻 그대로 자원을 표시하는 경로이고, query는 그 위치 내에서 자원을 sort하거나 filter해서 추출하는데 사용.[참조](https://medium.com/@fullsour/when-should-you-use-path-variable-and-query-parameter-a346790e8a6d)
+ 요약하자면 path는 단어 뜻 그대로 자원을 표시하는 경로이고, query는 그 위치 내에서 자원을 sort하거나 filter해서 추출하는데 사용.[참조](https://medium.com/@fullsour/when-should-you-use-path-variable-and-query-parameter-a346790e8a6d)  
  path만으로도 지정은 가능하다.
  ex) path만 사용한다면 users/123
      query를 사용한다면 users?id=123
