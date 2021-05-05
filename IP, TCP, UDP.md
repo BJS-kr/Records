@@ -4,6 +4,7 @@
   
   참고 1) 패킷 통신이란?
   참고 2) LAN과 WAN
+  참고 3) 이더넷이란?
 
 # 2. IP
 
@@ -14,10 +15,13 @@
 
 <img src="https://media.vlpt.us/images/gparkkii/post/5b82f13c-e62f-4c37-afae-8059154b897b/F3C5A0A2-62C3-4BAE-8266-F9FFCFC2EBBF.png" width="70%" height="70%">
 
-| Command | Description |
+| 계층 | 설명 |
 | --- | --- |
-| git status | List all new or modified files |
-| git diff | Show file differences that haven't been staged |
+| 어플리케이션 계층(HTTP 등) | 사용자 응용 프로그램으로 부터 요청을 받아 이를 적절한 메시지로 변환하고 하위 계층으로 전달한다 |
+| 전송계층(TCP, UDP) | IP에 의해 전달되는 패킷의 오류를 검사하고 통신 노드간의 제어 및 자료의 송수신을 담당한다 |
+| 인터넷 계층(IP) | 통신 노드 간의 IP패킷을 전송하는 기능 및 라우팅 기능을 담당한다 |
+| 네트워크 인터페이스 또는 데이터 링크 계층(LAN, 패킷 망) | 이더넷 카드 등으로 연결된 물리적인 네트워크들을 의미한다 |
+
 
 # 5. TCP vs UDP  
 
