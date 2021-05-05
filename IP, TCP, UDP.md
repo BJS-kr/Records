@@ -24,4 +24,4 @@ reference:
 [나무위키 TCP](https://namu.wiki/w/TCP)  
 [나무위키 OSI 7계층](https://namu.wiki/w/OSI%20%EB%AA%A8%ED%98%95)    
 
-![텍스트](이미지파일URL “이미지이름”)
+![그림1](https://media.vlpt.us/images/gparkkii/post/5b82f13c-e62f-4c37-afae-8059154b897b/F3C5A0A2-62C3-4BAE-8266-F9FFCFC2EBBF.png “OSI 7 Layers vs TCP/IP 4 Layers”)
