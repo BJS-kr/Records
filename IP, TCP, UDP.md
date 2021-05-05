@@ -22,7 +22,7 @@
 
 *데이터 그램 방식의 패킷 교환  
 
-![패킷 교환](https://upload.wikimedia.org/wikipedia/commons/f/f6/Packet_Switching.gif)
+![패킷 교환](https://thumbs.gfycat.com/GlamorousCharmingBallpython-small.gif)
 
 # 4. OSI 7 계층과 TCP/IP 4 계층
 
