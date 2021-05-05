@@ -15,7 +15,7 @@
 5. tcp vs udp
 
 reference:
-[TCP vs UDP](https://mangkyu.tistory.com/15)
+[TCP vs UDP](https://mangkyu.tistory.com/15)/n
 [TCP/IP 개론](https://www.joinc.co.kr/w/Site/Network_Programing/Documents/IntroTCPIP)
 [인터넷 네트워크 : TCP/UDP](https://velog.io/@gparkkii/HTTPTCPUPD)
 [개알못을 위한 TCP/IP의 개념](https://brunch.co.kr/@wangho/6)
