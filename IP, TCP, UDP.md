@@ -132,5 +132,3 @@ UDP(User Datagram Protocol)의 전송 방식은 너무 단순해서 서비스의
 [나무위키 TCP](https://namu.wiki/w/TCP)  
 [나무위키 OSI 7계층](https://namu.wiki/w/OSI%20%EB%AA%A8%ED%98%95)  
 [패킷교환](https://ko.wikipedia.org/wiki/%ED%8C%A8%ED%82%B7_%EA%B5%90%ED%99%98)
-
-<img src="https://upload.wikimedia.org/wikipedia/commons/f/f6/Packet_Switching.gif" width="70%" height="70%">
