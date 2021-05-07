@@ -17,7 +17,7 @@ def bubble2_1(*args):
         except:
             return a
 
-# 또 다른 방법
+# try가 위험하다고 생각되면
 def bubble2_2(*args):
     a = list(args)
     for i in range(len(a)):
