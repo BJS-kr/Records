@@ -39,3 +39,14 @@ def combinate(n):
     return permutate(combis)
      
 combinate(4)
+
+# 정석풀이는 요거
+def func(data):
+    if data == 1:
+        return 1
+    elif data == 2:
+        return 2
+    elif data == 3:
+        return 4
+    
+    return func(data -1) + func(data - 2) + func(data - 3)
