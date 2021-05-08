@@ -98,9 +98,9 @@ def combinate(n):
 
 combi(4)
 
-# 예제 5 풀이 2: 구현 성공. 정석풀이가 아닌걸 알지만 공부하고 싶어서 어렵게 풀어봄. 풀이 1에서 힌트를 얻음
+# 예제 5 풀이 2: 구현 성공. 정석풀이가 아닌걸 알지만 공부하고 싶어서 어렵게 풀어봄. 풀이 1의 결과를 이용.
 # 풀이 1에서 1,2,3의 갯수를 각각 표시 할 수 있게 만들었으니, 각 조합마다 필요한 숫자들을 리스트화시켜
-# 순열을 구해 모두 더하는 방식. 다만 permutations의 기능이 id값을 기준으로 순열을 만드는거라 작업이 필요했음.
+# 순열을 모두 구해 세는 방식. 다만 permutations의 기능이 id값을 기준으로 순열을 만드는거라 작업이 필요했음.
 # [1,3,3]의 순열이면 3의 위치끼리만 바뀌어도 각각의 순열로 처리하기 때문에 if not in을 통해 한번 더 걸러줌.
 
 from itertools import permutations
@@ -140,15 +140,66 @@ def combinate(n):
      
 combinate(4)
 
+# 예제 5 풀이 3 (combinations만 사용)
+# 생각해보니 (1,3) == (3,1) 은 False이니 그냥 not in조건으로 다 넣으면 됨.
+# 근데 내가 풀고도 이해 안되는 점은 왜 1,2,3이 꼭 n만큼 append되야 결과가 제대로 나오는지를 모르겠음..
+# permutaions를 사용하면 1은 n만큼 append하더라도 2,3은 n//2, n//3만큼 append하면 순열이 나오지만..
+# 아니 애초에 1,2,3을 여러개 조합하는건 permutations아니냐고...
+from itertools import combinations
+
+tools = list()
+combilist = list()
+
+def func(n):
+    for _ in range(n):
+        tools.append(1)
+        tools.append(2)
+        tools.append(3)
+    for i in range(n//3,n): # 조합의 최소길이는 n//3부터니까. n+1이 아닌이유는 n+1자리조합은 무조건 1+1+1...이니까.
+        a = list(combinations(tools,i))
+        for j in range(len(a)):
+            if sum(a[j][:]) == n and a[j][:] not in combilist:
+                combilist.append(a[j][:])
+    return len(combilist) + 1 # 하나는 무조건 n과 길이가 같은 1,1,1,1,...이니까
+
+func(5)
+
+# 예제 5 풀이 4 ( permutations만 사용)
+# 논리 자체는 딱 맞아떨어지지만 메모리 졸라 부족함
+# 대체 위에 combinations는 왜 되는거지??
+from itertools import permutations
+
+tools = []
+combilist = list()
+
+def func(n):
+    for _ in range(n):
+        tools.append(1)
+    for _ in range(n//2):
+        tools.append(2)
+    for _ in range(n//3):
+        tools.append(3)
+    for i in range(n//3,n):
+        a = list(permutations(tools,i))
+        for j in range(len(a)):
+            if sum(a[j][:]) == n and a[j][:] not in combilist:
+                combilist.append(a[j][:])
+    return len(combilist) + 1
+
+func(4)
+
 # 예제 5 정석 풀이
-# f(n) = f(n-1) + f(n-2) + f(n-3)과 같다는 공식을 이용한 것. 사실 그냥 순열 공식이다.
-def func(data):
-    if data == 1:
+# f(n) = f(n-1) + f(n-2) + f(n-3)과 같다는 것을 이용. 사실 그냥 순열 공식이다.
+# 아무리 값이 커지더라도 연속된 값 세개만 알면 순열을 구할 수 있음. 그래서 n이 1,2,3일경우를 미리 return으로 정해두고
+# 재귀호출하게 되면 1,2,3에 해당하는 값을 찾을 때까지 재귀해서 연속된 모든 값을 알게 되는 것.
+def f(n):
+    if n == 1:
         return 1
-    elif data == 2:
+    elif n == 2:
         return 2
-    elif data == 3:
+    elif n == 3:
         return 4
-    
-    return func(data -1) + func(data - 2) + func(data - 3)
+    return f(n-1) + f(n-2) + f(n-3)
+
+f(10)
  
