@@ -79,13 +79,13 @@ def sick_cal(n):
     else:
         sick_cal(n / 2)
         
-# 예제 5 : 1,2,3을 조합하여 n을 이루는 모든 경우의 수를 구하라
+# 예제 5 : 1,2,3만을 조합하여 n을 이루는 순열의 수를 구하라
 
-# 풀이 1: 틀림. 이건 1,2,3으로 가능한 모든 조합을 표시해주긴 하나, 
-# 조합 순서의 개념까진 가지고 있지 않음. 1+1+2와 1+2+1을 같은 것으로 처리함.
+# 예제 5 풀이 1: 틀림. 이건 1,2,3으로 가능한 모든 조합만을 표시함.
+# 정확히 말하면 '조합'이 아니라 조합에 필요한 1,2,3의 갯수를 각각 [[index0~2],...]로 표시하는 리스트를 만듦.
 # 거기다 재귀적으로 풀지도 않음
-def combi(n):
-    combicount = list()
+def combinate(n):
+    combis = list()
     a = n
     b = n // 2
     c = n // 3
@@ -93,10 +93,54 @@ def combi(n):
         for j in range(b+1):
             for k in range(c+1):
                 if i + j*2 + k*3 == n:
-                    combicount.append([i,j,k])
-    return combicount
+                    combis.append([i,j,k])
+    return combis
 
-combi(6)
+combi(4)
 
+# 예제 5 풀이 2: 구현 성공. 정석풀이가 아닌걸 알지만 공부하고 싶어서 어렵게 풀어봄. 풀이 1에서 힌트를 얻음
+# 풀이 1에서 1,2,3의 갯수를 각각 표시 할 수 있게 만들었으니, 각 조합마다 필요한 숫자들을 리스트화시켜
+# 순열을 구해 모두 더하는 방식. 다만 permutations의 기능이 id값을 기준으로 순열을 만드는거라 작업이 필요했음.
+# [1,3,3]의 순열이면 3의 위치끼리만 바뀌어도 각각의 순열로 처리하기 때문에 if not in을 통해 한번 더 걸러줌.
+
+from itertools import permutations
+
+combis = list()
+
+def permutate(combis):
+    result = list()
+    for i in range(len(combis)):
+        target = combis[i]
+        listed_target = list()
+        for j in range(3):
+            for _ in range(target[j]):
+                if j == 0:
+                    listed_target.append(1)
+                elif j == 1:
+                    listed_target.append(2)
+                else:
+                    listed_target.append(3)
+        bef_clnd = list(permutations(listed_target,len(listed_target)))
+        for l in range(len(bef_clnd)):
+            if bef_clnd[l] not in result:
+                result.append(bef_clnd[l])
+    return len(result)
+
+def combinate(n):
+    global combis
+    a = n
+    b = n // 2
+    c = n // 3
+    for i in range(a+1):
+        for j in range(b+1):
+            for k in range(c+1):
+                if i + j*2 + k*3 == n:
+                    combis.append([i,j,k])
+    return permutate(combis)
+     
+combinate(4)
+
+# 예제 5 정석 풀이
+# f(n) = f(n-1) + f(n-2) + f(n-3)과 같다는 공식을 이용한 것. 사실 그냥 순열 공식이다.
 
  
