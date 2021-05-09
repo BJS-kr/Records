@@ -1,3 +1,6 @@
+# 재귀적으로 left right의 값을 하나씩 비교하며 최소값 순서대로 붙이기
+# 왜 필요한지는 이해가 잘 안감. 쨌든 구현
+
 from random import sample as sam
 
 def split_merge(list_):
