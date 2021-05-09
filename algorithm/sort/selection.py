@@ -1,7 +1,7 @@
 # 선택정렬 
 # 전체 중 가장 작은 값 찾아서 맨 앞 인덱스로 배치, 배치한 인덱스는 제외하고 나머지 전체에서 계속 반복
 
-# 값이 두개일땐?
+# 값이 두개 일때?
 def sel_sort(*args):
     a = list(args)
     if a[0] < a[1]:
@@ -10,7 +10,7 @@ def sel_sort(*args):
         a[0], a[1] = a[1], a[0]
     return a
 
-# 값이 여러개 일땐?
+# 값이 여러개라면?
 def sel_sort2(*args):
     a = list(args)
     for i in range(len(a)):
