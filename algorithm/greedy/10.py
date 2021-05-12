@@ -6,8 +6,7 @@ result = 0
 if '+' in a[0]:
     s = a[0].split('+')
     for i in s:
-        g = int(i)
-        result += g
+        result += int(i)
 else:
     result = int(a[0])
 
@@ -16,8 +15,7 @@ for i in range(1,len(a)):
     if '+' in a[i]:
         b = a[i].split('+')
         for j in b:
-            c = int(j)
-            result -= c
+            result -= int(j)
     else:
         result -= int(a[i])
 
