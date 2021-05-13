@@ -18,7 +18,7 @@ print(result)
 a = [list(map(int,v.split('+'))) for v in input().split('-')]
 result = sum(a[0])
 
-for i in range(len(a[1:])):
-    result -= sum(a[1:][i])
+for i in range(1, len(a)):
+    result -= sum(a[i])
     
 print(result)
