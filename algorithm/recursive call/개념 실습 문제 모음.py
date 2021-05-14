@@ -1,3 +1,4 @@
+# https://www.fun-coding.org/Chapter13-recursive.html 잔재미
 # 예제 1 풀이
 def factorial(n):
     if n <= 1:
