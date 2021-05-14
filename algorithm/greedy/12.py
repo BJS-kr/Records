@@ -43,7 +43,7 @@ while tasks:
     temp = heappop(tasks)
     for i in range(temp[1],0,-1):
         if schedule[i] == 0:
-            schedule[i] = abs(temp[0])
+            schedule[i] = temp[0]
             break
 
-print(sum(schedule))
+print(abs(sum(schedule)))
