@@ -35,7 +35,7 @@ k = [list(map(int, v.rstrip('\n').split())) for v in sys.stdin.readlines()]
 schedule = [0] * n
 tasks = list()
 for i in range(n):
-    tasks.append([-k[i][1],k[i][0],k[i][1]])
+    tasks.append([-k[i][1],k[i][0]])
 
 heapify(tasks)
 
@@ -43,7 +43,7 @@ while tasks:
     temp = heappop(tasks)
     for i in range(temp[1],0,-1):
         if schedule[i] == 0:
-            schedule[i] = temp[2]
+            schedule[i] = abs(temp[0])
             break
 
 print(sum(schedule))
