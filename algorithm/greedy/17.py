@@ -18,7 +18,7 @@ for case in cases:
         if case[1][i] != case[2][i]:
             exchange += 1
     
-	print((exchange-flip)//2 +flip)
+    print((exchange-flip)//2 +flip)
     
 
 # 예전에 푼 답. if와 elif는 사실 else에 모두 포함 되는 것이었다.
