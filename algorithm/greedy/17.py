@@ -4,6 +4,22 @@
 # 3. 1,2에 해당하지 않을 경우, 뒤집어야 하는 횟수는 W혹은 B의 갯수가 다른 만큼이고 
 #    위치를 바꿔야하는 횟수는 뒤집은 부분을 제외한 나머지에서 일치하지 않는 부분의 갯수의 1/2이다.
 
+# 다시 생각해보니 예전에 푼 것보다 엄청 간단히 표현할 수 있었다.
+
+n = int(input())
+l = [[input() for _ in range(3)] for _ in range(n)]
+
+for v in l:
+    t = 0
+    c = abs(v[1].count('W') - v[2].count('W'))
+    
+    for i in range(int(v[0])):
+        if v[1][i] != v[2][i]:
+            t += 1
+    print((t-c)//2 +c)
+    
+
+# 예전에 푼 답
 n = int(input())
 l = [[input() for _ in range(3)] for _ in range(n)]
 
