@@ -11,7 +11,7 @@ cases = [[input() for _ in range(3)] for _ in range(n)]
 
 for case in cases:
     
-	exchange = 0
+    exchange = 0
     flip = abs(case[1].count('W') - case[2].count('W'))
     
     for i in range(int(case[0])):
