@@ -36,10 +36,10 @@ def fib(n):
     return c
 
 for num in nums:
-    test_num = 0
+    test_num = 1
     fibs = list()
     while num > 0:
-        while num >= fib(test_num):
+        while num >= fib(test_num): # 함수가 첫 return 값인 1에 고정되어 실패. test_num을 증가시켜도 재실행되지 않았다.
             test_num += 1
         num -= fib(test_num - 1)
         fibs.append(fib(text_num - 1))
