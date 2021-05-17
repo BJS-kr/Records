@@ -7,16 +7,18 @@
 # 다시 생각해보니 예전에 푼 것보다 엄청 간단히 표현할 수 있었다.
 
 n = int(input())
-l = [[input() for _ in range(3)] for _ in range(n)]
+cases = [[input() for _ in range(3)] for _ in range(n)]
 
-for v in l:
-    t = 0
-    c = abs(v[1].count('W') - v[2].count('W'))
+for case in cases:
     
-    for i in range(int(v[0])):
-        if v[1][i] != v[2][i]:
-            t += 1
-    print((t-c)//2 +c)
+	exchange = 0
+    flip = abs(case[1].count('W') - case[2].count('W'))
+    
+    for i in range(int(case[0])):
+        if case[1][i] != case[2][i]:
+            exchange += 1
+    
+	print((exchange-flip)//2 +flip)
     
 
 # 예전에 푼 답
