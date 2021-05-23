@@ -13,7 +13,7 @@ result = list()
 
 def bfs(x, y):
     nv = list()
-    cnt = 1
+    cnt = 1 # 1이 하나만 있을 경우를 대비해 line30에서 첫 좌표를 0처리했기때문에 cnt = 1로 시작
     nv.append((x, y))
     while nv:
         x, y = nv.pop(0)
@@ -30,7 +30,7 @@ def bfs(x, y):
 for i in range(n):
     for j in range(n):
         if graph[i][j] == '1':
-            graph[i][j] = 0
+            graph[i][j] = 0 # 1이 두개이상 이어져 있다면 첫 좌표를 0처리 안해도 다음칸에서 0 처리 되기 때문에 불필요했다.
             result.append(bfs(i,j))
 
 print(len(result))
