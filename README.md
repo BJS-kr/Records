@@ -1,2 +1,2 @@
-# TIL
-What I've learned today
+# WIL
+What I've learned weekly
