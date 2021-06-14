@@ -27,7 +27,7 @@ while True:
     # True 배열을 만든 후 에라토스테네스의 체 구현은 False로 
     t = q*2+1
     nums = [True] * t
-    # 제곱근까지만 삭제하면 모두 삭제 가능
+    # 2부터 t제곱근까지에 해당하는 숫자들의 배수들만 삭제하면 소수 제외하고 모두 삭제 가능
     a = int(t ** 0.5)
     for i in range(2, a + 1):
         if nums[i] == True:
