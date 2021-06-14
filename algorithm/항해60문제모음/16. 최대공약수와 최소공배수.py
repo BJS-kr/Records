@@ -17,7 +17,7 @@ while 1:
     if d == []:
         break
     else:
-      mat += d
+        mat += d
 
 for v in mat:
     c *= v
