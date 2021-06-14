@@ -31,10 +31,11 @@ while True:
     a = int(t ** 0.5)
     for i in range(2, a + 1):
         if nums[i] == True:
-          # 2부터 목표값의 제곱근까지에 해당하는 i의 배수들 삭제
+          # i부터 목표값의 제곱근까지에 해당하는 i의 배수들 삭제
             for j in range(i+i, t, i):
                 nums[j] = False
-
+    
+    # 베르트랑 공준 검증이므로 for의 범위는 입력받은 숫자 초과부터 즉, q + 1부터 t까지
     res = [i for i in range(q + 1, t) if nums[i] == True]
     print(len(res))
     
