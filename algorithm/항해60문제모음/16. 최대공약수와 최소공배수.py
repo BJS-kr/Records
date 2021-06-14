@@ -14,7 +14,7 @@ while 1:
             d.append(v)
             a,b = a//v, b//v
     # d == []이라는 것은 더 이상 나눠지는 수가 없다는 것
-    if d == []:
+    if not d:
         break
     else:
         mat += d
