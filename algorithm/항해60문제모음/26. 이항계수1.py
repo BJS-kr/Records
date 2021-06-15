@@ -33,3 +33,24 @@ from math import factorial
 n,k = map(int,input().split())
 
 print(factorial(n)//(factorial(n-k)*factorial(k)))
+
+########decorator를 직접 제작해 factorial을 구하는 방법############
+# 출처 : https://shoark7.github.io/
+def in_cache(func):
+    cache = {}
+    def wrapper(n):
+        if n in cache:
+            return cache[n]
+        else:
+            cache[n] = func(n)
+            return cache[n]
+    return wrapper
+
+@in_cache
+def factorial_recursive(n):
+    return n * factorial_recursive(n-1) if n > 1 else 1
+
+factorial_recursive(5)
+
+# 추가적으로, 이항계수를 구하는 다양한 알고리즘. 함수확장 캐쉬구현 등 너무 좋은 내용이 많다!
+# https://shoark7.github.io/programming/algorithm/3-ways-to-get-binomial-coefficients
