@@ -34,3 +34,21 @@ def fib3(n):
     return fib3(n-1) + fib3(n-2)
 
 fib3(1000)
+
+# 보너스로 피보나치 숫자를 검증하는 함수를 만들어보자
+
+# 피보나치 수는 (5*n)**2 - 4 혹은 (5*n)**2 + 4가 제곱수라면 피보나치 수이다(원리는 수학 논문이라 패스)
+
+# 먼저 제곱수인지를 판별하는 함수를 만들어보자
+# n ** 0.5가 정수라면 판별이 끝난 것이나, 파이썬에선 너무 많은 소수자리는 버리기 때문에 다시 제곱해서
+# 입력했던 정수 n과 같은지 검증해야 한다.
+def issquare(n): 
+    if int(n ** 0.5) ** 2 == n:
+        return True
+    return False
+
+# issquare 함수를 활용하여 피보나치 함수 판별
+def fibo_judge(n):
+if issquare((5*n)**2 + 4) or issquare((5*n)**2 - 4):
+    return True
+return False
