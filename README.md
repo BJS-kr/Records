@@ -1,2 +1,2 @@
-# WIL
-What I've learned weekly
+# Bloodtrail!
+timid hints of what I've been thorough
