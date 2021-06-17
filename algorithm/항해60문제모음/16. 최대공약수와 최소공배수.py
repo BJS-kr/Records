@@ -24,3 +24,11 @@ for v in mat:
 
 print(c)
 print(c*a*b)
+
+# 더 간단한 방법은 유클리드 호제법 사용
+
+# 그것보다도 더 간단한 방법은? 라이브러리
+import math
+n,m = map(int,input().split())
+print(math.gcd(n, m))
+print(math.lcm(n, m))
