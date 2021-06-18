@@ -23,6 +23,7 @@ for _ in range(t):
                 dp[i][j] = 1
             # 왼쪽 사이트 수 n, 오른쪽 사이트 수 m일때
             # (서쪽 n개, 동쪽 m-1개로 지을 수 있는 다리) + (서쪽 n-1개, 동쪽 m-1개로 지을 수 있는 다리)
+            # 이걸 이해하려면 https://rh-tn.tistory.com/32 여기를 참고하자
             else:
                 if j > i:
                     dp[i][j] = dp[i][j-1] + dp[i-1][j-1]
@@ -30,7 +31,7 @@ for _ in range(t):
 print(dp[n][m])
 
 # 3. 이해 못해서 이해하고 싶어서 긁어온 풀이
-# ????????????
+# 이항정리를 쓴거같긴한데...
 T = int(input())
 
 for _ in range(T):
