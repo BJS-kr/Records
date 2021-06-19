@@ -29,15 +29,10 @@ n,m = map(int,input().split())
 a = deque(i for i in range(1,n+1))
 j = deque()
 
-c = 0
+
 while a:
-    for _ in range(len(a)):
-        if c == m - 1:
-            j.append(a.popleft())
-            c = 0
-            continue
-        c += 1
-        a.rotate(-1)
+    a.rotate(-m+1)
+    j.append(a.popleft())
 
 print('<'+', '.join(list(map(str, j)))+'>')
 
