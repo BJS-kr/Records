@@ -26,6 +26,20 @@ print(c)
 print(c*a*b)
 
 # 더 간단한 방법은 유클리드 호제법 사용
+a,b = map(int,input().split())
+
+def gcm(a,b):
+    while b != 0:
+        a=a%b
+        a,b = b,a
+    print(a)
+    return a
+
+def lcm(a,b):
+    gcm_ = gcm(a,b)
+    return print(a*b//gcm_)
+
+lcm(a,b)
 
 # 그것보다도 더 간단한 방법은? 라이브러리
 import math
