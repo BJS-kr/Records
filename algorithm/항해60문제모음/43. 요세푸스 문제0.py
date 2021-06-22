@@ -25,10 +25,10 @@ print('<'+', '.join(list(map(str, j)))+'>')
 
 # 답2. rotate 사용.
 from collections import deque
+
 n,m = map(int,input().split())
 a = deque(i for i in range(1,n+1))
 j = deque()
-
 
 while a:
     a.rotate(-m+1)
