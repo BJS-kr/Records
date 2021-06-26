@@ -40,10 +40,12 @@ https://expressjs.com/ko/4x/api.html#express.static
 
 참고로, 위 페이지들에 명시되어있는 body-parser 혹은 server-static등은 third-party middleware로서 built-in middleware와 반대되는 개념입니다. 추가로 설치해서 사용해야 한다는 말입니다.
 가장 많이 사용되는 third-party middlewares  
-https://expressjs.com/en/resources/middleware.html  
+https://expressjs.com/en/resources/middleware.html
+
 
 4. const goodsRouter = require("./routers/goods");  
-   app.use("/api", [goodsRouter]);  
+   app.use("/api", [goodsRouter]);
+
 
 http://expressjs.com/en/4x/api.html#app.use 를 보면,  
 callback자리에는 An array of middleware functions가 들어올 수 있다고 명시 되어있다([goodsRouter]).  
