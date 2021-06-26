@@ -4,7 +4,7 @@
    https://medium.com/@chullino/require-exports-module-exports-%EA%B3%B5%EC%8B%9D%EB%AC%B8%EC%84%9C%EB%A1%9C-%EC%9D%B4%ED%95%B4%ED%95%98%EA%B8%B0-1d024ec5aca3
 
 1. app = express();  
-   https://stackoverflow.com/questions/27599614/var-express-requireexpress-var-app-express-what-is-express-is-it
+   https://stackoverflow.com/questions/27599614/var-express-requireexpress-var-app-express-what-is-express-is-it  
    express()는 함수를 뜻합니다. 이것은 method도 아니고 constructor도 아닙니다. method는 object에 붙어있는 것입니다. 자바스크립트에서 method는 대부분 object를 통해 참조하는 함수입니다.      (ES2015에서 method syntax를 사용한다면 'super'에 액세스 해야하기 때문에 조금 다를 것입니다.)
 
    constructor는 'new' operator를 통해 호출하는 것입니다. 함수들이 무언가를 만들어낼지라도 그것을 'constructor'라고 부르지는 않습니다. 혼란을 피하기 위해서이며 대신 'creator'혹은 'builder'함수라고 부릅니다.
@@ -60,14 +60,16 @@ app.use((req, res, next) => {
 ```
 
 path option이 없는 application level middleware이므로 이 구문보다 하위에 위치해 있는 모든 요청에 대해서 실행됩니다.  
-middleware는 req -> res 주기가 끝나면 종료되게 되며 다음에 위치한 구문은 실행되지 않게 됩니다. 위의 예에서는 res응답이 없으므로 자동적으로 res를 실행할때까지 다음 함수로 넘어가게 됩니다.
+middleware는 req -> res 주기가 끝나면 종료되게 되며 다음에 위치한 구문은 실행되지 않게 됩니다. 위의 예에서는 res응답이 없으므로 자동적으로 res를 실행할때까지 다음 함수로 넘어가게 됩니다.  
+
+
 5-a) next()  
 https://expressjs.com/ko/guide/writing-middleware.html  
-에 따르면, '현재의 미들웨어 함수가 요청-응답 주기를 종료하지 않는 경우에는 next()를 호출하여 그 다음 미들웨어 함수에 제어를 전달해야 합니다. 그렇지 않으면 해당 요청은 정지된 채로 방치됩니다.'라고 명시되어있다.
+에 따르면, '현재의 미들웨어 함수가 요청-응답 주기를 종료하지 않는 경우에는 next()를 호출하여 그 다음 미들웨어 함수에 제어를 전달해야 합니다. 그렇지 않으면 해당 요청은 정지된 채로 방치됩니다.'라고 명시되어있다.  
 
-위 페이지의 첫번째 사용 예 (myLogger function사용)를 보면, 'LOGGED'라는 메세지는 root routing보다 위에 위치해있으므로 터미널에서 출력된다. res로 응답주기가 종료되지 않았으므로 next()를 통해 res를 찾아 아래로 이동하게 된다.
+위 페이지의 첫번째 사용 예 (myLogger function사용)를 보면, 'LOGGED'라는 메세지는 root routing보다 위에 위치해있으므로 터미널에서 출력된다. res로 응답주기가 종료되지 않았으므로 next()를 통해 res를 찾아 아래로 이동하게 된다.  
 
-오해하지 말아야할것은, 꼭 app.use로만 미들웨어를 사용할 필요가 없다는 것이다. 예를 들어 get메소드로 진입하는 '/'라우팅을 처리해보자
+오해하지 말아야할것은, 꼭 app.use로만 미들웨어를 사용할 필요가 없다는 것이다. 예를 들어 get메소드로 진입하는 '/'라우팅을 처리해보자  
 
 ```javascript
 app.get("/", (req, res, next) => {
@@ -106,7 +108,7 @@ Express가 템플리트를 렌더링하려면 다음과 같은 애플리케이�
 즉, 템플릿 엔진을 사용하기 위한 환경설정 reference를 따른 것입니다.  
 
 7. app.get  
-   get 뿐 아니라 http methods 중 하나로부터 파생되며 라우트 경로는, 요청 메소드와의 조합을 통해, 요청이 이루어질 수 있는 엔드포인트를 정의합니다. 라우트 경로는 문자열, 문자열 패턴 또는 정규식일 수 있습니다.
+   get 뿐 아니라 http methods 중 하나로부터 파생되며 라우트 경로는, 요청 메소드와의 조합을 통해, 요청이 이루어질 수 있는 엔드포인트를 정의합니다. 라우트 경로는 문자열, 문자열 패턴 또는 정규식일 수 있습니다.  
 
   패턴에 대한 공식문서 설명  
   https://expressjs.com/en/guide/routing.html  
