@@ -140,39 +140,39 @@ Document Key/Value Store 방식은 구조화된 데이터타입(JSON,XML,YAML �
 
 지금 살펴보는 코드에 적용할 수 있는 예는, subdocument방식으로 join의 장점을 일부 취하는 것이다. mongoose에서 subdocument는 Schema안에 Schema를 정의해둠으로서 구현 할 수 있다. 
 
-우리가 보아야할 핵심은 mongoose에서 다양한 형태의 스키마를 자유롭게 정의하고 있는 것이다. NoSQL의 Schema-less적인 특징을 정확히 보여주고 있다.
+우리가 보아야할 핵심은 mongoose에서 다양한 형태의 스키마를 자유롭게 정의하고 있는 것이다. NoSQL의 Schema-less적인 특징을 정확히 보여주고 있다.  
 
-2. mongoose가 필요한 이유?
-NoSQL은 데이터 정형화를 보장할 수 없는 대신 RDBMS에 비해 확장이 용이하고, 대용량 데이터를 빠르게 처리할 수 있다. 
+2. mongoose가 필요한 이유?  
+NoSQL은 데이터 정형화를 보장할 수 없는 대신 RDBMS에 비해 확장이 용이하고, 대용량 데이터를 빠르게 처리할 수 있다.   
 
-오해하지 말아야할 것은, NoSQL이라고 해서 Schema가 필요없다는 것이 아니라는 것이다. SQL의 Schema는 유연성이 매우 떨어진다. NoSQL은 Schema를 사용하지 말아야하는 경우(정형화 되지 않은 데이터들을 수집)나, NoSQL을 주로 사용하더라도 일부 정형화가 필요한 부분 , 혹은 Schema를 사용하더라도 형식을 변경하는등 유연한 대처가 필요한 상황에서 사용하는 것이다.
+오해하지 말아야할 것은, NoSQL이라고 해서 Schema가 필요없다는 것이 아니라는 것이다. SQL의 Schema는 유연성이 매우 떨어진다. NoSQL은 Schema를 사용하지 말아야하는 경우(정형화 되지 않은 데이터들을 수집)나, NoSQL을 주로 사용하더라도 일부 정형화가 필요한 부분 , 혹은 Schema를 사용하더라도 형식을 변경하는등 유연한 대처가 필요한 상황에서 사용하는 것이다.  
 
-즉, RDBMS의 장점은 취하고 제한은 버린다는 취지로 이해하면 좋다.
-물론 관계형 데이터베이스가 제공하는 강력한 기능들은 상당부분 제한 된다.
+즉, RDBMS의 장점은 취하고 제한은 버린다는 취지로 이해하면 좋다.  
+물론 관계형 데이터베이스가 제공하는 강력한 기능들은 상당부분 제한 된다.  
 
-## Schemas
-1. const { Schema } = mongoose;
-https://stackoverflow.com/questions/41058569/what-is-the-difference-between-const-and-const-in-javascript/41058622
+## Schemas  
+1. const { Schema } = mongoose;  
+https://stackoverflow.com/questions/41058569/what-is-the-difference-between-const-and-const-in-javascript/41058622  
 
-2. goodsSchema = new Schema({})
-mongoose의 스키마 정의하는 모습입니다. mongoose는 ODM(Object Data Mapping)기능을 제공하는 Node.JS모듈입니다. Object와 Document를 1:1로 매칭한다는 뜻인데, Object는 표현식에서 알 수 있듯이 new를 통해 새로운 객체를 생성하고 있습니다. Document는 mongodb에 저장된 문서를 뜻합니다. 이는 mongodb가 JSON,XML,YAML등의 형태를 취한 다는 배경을 통해 이해할 수 있습니다.
+2. goodsSchema = new Schema({})  
+mongoose의 스키마 정의하는 모습입니다. mongoose는 ODM(Object Data Mapping)기능을 제공하는 Node.JS모듈입니다. Object와 Document를 1:1로 매칭한다는 뜻인데, Object는 표현식에서 알 수 있듯이 new를 통해 새로운 객체를 생성하고 있습니다. Document는 mongodb에 저장된 문서를 뜻합니다. 이는 mongodb가 JSON,XML,YAML등의 형태를 취한 다는 배경을 통해 이해할 수 있습니다.  
 
-코드에서 보이는 goodsId, name, price등은 객체의 각 프로퍼티가 되어 mongodb에 저장됩니다. type을 통해 데이터 형식을 지정할 수 있고 required, unique등을 통해 필수여부, 중복금지여부 등을 지정할 수 있습니다.
-세부적인 사용법은 mongoose reference를 참조해야합니다.
+코드에서 보이는 goodsId, name, price등은 객체의 각 프로퍼티가 되어 mongodb에 저장됩니다. type을 통해 데이터 형식을 지정할 수 있고 required, unique등을 통해 필수여부, 중복금지여부 등을 지정할 수 있습니다.  
+세부적인 사용법은 mongoose reference를 참조해야합니다.  
 
-# routers/goods.js
+# routers/goods.js  
 1.  
 ```javascript
 const Goods = require("../schemas/Goods");
 const Cart = require("../schemas/Cart");
 ```
 
-require는 exports를 반환한다는것을 앞서 살펴보았다.
-schemas의 goods.js와 cart.js의 하단에 mongoose.model 메소드를 통해 "Goods","Cart"로 각 스키마를 exports한 것을 살펴볼수 있다. 
+require는 exports를 반환한다는것을 앞서 살펴보았다.  
+schemas의 goods.js와 cart.js의 하단에 mongoose.model 메소드를 통해 "Goods","Cart"로 각 스키마를 exports한 것을 살펴볼수 있다.   
 
-2. const router = express.Router();
+2. const router = express.Router();  
 
-https://stackoverflow.com/questions/28305120/differences-between-express-router-and-app-get
+https://stackoverflow.com/questions/28305120/differences-between-express-router-and-app-get  
 app 과 router를 왜 분리하는가? 코드 정리를 넘어서 서버 설계가 굉장히 용이 해지기 때문이다. var app = express()이 있는 페이지는 'main app'으로 생각하고, var router = express.Router()가 있는 페이지는 'mini app'으로 생각해보자. main과 mini는 굉장히 유사한 구조를 가지고 있다. 
 
 일단 파일을 분리해두면 main app 파일을 어지럽히지 않아도 된다. 두번째로 각 routing에 적합한 로직을 각 파일에서 따로 구현할 수 있다. 여러 미들웨어를 활용하여 배치 순서에 따라 로직을 구현하는 express에서 이점은 매우 중요한 것이다. 분리된 파일들은 서로 영향을 주지 않을 것이므로 설계가 용이해지는 것이다.
@@ -180,17 +180,17 @@ app 과 router를 왜 분리하는가? 코드 정리를 넘어서 서버 설계�
 분리된 router들에 모두 영향을 미치는 미들웨어가 존재한다면(예를 들어, 로그인 상태 검사) 'main app'페이지에서 app.use로 router들을 끌어오는 위치보다 위에 그 미들웨어를 배치하는 식으로 구성하는 것이다.   
 
 3. get('/goods')의 try, catch  
-https://developer.mozilla.org/ko/docs/Web/JavaScript/Reference/Statements/try...catch
+https://developer.mozilla.org/ko/docs/Web/JavaScript/Reference/Statements/try...catch  
 try, catch,finally는 예외처리 구문이다. 파이썬의 try,else,finally와 동일한 기능이다. 예외처리의 다양한 기법은 링크 참조. 
 
 4. get('/goods')의 next(err)  
 사실 nodejs기초반에서의 코드에선 불필요한 부분이다. 왜냐면 errorhandler가 코드상에 존재하지 않기 때문이다. 다른 함수들은 req,res,next 세개를 인수를 가지는 반면에 errorhandler함수는 err,req,res,next 네개를 인수로 가진다. 에러핸들러 middleware가 존재할경우 모든 에러는 에러핸들러로 직행하게 된다. next(err)은 바로 그 지시이다.
 
-5. post('/goods')
+5. post('/goods')  
 수업중 insomnia를 사용해 물건 목록을 추가할때, insomnia의 요청주소를 apis/goods로 지정하고 method를 post로 지정했다. 그때 json 형식을 사용해서 물건의 정보를 입력한 것이 바로 앞서살펴본 mongodb의 특징때문이다. "Goods"라는 명칭으로 exports된 goodsSchema의 항목들에 내용을 넣고 insomnia로 요청하면 isExist.length를 통해 goodsId를 검사해 중복되는 개체를 검증하고 없다면 req.body 객체에서 받아온 각 항목들을 Goods스키마에 적용시켜 그대로 create하게 된다. 
 
-6. /goods/:goodsId/cart
+6. /goods/:goodsId/cart  
 :용법은 req.params의 프로퍼티 항목을 지정하는 것이다.:goodsId에 넣어진 값이 곧 프로퍼티의 데이터가 되어 post된다.  예를 들어 /goods/:goodsId/cart의 경우 req.params = {goodsId : 3} 과 같은 형식으로 구성되어 서버에 도착하게 된다. 함수를 살펴보면, goodsId는 살펴본대로 const { goodsId } = req.params;과 같은 모습으로 식별자를 정의하고 있고, const { quantity } = req.body;로  정의되고 있는 모습을 볼 수 있다.
 
-7. /cart
+7. /cart  
 원래는 사용자의 정보를 가져와서 장바구니를 가져와야하므로 req 객체도 작동해야겠지만, 기초반에서 만든 페이지는 로그인 정보가 없으므로 장바구니 정보 전체를 불러오게 된다. 즉 req는 필요없고 res만 필요하게 된다. /cart에서 쓰인 map함수는 각 객체에 대해 주어진 함수를 실행하여 새로운 배열을 만들어 반환하는 함수이다. 즉 goodsId는 cart의 각 요소의 goodsId를 반환받은 것이다. goodsInCart는 voyage db의 Goods 테이블의 "goodsId"항목이 위에서 정의한 goodsId배열에 포함된다면 find(조건에 맞는 모든 요소 반환)하여 배열을 반환받는 것이다. concatCart는 cart의 모든 요소(Cart 테이블의 모든 항목)에 대하여 goodsInCart의 길이(==cart길이==goodsId길이)만큼 순환하며goodsInCart[i].goodsId가 cart.goodsId와 같다면(map 때문에 cart는 각 항목이 순환 중) cart의 quantity와 goods의 goodsInCart[i]를 객체형태로 반환. 다시 res에서 json형태로 반환.이후 프론트페이지에서 json의 정보를 가지고 장바구니 물품을 표시합니다.
