@@ -5,11 +5,11 @@
 
 1. app = express();  
    https://stackoverflow.com/questions/27599614/var-express-requireexpress-var-app-express-what-is-express-is-it
-   express()는 함수를 뜻합니다. 이것은 method도 아니고 constructor도 아닙니다. method는 object에 붙어있는 것입니다. 자바스크립트에서 method는 대부분 object를 통해 참조하는 함수입니다. (ES2015에서 method syntax를 사용한다면 'super'에 액세스 해야하기 때문에 조금 다를 것입니다.)
+   express()는 함수를 뜻합니다. 이것은 method도 아니고 constructor도 아닙니다. method는 object에 붙어있는 것입니다. 자바스크립트에서 method는 대부분 object를 통해 참조하는 함수입니다.      (ES2015에서 method syntax를 사용한다면 'super'에 액세스 해야하기 때문에 조금 다를 것입니다.)
 
-constructor는 'new' operator를 통해 호출하는 것입니다. 함수들이 무언가를 만들어낼지라도 그것을 'constructor'라고 부르지는 않습니다. 혼란을 피하기 위해서이며 대신 'creator'혹은 'builder'함수라고 부릅니다.
+   constructor는 'new' operator를 통해 호출하는 것입니다. 함수들이 무언가를 만들어낼지라도 그것을 'constructor'라고 부르지는 않습니다. 혼란을 피하기 위해서이며 대신 'creator'혹은 'builder'함수라고 부릅니다.
 
-express의 default export는 함수이면서 동시에 properties를 가진다는 점에서 특이합니다. 자바스크립트에선 완벽히 유효하나, 다른 언어들의 관점에선 특이할 수 있습니다. 이것이 app을 express()를 통해 만들면서도 express.static(/_..._/)와 같은 식으로 정적 파일들을 제어할 수 있는 이유입니다.
+   express의 default export는 함수이면서 동시에 properties를 가진다는 점에서 특이합니다. 자바스크립트에선 완벽히 유효하나, 다른 언어들의 관점에선 특이할 수 있습니다. 이것이 app을 express()를 통해 만들면서도 express.static(/_..._/)와 같은 식으로 정적 파일들을 제어할 수 있는 이유입니다.
 
 2. connect = require('./schemas');  
    connect();  
