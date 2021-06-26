@@ -160,6 +160,10 @@ mongoose의 스키마 정의하는 모습입니다. mongoose는 ODM(Object Data 
 코드에서 보이는 goodsId, name, price등은 객체의 각 프로퍼티가 되어 mongodb에 저장됩니다. type을 통해 데이터 형식을 지정할 수 있고 required, unique등을 통해 필수여부, 중복금지여부 등을 지정할 수 있습니다.  
 세부적인 사용법은 mongoose reference를 참조해야합니다.  
 
+## subdocument
+강의에선 사용하지 않았지만 mongooose가 제공하는 강력한 기능. NoSQL임에도 불구하고 join의 특징을 일부 활용하듯 사용가능.  
+https://dalkomit.tistory.com/120?category=542197
+
 # routers/goods.js  
 ## 1. 하단 코드 참조
 ```javascript
