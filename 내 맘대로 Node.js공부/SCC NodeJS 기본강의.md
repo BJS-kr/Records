@@ -151,10 +151,10 @@ NoSQL은 데이터 정형화를 보장할 수 없는 대신 RDBMS에 비해 확�
 물론 관계형 데이터베이스가 제공하는 강력한 기능들은 상당부분 제한 된다.  
 
 # Schemas  
-1. const { Schema } = mongoose;  
+## 1. const { Schema } = mongoose;  
 https://stackoverflow.com/questions/41058569/what-is-the-difference-between-const-and-const-in-javascript/41058622  
 
-2. goodsSchema = new Schema({})  
+## 2. goodsSchema = new Schema({})  
 mongoose의 스키마 정의하는 모습입니다. mongoose는 ODM(Object Data Mapping)기능을 제공하는 Node.JS모듈입니다. Object와 Document를 1:1로 매칭한다는 뜻인데, Object는 표현식에서 알 수 있듯이 new를 통해 새로운 객체를 생성하고 있습니다. Document는 mongodb에 저장된 문서를 뜻합니다. 이는 mongodb가 JSON,XML,YAML등의 형태를 취한 다는 배경을 통해 이해할 수 있습니다.  
 
 코드에서 보이는 goodsId, name, price등은 객체의 각 프로퍼티가 되어 mongodb에 저장됩니다. type을 통해 데이터 형식을 지정할 수 있고 required, unique등을 통해 필수여부, 중복금지여부 등을 지정할 수 있습니다.  
