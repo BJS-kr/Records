@@ -131,8 +131,8 @@ app.listen = function () {
 ### 1. 데이터 모델링이 왜 필요한가?  
 데이터 모델링에 관한 이론들은 너무 방대해서, 여기에 정리하기엔 목적성을 잃게된다.
 
-(SQL vs NoSQL 데이터모델링 비교)
-https://cyberx.tistory.com/166
+(SQL vs NoSQL 데이터모델링 비교)  
+https://cyberx.tistory.com/166  
 가장 핵심적으로, NoSQL은 RDBMS와 달리 유연한 스키마(Schema-less)구조를 취함으로서
 다양한 형태의 데이터를 저장할 수 있음. 데이터간 관계를 정의하지 않음. 
 그러나, 다양한 형태로 RDBMS의 장점을 취할 수도 있음. 특히 몽고db의 형태인
