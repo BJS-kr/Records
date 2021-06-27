@@ -151,10 +151,11 @@ NoSQL은 데이터 정형화를 보장할 수 없는 대신 RDBMS에 비해 확�
 물론 관계형 데이터베이스가 제공하는 강력한 기능들은 상당부분 제한 된다.  
 
 # Schemas  
-## collection 이름들은 어디서 튀어나왔는가?  
+## 0. collection 이름들은 어디서 튀어나왔는가?  
 https://mongoosejs.com/docs/guide.html  
 의 option:collection항목을 보면, shcema의 이름을 차용해 복수화(pluralize)하여 자동으로 생성함.  
 (예를 들어 스키마 이름이 good이라면 goods로 콜렉션네임 생성)  
+
 콜렉션네임을 강제로 지정하는 법:  
 https://stackoverflow.com/questions/7486528/mongoose-force-collection-name  
 
