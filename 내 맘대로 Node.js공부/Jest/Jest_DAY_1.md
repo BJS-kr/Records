@@ -59,42 +59,46 @@ it('middleware/verification case 3', () => {
   expect(next.mock.results[0].value.status).toBe(401)
 })
 
-it('middleware/verification case 4', () => {
+it('middleware/verification case 4', async() => {
   const connection = {
-    beginTransaction:()=>jest.fn(),
-    query:()=>jest.fn((x, y) => [[{refreshToken:'refresh'}]]),
-    release:()=>jest.fn()
+    beginTransaction:jest.fn(),
+    query:jest.fn((x, y) => [[{refreshToken:'refresh'}]]),
+    release:jest.fn()
   }
 
   const req = { 
     cookies: {jwt:'user', refresh: 'refresh'}, 
     headers: {token:'user'}}
-  const res = {}
-  // const res = {
-  //   status:(code) => {
-  //     return function cookie(tokenType, cookie, options) {
-  //       return function json(data) {}
-  //       }
-  //   }
-  // }
-
+  
+   const res = {
+    status: code => ({
+      cookie: (tokenType, option, algorithm) => ({
+        json: data => ({code, tokenType, option, algorithm, data})
+      })
+    }),
+  };
+  
   const next = jest.fn(x=>x)
-  jwt.verify = jest.fn().mockReturnValueOnce(new Error()).mockReturnValue(true)
+  jwt.verify = jest.fn().mockReturnValueOnce(new Error()).mockReturnValue(1)
   jwt.sign = jest.fn()
-  // res.status().cookie().json = jest.fn()
-  verification(req, res, next, connection)
+  
+  const result = await verification(req, res, next, connection)
   expect(next).toHaveBeenCalledTimes(0)
-  // expect(res.status.mock.calls[0]).toBe(307)
+  expect(result.code).toBe(307)
 })
 ```
 
-~~사실 verification에는 한 가지 케이스가 더 있다. jwt.verify가 한 번은 실패하고 한 번은 성공하는 시나리오. 그런데 jest.fn()을 어떻게 한번만 적용 시키는지를 모르겠다.
+사실 verification에는 한 가지 케이스가 더 있다. jwt.verify가 한 번은 실패하고 한 번은 성공하는 시나리오. 그런데 jest.fn()을 어떻게 한번만 적용 시키는지를 모르겠다.
 아니면 다른 식으로 짜야하는 건가? 이틀차에는 해결 되겠지.~~
 
-* 추가
+* append 1
 
-의외로 특정 call마다 다른 값을 반납하게 하는 것은 쉬웠다.
+~~의외로 특정 call마다 다른 값을 반납하게 하는 것은 쉬웠다.
 난관은 다른 곳에 있었는데, res.status(arg).cookie(args).json(arg)이런 식으로 체인된 애들을 검증하기가 어려웠다.
 
-verification 검증에 문제는 없다. jwt가 만료되고 refresh는 유효한 경우 next가 호출되지 않기 때문에 next의 호출 횟수가 0 인지검증하면 되기 때문이다.
-체이닝 된 메서드들을 검증하는 법도 궁금하지만 새벽 5시니 일단 자고 일어난 후에 방법을 생각해봐야겠다. 
+~~verification 검증에 문제는 없다. jwt가 만료되고 refresh는 유효한 경우 next가 호출되지 않기 때문에 next의 호출 횟수가 0 인지검증하면 되기 때문이다.
+체이닝 된 메서드들을 검증하는 법도 궁금하지만 새벽 5시니 일단 자고 일어난 후에 방법을 생각해봐야겠다.~~
+
+* append 2
+
+problem solved. got hint from stackOverFlow
