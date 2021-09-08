@@ -92,6 +92,7 @@ it('middleware/verification case 4', () => {
 아니면 다른 식으로 짜야하는 건가? 이틀차에는 해결 되겠지.~~
 
 * 추가
+
 의외로 특정 call마다 다른 값을 반납하게 하는 것은 쉬웠다.
 난관은 다른 곳에 있었는데, res.status(arg).cookie(args).json(arg)이런 식으로 체인된 애들을 검증하기가 어려웠다.
 
