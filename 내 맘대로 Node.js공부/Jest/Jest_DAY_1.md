@@ -95,9 +95,6 @@ it('middleware/verification case 4', async() => {
 
 * append 1
 
-~~의외로 특정 call마다 다른 값을 반납하게 하는 것은 쉬웠다.
-난관은 다른 곳에 있었는데, res.status(arg).cookie(args).json(arg)이런 식으로 체인된 애들을 검증하기가 어려웠다.
-
 ~~verification 검증에 문제는 없다. jwt가 만료되고 refresh는 유효한 경우 next가 호출되지 않기 때문에 next의 호출 횟수가 0 인지검증하면 되기 때문이다.
 체이닝 된 메서드들을 검증하는 법도 궁금하지만 새벽 5시니 일단 자고 일어난 후에 방법을 생각해봐야겠다.~~
 
