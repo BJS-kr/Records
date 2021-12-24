@@ -80,6 +80,7 @@ CMD ["node", "src/index.js"]
 RUN groupadd -r tom && useradd -g tom tom
 
 # set ownership and permissions
+# -R flag는 recursive. 하위에도 적용 한다는 뜻
 RUN chown -R tom:tom /app
 
 # switch to user
