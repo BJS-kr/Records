@@ -74,5 +74,19 @@ EXPOSE 3000
 
 CMD ["node", "src/index.js"]
 ```
-7. 권한을 지정해서 사용할 것. 모든 유저가 root로 접속하는 상황을 피할 것.
+7. 권한을 지정해서 사용할 것. 모든 유저가 root로 접속하는 상황을 피할 것. 이또한 도커파일에서 지정이 가능하다. 어떤 이미지들은 베이스에 제네릭 유져를 가지고 있다. 새로 만들 필요가 없이 그냥 사용하면 된다. 예를 들어 node이미지에는 USER node가 존재한다. RUN chown -R node:node /app 후 USER node 하면 끗
+```dockerfile
+# create group and user
+RUN groupadd -r tom && useradd -g tom tom
+
+# set ownership and permissions
+RUN chown -R tom:tom /app
+
+# switch to user
+USER tom
+
+CMD ["node", "index.js"]
+```
+
+8. docker scan [이미지이름]으로 취약점을 검사하자. 도커는 snyk이라는 서비스로 취약점을 검사한다. 이보다 더 strict한 방법은, Docker Hub 리파지토리에 푸쉬할 때 scan을 강제하는 것이다. 도커허브에서 쉽게 설정할 수 있다. scan summary를 docker desktop에서 간편하게 받아볼 수 있다. CI/CD에도 통합시킬 수 있다.
 
