@@ -52,20 +52,27 @@ docker-compose.yml
 6. multi-stage builds하라. build stage와 runtime stage를 구분하라는 말이다. 모든 것을 이미지에 담아버리면 용량도 커지고, attack surface도 늘어나게 된다. 예를 들어, Test dependencies, Development tools, Temporary files, build tools, package.json같은 것들이다. 의존성을 설치할때는 필요하지만
 최종적으로 앱 구동시에 필요한 것이 아니라는 것이다. 즉 최종적으로 빌드된 이미지에는 들어가지 말아야한다. 예를 들어 보자.
 ```dockerfile
-FROM node:17.0.1-alpine AS build
+# Build stage
+FROM node:17.0.1 AS build
 
-WORKDIR /app
+WORKDIR /src/app
 
-COPY package.json package-lock.json .
+COPY package*.json.
 
-RUN npm install --production
+RUN npm install
 
-COPY myapp /app
+RUN npm run build
 
+COPY myapp /src/app
+
+# Runtime stage
 FROM node:17.0.1-alpine
 
-COPY --from=build 
+COPY --from=build /src/app ./
+
+EXPOSE 3000
 
 CMD ["node", "src/index.js"]
 ```
+7. 권한을 지정해서 사용할 것. 모든 유저가 root로 접속하는 상황을 피할 것.
 
