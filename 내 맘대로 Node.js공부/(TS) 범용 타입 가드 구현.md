@@ -5,12 +5,12 @@
 ```typescript
 const typeGuards = {
   isTypeOfClass:
-  <C>(
+    <C>(
     instance:unknown,
     className: new (...args:any[]) => C):
     instance is C => instance instanceof className,
   isTypeOf: 
-    <T extends string|number|bigint|boolean|symbol|Function|object|undefined>(
+    <T extends string|number|bigint|boolean|symbol|Function|object|undefined|null|Array<any>>(
     val:unknown,
     typeStringLiteral:
     T extends string ?
@@ -27,7 +27,9 @@ const typeGuards = {
     'function' :
     T extends undefined ?
     'undefined' :
-    T extends object ?
+    // null과 array는 typeof 검사 시 object로 판명됩니다.
+    // strict하게 null과 array를 판정하고 싶다면 함수 로직을 추가 구현 하면됩니다.
+    T extends object|null|Array<any> ?
     'object' :
     never
     ): val is T => typeof val === typeStringLiteral,
