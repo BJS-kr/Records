@@ -33,3 +33,14 @@ const typeGuards = {
     ): val is T => typeof val === typeStringLiteral,
 };
 ```
+# 예시
+```typescript
+class Test {}
+class Test2 {}
+const test = new Test();
+const test2 = new Test2();
+
+console.log(typeGuards.isTypeOf<Function>(typeGuards.isTypeOf, 'function')); // true
+console.log(typeGuards.isTypeOfClass<Test>(test, Test)); // true
+console.log(typeGuards.isTypeOfClass<Test>(test2, Test)); // false
+```
