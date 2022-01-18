@@ -3,47 +3,176 @@
 그러나 어떤 인스턴스가 어떤 타입의 인스턴스인지와 typeof 연산으로 검증이 가능한 값들은 범용으로 구현할 수 있다.
 
 ```typescript
-const typeGuards = {
-  isTypeOfClass:
-    <C>(
-    instance:unknown,
-    className: new (...args:any[]) => C):
-    instance is C => instance instanceof className,
-  isTypeOf:
+// only can use when strictNullCheck of tsconfg is true
+  function isTypeOf<
     // any 대신 unkown을 쓴 이유: https://stackoverflow.com/questions/51439843/unknown-vs-any
-    <T extends string|number|bigint|boolean|symbol|Function|object|undefined|null|Array<unknown>>(
-    val:unknown,
-    typeStringLiteral:
-    T extends string ?
-    'string' :
-    T extends number ?
-    'number' :
-    T extends bigint ?
-    'bigint' :
-    T extends boolean ?
-    'boolean' :
-    T extends symbol ?
-    'symbol' :
-    T extends Function ?
-    'function' :
-    T extends undefined ?
-    'undefined' :
-    // null과 array는 typeof 검사 시 object로 판명됩니다.
-    // strict하게 null과 array를 판정하고 싶다면 함수 로직을 추가 구현 하면됩니다.
-    T extends object|null|Array<unknown> ?
-    'object' :
-    never
-    ): val is T => typeof val === typeStringLiteral,
-};
+    T extends
+      | string
+      | number
+      | bigint
+      | boolean
+      | symbol
+      | AnyFunction
+      | StringIndexedObject
+      | undefined
+      | null
+      | Array<unknown>
+      | Class<unknown>
+  >(
+    val: unknown,
+    type: T extends string
+      ? 'string'
+      : T extends number
+      ? 'number'
+      : T extends bigint
+      ? 'bigint'
+      : T extends boolean
+      ? 'boolean'
+      : T extends symbol
+      ? 'symbol'
+      : T extends AnyFunction
+      ? 'function'
+      : T extends undefined
+      ? 'undefined'
+      : T extends StringIndexedObject
+      ? 'object'
+      : T extends Array<unknown>
+      ? 'array'
+      : T extends Class<unknown>
+      ? T
+      : T extends null
+      ? null
+      : never,
+  ): val is T {
+    if (typeof type === 'string') {
+      if (type === 'string') {
+        return typeof val === 'string';
+      }
+      if (type === 'number') {
+        return typeof val === 'number';
+      }
+      if (type === 'bigint') {
+        return typeof val === 'bigint';
+      }
+      if (type === 'boolean') {
+        return typeof val === 'boolean';
+      }
+      if (type === 'symbol') {
+        return typeof val === 'symbol';
+      }
+      if (type === 'function') {
+        return typeof val === 'function';
+      }
+      if (type === 'undefined') {
+        return typeof val === 'undefined';
+      }
+      if (type === 'object') {
+        if (Array.isArray(val) || val === null) {
+          return false;
+        }
+        return typeof val === 'object';
+      }
+      if (type === 'array') {
+        return Array.isArray(val);
+      }
+    } else if (type === null) {
+      return val === null;
+      // typeof class의 결과는 'function'입니다. constructor때문입니다.
+    } else if (typeof type === 'function') {
+      // right expression of instanceof must be assignable to any or Function type but both can't be used in type guard function
+      // so it has to be an any when return
+      return val instanceof (type as any);
+    }
+    // type이 never인 경우. 애초에 실행 될 수 없지만 is 반환은 암묵적 void를 허용하지 않기 때문에 명시적으로 return false를 지정해야 합니다
+    return false;
+  }
 ```
 # 예시
 ```typescript
-class Test {}
-class Test2 {}
-const test = new Test();
-const test2 = new Test2();
+  describe('type guard test', () => {
+    class Test {}
+    class Test2 {}
 
-console.log(typeGuards.isTypeOf<Function>(typeGuards.isTypeOf, 'function')); // true
-console.log(typeGuards.isTypeOfClass<Test>(test, Test)); // true
-console.log(typeGuards.isTypeOfClass<Test>(test2, Test)); // false
+    const test = new Test();
+    const test2 = new Test2();
+
+    it('should return true if type matches (string)', () => {
+      expect(UtilService.isTypeOf<string>('haha', 'string')).toBe(true);
+      expect(UtilService.isTypeOf<string>(99, 'string')).toBe(false);
+    });
+
+    it('should return true if type matches (number)', () => {
+      expect(UtilService.isTypeOf<number>(123, 'number')).toBe(true);
+      expect(UtilService.isTypeOf<number>('merong', 'number')).toBe(false);
+    });
+
+    it('should return true if type matches (boolean)', () => {
+      expect(UtilService.isTypeOf<boolean>(false, 'boolean')).toBe(true);
+      expect(UtilService.isTypeOf<boolean>('haha', 'boolean')).toBe(false);
+    });
+
+    it('should return true if type matches (string indexed object)', () => {
+      expect(
+        UtilService.isTypeOf<StringIndexedObject>({ hi: 'merong' }, 'object'),
+      ).toBe(true);
+      expect(
+        UtilService.isTypeOf<StringIndexedObject>(['wayne', 'hills'], 'object'),
+      ).toBe(false);
+      expect(UtilService.isTypeOf<StringIndexedObject>(null, 'object')).toBe(
+        false,
+      );
+      expect(
+        UtilService.isTypeOf<StringIndexedObject>(undefined, 'object'),
+      ).toBe(false);
+    });
+
+    it('should return true if type matches (symbol)', () => {
+      expect(UtilService.isTypeOf<symbol>(Symbol(), 'symbol')).toBe(true);
+      expect(UtilService.isTypeOf<symbol>(0, 'symbol')).toBe(false);
+    });
+
+    it('should return true if type matches (bigint)', () => {
+      expect(
+        UtilService.isTypeOf<bigint>(BigInt(9007199254740991), 'bigint'),
+      ).toBe(true);
+      expect(UtilService.isTypeOf<bigint>(9007199254740991, 'bigint')).toBe(
+        false,
+      );
+    });
+
+    it('should return true if type matches (class)', () => {
+      expect(UtilService.isTypeOf<Class<Test>>(test, Test)).toBe(true);
+      expect(UtilService.isTypeOf<Class<Test>>(test2, Test)).toBe(false);
+    });
+
+    it('should return true if type matches (function)', () => {
+      expect(
+        UtilService.isTypeOf<AnyFunction>(UtilService.isTypeOf, 'function'),
+      ).toBe(true);
+      expect(
+        UtilService.isTypeOf<AnyFunction>('im not function', 'function'),
+      ).toBe(false);
+    });
+
+    it('should return true if type matches (array)', () => {
+      expect(UtilService.isTypeOf<Array<any>>([1, 2, 3], 'array')).toBe(true);
+      expect(UtilService.isTypeOf<Array<any>>({ wayne: 'hi!' }, 'array')).toBe(
+        false,
+      );
+    });
+
+    it('should return true if type matches (null)', () => {
+      expect(UtilService.isTypeOf<null>(null, null)).toBe(true);
+      expect(UtilService.isTypeOf<null>(11, null)).toBe(false);
+    });
+
+    it('should return true if type matches (undefined)', () => {
+      expect(UtilService.isTypeOf<undefined>(undefined, 'undefined')).toBe(
+        true,
+      );
+      expect(UtilService.isTypeOf<undefined>('defined', 'undefined')).toBe(
+        false,
+      );
+    });
+  });
 ```
