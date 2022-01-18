@@ -1,8 +1,8 @@
-# 타입가드
-모든 타입 가드를 범용으로 구현할 순 없다. 코드 스타일마다 다를 것이고(ex: 어떤 팀은 tagged union 사용, 어떤 팀은 특정 prop 검증) 상황에 따라 맞는 방법이 있을 것이다.
-그러나 어떤 인스턴스가 어떤 타입의 인스턴스인지와 typeof 연산으로 검증이 가능한 값들은 범용으로 구현할 수 있다.
+// Type guard
+// 모든 타입 가드를 범용으로 구현할 순 없다. 코드 스타일마다 다를 것이고(ex: 어떤 팀은 tagged union 사용, 어떤 팀은 특정 prop 검증) 상황에 따라 맞는 방법이 있을 것이다.
+// 그러나 어떤 인스턴스가 어떤 타입의 인스턴스인지와 typeof 연산으로 검증이 가능한 값들은 범용으로 구현할 수 있다.
 
-```typescript
+
 // only can use when strictNullCheck of tsconfg is true
   function isTypeOf<
     // any 대신 unkown을 쓴 이유: https://stackoverflow.com/questions/51439843/unknown-vs-any
@@ -86,9 +86,8 @@
     // type이 never인 경우. 애초에 실행 될 수 없지만 is 반환은 암묵적 void를 허용하지 않기 때문에 명시적으로 return false를 지정해야 합니다
     return false;
   }
-```
-# 예시
-```typescript
+
+// 
   describe('type guard test', () => {
     class Test {}
     class Test2 {}
@@ -175,4 +174,4 @@
       );
     });
   });
-```
+
