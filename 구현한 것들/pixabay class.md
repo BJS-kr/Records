@@ -390,3 +390,339 @@ export class PixabayVideos implements Pixabay.Videos {
   }
 }
 ```
+## 테스트도 해봐야겠죠?
+```typescript
+import { PixabayVideos } from './pixabay';
+import {
+  Controller,
+  INestApplication,
+  Module,
+  Get,
+  Inject,
+  Body,
+} from '@nestjs/common';
+import { Test } from '@nestjs/testing';
+import * as request from 'supertest';
+import { WinstonLogger } from '../logger/winston';
+import { HttpModule, HttpService } from '@nestjs/axios';
+import { config } from 'dotenv';
+import { Pixabay } from 'types';
+import { UtilService } from '../util/util.service';
+
+config();
+
+describe('Pixabay API test', () => {
+  let app: INestApplication;
+  let httpServer: any;
+  beforeAll(async () => {
+    @Controller()
+    class TestController {
+      constructor(
+        @Inject('PB') private readonly pixabayVideos: Pixabay.Videos,
+      ) {}
+      @Get('1')
+      keywordOnly(@Body() body: { keyword: string }) {
+        const { keyword } = body;
+        return this.pixabayVideos.search(keyword);
+      }
+
+      @Get('2')
+      download(@Body() body: { keyword: string; download: boolean }) {
+        const { keyword, download } = body;
+        return this.pixabayVideos.search(keyword, download);
+      }
+
+      @Get('3')
+      optionObject1_download_size(
+        @Body() body: { keyword: string; options: Pixabay.SearchVideosOptions },
+      ) {
+        const { keyword, options } = body;
+        return this.pixabayVideos.search(keyword, options);
+      }
+
+      @Get('4')
+      optionObject2_no_download_size(
+        @Body() body: { keyword: string; options: Pixabay.SearchVideosOptions },
+      ) {
+        const { keyword, options } = body;
+        return this.pixabayVideos.search(keyword, options);
+      }
+
+      @Get('5')
+      optionObject3_download_no_size(
+        @Body() body: { keyword: string; options: Pixabay.SearchVideosOptions },
+      ) {
+        const { keyword, options } = body;
+        return this.pixabayVideos.search(keyword, options);
+      }
+
+      @Get('6')
+      optionObject4_safesearch_category_language_size(
+        @Body() body: { keyword: string; options: Pixabay.SearchVideosOptions },
+      ) {
+        const { keyword, options } = body;
+        return this.pixabayVideos.search(keyword, options);
+      }
+
+      @Get('7')
+      perpage_page_download_size(
+        @Body()
+        body: {
+          keyword: string;
+          perpage: number;
+          page: number;
+          download: boolean;
+        },
+      ) {
+        const { keyword, perpage, page, download } = body;
+        return this.pixabayVideos.search(keyword, perpage, page, download);
+      }
+
+      @Get('8')
+      perpage_out_of_range(
+        @Body()
+        body: {
+          keyword: string;
+          perpage: number;
+          page: number;
+        },
+      ) {
+        const { keyword, perpage, page } = body;
+        return this.pixabayVideos.search(keyword, perpage, page);
+      }
+    }
+
+    @Module({
+      imports: [HttpModule],
+      providers: [
+        {
+          provide: 'PB',
+          inject: [HttpService],
+          useFactory: async (httpService: HttpService) => {
+            return new PixabayVideos(
+              process.env.PB_API_KEY,
+              httpService,
+              new WinstonLogger(
+                'Pixabay_TEST',
+                'development',
+                ((...args: any[]) => true) as typeof UtilService.isTypeOf,
+              ),
+            );
+          },
+        },
+      ],
+      controllers: [TestController],
+    })
+    class TestModule {}
+
+    app = (
+      await Test.createTestingModule({
+        imports: [TestModule],
+      }).compile()
+    ).createNestApplication();
+
+    await app.init();
+    httpServer = app.getHttpServer();
+  }, 10000);
+
+  describe('test result of PixabayVideos class method', () => {
+    /**
+     * Pixabay.SearchVideosResponse는 여러 depth로 이루어져있습니다.
+     * 각 depth들은 interface나 type으로 구성되어있지만, 이를 하단의 hasOwnProperties함수의 obj의 타입으로 지정하면 모든 하위 타입들이 구현되어야하는 문제가 생깁니다.
+     * 또 다른 문제는 함수의 재활용 가능성이 사라진다는 것입니다. Generic을 사용하지 않으면 obj의 타입은 any가 될 수 밖에 없습니다. depth에 따라 다른 obj는 다른 타입이 되어야 하기 때문입니다.
+     * 이 두가지 문제를 모두 해결하기 위해 두 가지 Generic을 활용합니다.
+     * 첫 번째 제네릭(PixabaySubObject)은 obj의 하위타입 구현문제를 해결함과 동시에, 모든 프로퍼티가 존재함을 검증하기 위한 것입니다.
+     * 두 번째 제네릭(hasOwnProperties)은 obj의 타입을 확정하고, 두 번째 파라미터인 properties의 값을 강제하기 위함입니다.
+     * T의 key로 이루어진 K의 ReadonlyArray(tuple)을 지정함으로써, properties에는 K이외엔 입력될 수 없게 됩니다. 더 정확히는 T의 key들로 이루어진 string union type이 됩니다. 더 strict하게 사용하기 위한 방법입니다.
+     * ReadonlyArray로 지정한 이유는 literal string union 타입을 만들기 위해서입니다.
+     * 참고: https://melvingeorge.me/blog/convert-array-into-string-literal-union-type-typescript
+     */
+    type PixabaySubObject<T> = {
+      [key in keyof T]: any;
+    };
+    // Object.prototype.hasOwnProperty는 입력된 string이 this의 key로 존재하는지 boolean으로 반환하는 함수입니다.
+    // hasOwnProperty는 한 번에 하나의 검증만 가능하기 때문에 검증하고자 하는 모든 key가 this에 실제로 존재하는지 테스트하기 위해선 코드가 지나치게 길어집니다.
+    // 이러한 이유로 properties array에 존재하는 모든 string이 this에 존재하는지 검증하는 함수를 제작했습니다.
+    const hasOwnProperties = <T, K extends keyof T>(
+      obj: PixabaySubObject<T>,
+      properties: ReadonlyArray<K>,
+    ) => {
+      properties.forEach(key => {
+        expect(obj.hasOwnProperty(key)).toBe(true);
+      });
+    };
+
+    it('should return whole response of Pixabay search videos API when pass nothing but keyword', async () => {
+      const response = await request(httpServer).get('/1');
+      const result = response.body;
+      // as const는 array를 tuple로 만듭니다.
+      const searchVideosResponseG = ['total', 'totalHits', 'hits'] as const;
+      const searchVideosResponseB1 = [
+        'id',
+        'pageURL',
+        'picture_id',
+        'videos',
+        'views',
+        'downloads',
+        'likes',
+        'comments',
+        'user_id',
+        'user',
+        'userImageURL',
+      ] as const;
+      const searchVideosResponseB2 = ['large', 'small', 'tiny'] as const;
+      const searchVideosResponseB3 = [
+        'url',
+        'width',
+        'height',
+        'size',
+      ] as const;
+      // to tell the TypeScript compiler to grab all the numbered indexed values from the readonly array and then create a type from all its values.
+      hasOwnProperties<
+        Pixabay.SearchVideosResponse,
+        typeof searchVideosResponseG[number]
+      >(result, searchVideosResponseG);
+
+      hasOwnProperties<
+        Pixabay.EachVideosInfo,
+        typeof searchVideosResponseB1[number]
+      >(result.hits[0], searchVideosResponseB1);
+
+      hasOwnProperties<
+        Pixabay.VideosOfSizes,
+        typeof searchVideosResponseB2[number]
+      >(result.hits[0].videos, searchVideosResponseB2);
+
+      hasOwnProperties<
+        Pixabay.VideoInfo,
+        typeof searchVideosResponseB3[number]
+      >(result.hits[0].videos.large, searchVideosResponseB3);
+
+      const smallURL: string = result.hits[0].videos.small.url;
+
+      expect(
+        typeof smallURL === 'string' && smallURL.endsWith('download=1'),
+      ).not.toBe(true);
+      expect(response.statusCode).toBe(200);
+    });
+
+    it('should return array of objects with downloadable URLs of each sizes', async () => {
+      const response = await request(httpServer)
+        .get('/2')
+        .send({ keyword: 'yellow', download: true });
+
+      hasOwnProperties<
+        { [size in Pixabay.VideoSizes]: string },
+        Pixabay.VideoSizes
+      >(response.body[0], ['large', 'small', 'tiny']);
+
+      expect(response.body[0].small.endsWith('&download=1')).toBe(true);
+      expect(response.statusCode).toBe(200);
+    });
+
+    it('should return object that have single key(one of size) with value that is array of downloadable URLs', async () => {
+      const response = await request(httpServer)
+        .get('/3')
+        .send({ keyword: 'yellow', options: { download: true, size: 'tiny' } });
+
+      expect(response.body.hasOwnProperty('tiny')).toBe(true);
+      expect(response.body.hasOwnProperty('small')).toBe(false);
+      expect(response.body.tiny[0].endsWith('&download=1')).toBe(true);
+      expect(response.statusCode).toBe(200);
+    });
+
+    it('should return object that have single key(one of size) with value that is array of URLs', async () => {
+      const response = await request(httpServer)
+        .get('/4')
+        .send({
+          keyword: 'yellow',
+          options: { download: false, size: 'small' },
+        });
+
+      expect(response.body.hasOwnProperty('tiny')).toBe(false);
+      expect(response.body.hasOwnProperty('small')).toBe(true);
+      expect(response.body.small[0].endsWith('&download=1')).toBe(false);
+      expect(response.statusCode).toBe(200);
+    });
+
+    it('should return array of objects have video sizes as property that contains downloadable URLs', async () => {
+      const response = await request(httpServer)
+        .get('/5')
+        .send({
+          keyword: 'yellow',
+          options: { download: true },
+        });
+
+      hasOwnProperties<
+        { [size in Pixabay.VideoSizes]: string },
+        Pixabay.VideoSizes
+      >(response.body[0], ['large', 'small', 'tiny']);
+
+      expect(
+        typeof response.body[0].tiny === 'string' &&
+          response.body[0].small.endsWith('&download=1'),
+      ).toBe(true);
+      expect(response.statusCode).toBe(200);
+    });
+
+    // return 값 으로 옵션이 모두 정확하게 실행되었는지 확인할 수는 없으나, 결과가 오류없이 반환되므로 간접적으로 요청이 정상 수행되었다고 추측하고 있습니다.
+    it('should return response fit to the options', async () => {
+      const options: Pixabay.SearchVideosOptions = {
+        safesearch: true,
+        category: 'animals',
+        lang: 'en',
+        size: 'tiny',
+      };
+
+      const response = await request(httpServer)
+        .get('/6')
+        .send({ keyword: 'yellow', options });
+
+      expect(response.body.hasOwnProperty('tiny')).toBe(true);
+      expect(response.body.hasOwnProperty('large')).toBe(false);
+      expect(response.body.tiny[0].endsWith('download=1')).toBe(false);
+      expect(response.statusCode).toBe(200);
+    });
+
+    it('should return result number of "perpage" argument and page of "page" argument', async () => {
+      const response = await request(httpServer)
+        .get('/7')
+        .send({ keyword: 'yellow', perpage: 15, page: 2, download: true });
+
+      hasOwnProperties<
+        { [size in Pixabay.VideoSizes]: string },
+        Pixabay.VideoSizes
+      >(response.body[0], ['large', 'small', 'tiny']);
+
+      expect(response.body.length).toBe(15);
+      expect(response.body[0].tiny.endsWith('download=1')).toBe(true);
+      expect(response.statusCode).toBe(200);
+    });
+
+    it('if perpage under 3 or page under 1 will return error', async () => {
+      const errorMock = jest.fn().mockImplementation(() => {
+        throw errorMock.mock.calls[0][0];
+      });
+
+      WinstonLogger.prototype.error = errorMock;
+
+      const firstResponse = await request(httpServer)
+        .get('/8')
+        .send({ keyword: 'yellow', perpage: 2, page: 1, download: true });
+
+      const secondResponse = await request(httpServer)
+        .get('/8')
+        .send({ keyword: 'yellow', perpage: 3, page: 1, download: true });
+
+      const thirdResponse = await request(httpServer)
+        .get('/8')
+        .send({ keyword: 'yellow', perpage: 3, page: 0, download: true });
+
+      expect(firstResponse.statusCode).toBe(500);
+      expect(secondResponse.statusCode).toBe(200);
+      expect(thirdResponse.statusCode).toBe(500);
+    });
+  });
+});
+
+```
