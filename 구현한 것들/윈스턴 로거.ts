@@ -1,8 +1,7 @@
-# Nest 기반 Winston 로거
-@nestjs/common에서 제공하는 LoggerService interface를 implements하여 제작했고, winston을 사용한 로거입니다.
-warn레벨 이상의 로그와 debug레벨 이상의 로그를 저장하는 daily rotate file을 각각 생성하고, warn 레벨 이상의 로그 발생시 저장뿐 아니라 슬랙에 메세지를 보냅니다.
+// Nest 기반 Winston 로거
+// @nestjs/common에서 제공하는 LoggerService interface를 implements하여 제작했고, winston을 사용한 로거입니다.
+// warn레벨 이상의 로그와 debug레벨 이상의 로그를 저장하는 daily rotate file을 각각 생성하고, warn 레벨 이상의 로그 발생시 저장뿐 아니라 슬랙에 메세지를 보냅니다.
 
-```typescript
 import * as winston from 'winston';
 import * as DailyRotateFile from 'winston-daily-rotate-file';
 import * as SlackHook from 'winston-slack-webhook-transport';
@@ -217,4 +216,4 @@ export class WinstonLogger implements LoggerService {
     return this.logger.debug(message);
   }
 }
-```
+
