@@ -1,7 +1,6 @@
-# 타입 연습 겸 구현해보았다
+// 타입 연습 겸 구현해보았다
 
-## type for implementation
-```typescript
+// types for implementation
 export declare namespace Pixabay {
   /**
    * @type
@@ -177,9 +176,8 @@ export declare namespace Pixabay {
     search: SearchVideosMethod;
   }
 }
-```
-## type을 implements한 class 구현
-```typescript
+      
+// 위에서 작성한 type을 implements한 class 구현
 import { HttpService } from '@nestjs/axios';
 import { InternalServerErrorException } from '@nestjs/common';
 import { catchError, map, Observable } from 'rxjs';
@@ -389,9 +387,8 @@ export class PixabayVideos implements Pixabay.Videos {
     }
   }
 }
-```
-## 테스트도 해봐야겠죠?
-```typescript
+
+// 테스트도 해봐야겠죠?
 import { PixabayVideos } from './pixabay';
 import {
   Controller,
@@ -724,5 +721,3 @@ describe('Pixabay API test', () => {
     });
   });
 });
-
-```
