@@ -22,6 +22,7 @@
     val: unknown,
     type:
       // 제네릭 T를 입력하지 않을 경우 T는 ''가 됩니다. strict하게 사용하기 위해 T를 지정하지 않는 경우는 never로 처리합니다.
+      // 이와 같은 처리를 하지 않으면 ''는 string을 extends하게 됩니다.
       T extends ''
       ? never
       : T extends string
