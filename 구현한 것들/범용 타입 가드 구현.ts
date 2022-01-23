@@ -20,7 +20,11 @@
       | Class<unknown>
   >(
     val: unknown,
-    type: T extends string
+    type:
+      // 제네릭 T를 입력하지 않을 경우 T는 ''가 됩니다. strict하게 사용하기 위해 T를 지정하지 않는 경우는 never로 처리합니다.
+      T extends ''
+      ? never
+      : T extends string
       ? 'string'
       : T extends number
       ? 'number'
