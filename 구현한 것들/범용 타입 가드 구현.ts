@@ -1,7 +1,21 @@
-// Type guard
-// 모든 타입 가드를 범용으로 구현할 순 없다. 코드 스타일마다 다를 것이고(ex: 어떤 팀은 tagged union 사용, 어떤 팀은 특정 prop 검증) 상황에 따라 맞는 방법이 있을 것이다.
-// 그러나 어떤 인스턴스가 어떤 타입의 인스턴스인지와 typeof 연산으로 검증이 가능한 값들은 범용으로 구현할 수 있다.
+/**
+* Type guard
+* 모든 타입 가드를 범용으로 구현할 순 없습니다. 코드 스타일마다 다를 것이고(ex: 어떤 팀은 tagged union 사용, 어떤 팀은 특정 prop 검증) 상황에 따라 맞는 방법이 있을 것입니다.
+* 그러나 어떤 인스턴스가 어떤 타입의 인스턴스인지와 typeof 연산으로 검증이 가능한 값들은 범용으로 구현할 수 있습니다.
+*/
 
+// 아래는 타입가드 함수에 사용할 타입들입니다.
+
+// Function타입을 그대로 사용하지 않는 이유는 eslint 설정상 Ban Types에 Function이 포함되어 있을 가능성이 있기 때문입니다. 최대한 수정할 필요를 줄이고자 했습니다. 
+export type AnyFunction = (...args: unknown[]) => unknown;
+export type StringIndexedObject = { [key: string]: unknown };
+
+// Class는 제네릭 타입으로 사용될 때, static side로 평가됩니다.
+// 즉, constructor signature를 참조할 수 없는 상태입니다. 이를 개선하기 위해 아래와 같은 Class<T> 타입으로 변환 시켜줍니다.
+// 만약 다른 타입검증을 하지 않고, 클래스의 instanceof 만을 검증하는 함수였다면 이런 과정은 필요하지 않습니다. T의 extends constraints를 정하지 않으면 되기 때문입니다.
+// 반면, 함수의 인자로 들어갈 땐 instance side로 평가됩니다. 즉, 함수의 인자 타입은 Class<T>로 표시되지만 별다른 조치 없이 타입으로 사용된 클래스를 그대로 넣으면 됩니다.
+// 이는 하단의 테스트 코드에서 구현되어있습니다.
+export type Class<T> = new (...args: unknown[]) => T;
 
 // only can use when strictNullCheck of tsconfg is true
   function isTypeOf<
@@ -49,7 +63,12 @@
       ? null
       : never,
   ): val is T {
+    // type인자는 string일 수도, 클래스 혹은 undefined, null까지 될 수 있기 때문에 분기가 필요합니다.
     if (typeof type === 'string') {
+      // typeof val === type이라고 작성할 수도 있습니다. 그러나, 이는 eslint설정이 문제가 될 가능성이 있습니다.
+      // eslint의 설정 "valid-typeof": ["error", { "requireStringLiterals": true }]는 typeof 연산에 string literal 이외의 것에 에러를 반환하기 때문입니다.
+      // 사실 이 설정을 비활성화해도 문제는 없습니다. 타입으로 인자를 고정시킬 수 있기 때문입니다. 
+      // 그러나, 개발자의 타입 작성을 믿는 것은 개발자가 실수할 경우 에러를 유발 할 수 있기 때문에 최대한 strict한 방법으로 작성했습니다.
       if (type === 'string') {
         return typeof val === 'string';
       }
