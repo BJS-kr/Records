@@ -26,3 +26,20 @@ class Foo {
 new Foo().lazy()
 
 // 확실히 직접 작성해보니 감이 빡 온다. 앞으로 어지간한 편의 기능은 데코레이터로 구현하려고 한다.
+
+// 추가
+// param decorator
+
+class MyClass {
+    myMethod(@logParam() param: string) {
+      console.log(param)
+    }
+}
+function logParam() {
+  return function (target: any, propertyKey: string, parameterIndex: number) {
+    target.hi = 'hi!'
+ }
+}
+
+
+console.log(MyClass.prototype) // { hi: 'hi!' }
