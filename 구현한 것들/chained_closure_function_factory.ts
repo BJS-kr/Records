@@ -57,7 +57,7 @@ function chainedFunctionFactory(tag: string) {
 // 태그('test')와 함께 첫 번째 체인이 생성됩니다.
 const firstChain = chainedFunctionFactory('test');
 
-// next()가 호출 되었으므로 다음 클로저 함수가 생성됩니다.
+// next()가 호출 되었으므로 다음 체인이 생성됩니다.
 const secondChain = firstChain(
   function (stackedResults, arg1, arg2) {
     console.log(arg1); // testArgs_1
