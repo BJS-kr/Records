@@ -29,7 +29,7 @@ function chainedFunctionFactory(tag: string) {
       nullIndexes.push(functionIndex);
       results.push(null);
     } else {
-      results.push(result === undefined ? null : result);
+      results.push(result);
     }
     
     return {
