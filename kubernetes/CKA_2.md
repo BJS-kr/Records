@@ -25,6 +25,19 @@ here's the important configurables.
 after you complete to write pod-definition.yml, you can create POD using 'create' or 'apply' command like 'kubectl create -f pod-definition.yml'
 'describe' command is also useful. it will show you details of a POD. run it like 'kubectl describe pod myapp-pod'.
 
+# Practical test
+it wasn't easy.. here the commands I used
+
+1. kubectl create [.yml] <- needs to be defined
+2. kubectl run [NAME] --image=IMAGE_NAME
+3. kubectl get pods
+  -> show us brief info of containers like READY state
+  -> -o wide: show extra info like Node of pod on etc
+4. kubectl explain RESOURC
+5. kubectl describe pods
+6. kubectl describe pod POD_NAME 
+  -> very important to troubleshoot. we can figure it out why some failiure was occurred using the informations of 'events' section. show detail of the pod and containers inside.
+7. kubectl delete pod POD_NAME 
 
 
 
