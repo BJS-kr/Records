@@ -26,7 +26,7 @@ after you complete to write pod-definition.yml, you can create POD using 'create
 'describe' command is also useful. it will show you details of a POD. run it like 'kubectl describe pod myapp-pod'.
 
 # Practical test
-it wasn't easy.. here the commands I used
+it wasn't easy.. here's the commands I used
 
 1. kubectl create [.yml] <- needs to be defined
 2. kubectl run [NAME] --image=IMAGE_NAME
