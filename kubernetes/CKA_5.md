@@ -55,5 +55,7 @@ spec:
 ```
 
 # Practical Test
-1. kubectl get pods --all-namespace
-2. 
+1. kubectl get pods --all-namespaces
+2. kubectl get ns
+3. kubectl get pods --namespace=Namespace
+4. kubectl run Name --image=Image -n Namespace -> create pod in specific Namespace
