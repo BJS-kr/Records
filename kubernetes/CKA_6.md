@@ -75,4 +75,4 @@ spec:
 # Practical Test
 1. kubectl create -f service-definition.yml
 2. kubectl get services
-3. 
+3. kubectl describe services
