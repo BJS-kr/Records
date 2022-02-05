@@ -33,3 +33,40 @@ queue가 exhausted 되거나 limit에 도달하면, 이벤트 루프는 다음 p
 각 페이즈의 사이에, Node.js는 페이즈가 async I/O 혹은 timers를 기다리는 중인지 체크하고, 아무것도 존재하지 않는다면 shut down합니다.
 
 # Phases in Detail
+## 1. timers
+타이머는 threshold를 기준으로 콜백을 실행합니다만, 중요한 것은 threshold가 경과하는 시점에 정확히 실행한다는 것이 아니라 threshold가 경과한 '후'에 실행된다는 것만 보장합니다. 타이머의 콜백은 threshold가 경과한 후 실행할 수 있는 가장 빠른 시점에 실행될 것입니다. OS의 스케줄링이나 다른 콜백의 실행 때문에 타이머의 콜백 실행은 지연될 수 있습니다.
+
+기술적으로, poll phase가 타이머가 실행되는 시점을 컨트롤합니다.
+
+예를 들어, 당신이 timeout을 100ms로 스케줄했다고 가정합시다. 그리고, 당신의 스크립트는 비동기적으로 95ms의 시간이 필요한 파일 읽기 작업을 수행한다고 합시다.
+```javascript
+const fs = require('fs');
+
+function someAsyncOperation(callback) {
+  // Assume this takes 95ms to complete
+  fs.readFile('/path/to/file', callback);
+}
+
+const timeoutScheduled = Date.now();
+
+setTimeout(() => {
+  const delay = Date.now() - timeoutScheduled;
+
+  console.log(`${delay}ms have passed since I was scheduled`);
+}, 100);
+
+// do someAsyncOperation which takes 95 ms to complete
+someAsyncOperation(() => {
+  const startCallback = Date.now();
+
+  // do something that will take 10ms...
+  while (Date.now() - startCallback < 10) {
+    // do nothing
+  }
+});
+```
+이벤트 루프가 poll phase에 진입할 때, poll은 빈 queue를 가지고 있고, 그러므로 poll은 가장 빨리 도래하는 timer의 threshold를 기다릴 것입니다. poll이 기다린지 95ms가 되었을 때, fs.readFile()이 완수될 것입니다. 그리고 완수되는데 10ms가 필요한 readFile의 콜백은 poll queue에 추가되고 실행될 것입니다(타이머 종료 5ms전에 새로운 작업이 추가 되었다는 뜻). 즉, readFile하고 콜백까지 실행되는데 총 105ms의 시간이 필요해졌습니다. 이미 threshold의 100ms를 넘긴 시간입니다. 이제 queue에 남은 콜백이 없으니 이벤트 루프는 가장 빨리 도래하는 타이머를 찾아볼 것입니다. 도래한 타이머가 있다면, timers phase로 돌아가(wrap back) 타이머의 콜백을 실행합니다. 이 예제에서, 100ms의 타이머가 105ms후에 실행되는 것을 볼 수 있습니다.
+
+poll phase가 이벤트 루프를 굶기는 것(starving)을 방지하기 위해, libuv(Node.js의 이벤트 루프와 비동기 동작을 구현하는 C 라이브러리) 또한 events를 더 polling(장치 또는 프로그램이 충돌 방지 혹은 동기화를 위해 다른 장치 또는 프로그램을 주기적으로 감시하며 자료를 처리하는 방식)하는 것을 멈추기 전에 hard maximum(hard limit을 말하는 듯 합니다. hard maximum은 시스템 의존적입니다)을 가집니다.
+
+
