@@ -69,4 +69,33 @@ someAsyncOperation(() => {
 
 poll phase가 이벤트 루프를 굶기는 것(starving)을 방지하기 위해, libuv(Node.js의 이벤트 루프와 비동기 동작을 구현하는 C 라이브러리) 또한 events를 더 polling(장치 또는 프로그램이 충돌 방지 혹은 동기화를 위해 다른 장치 또는 프로그램을 주기적으로 감시하며 자료를 처리하는 방식)하는 것을 멈추기 전에 hard maximum(hard limit을 말하는 듯 합니다. hard maximum은 시스템 의존적입니다)을 가집니다.
 
+## 2. pending callbacks
+이 페이즈는 system operation을 위한 콜백 즉, TCP 에러 등을 실행합니다. 예를 들어, TCP socket이 연결 시도 중 ECONNREFUSED를 반환받았다면, ~nix(suffix nix라는 뜻) system은 에러를 보고하기 위해 대기하길 원할 것입니다. 이는 pending callbacks phase에 queued 될 것입니다.
+
+## 3. poll
+poll phase는 두 가지 중요한 기능을 합니다.
+
+첫 번째, I/O를 위해 얼마나 길게 block하고 poll해야할지, 그 후
+두 번째, poll queue에 있는 이벤트들을 처리합니다.
+
+이벤트 루프가 poll phase에 진입했을 때, 스케줄된 타이머가 없다면, 다음 두 가지 중 하나의 일이 일어날 것입니다.
+
+- **poll queue가 비어있지 않다면,** 이벤트 루프는 poll queue를 순회(iterate)하며 exhausted되거나 시스템 의존적 hard limit에 도달할 때까지 동기적으로 콜백을 실행할 것입니다.
+- **poll queue가 비어있다면,** 또 다시 다음 두 가지 중 하나의 일이 일어날 것입니다.
+  * **스크립트가 setImmediate()에 의해 스케줄 되어 있다면,** 이벤트 루프는 poll phase를 종료하고 그 스케줄된 script를 실행하기 위해 check phase로 넘어갈 것 입니다.
+  * **스크립트가 setImmediate()에 의해 스케줄 되어 있지 않다면,** 이벤트 루프는 poll queue에 콜백이 추가되길 기다릴 것이고, 즉시 실행할 것입니다.
+
+poll queue가 비워졌을 때, 이벤트 루프는 threshold가 도래한 타이머가 존재하는지 체크할 것입니다. 하나 이상의 timer가 도래했다면, 이벤트루프는 timers phase로 돌아가(wrap back)하여 타이머의 콜백을 실행할 것입니다.
+
+## 4. check
+이 페이즈는 poll phase가 완료된 후 콜백을 즉시 실행하게 합니다. poll phase가 idle 상태가 되고 스크립트가 setImmediate()를 통해 queued 되었다면, 이벤트 루프는 기다리지 않고(setImmediate가 없을때 poll에서 기다리는 것) check phase로 넘어가게 됩니다.
+
+setImmediate()는 사실 별도의 phase에서 실행되게 하는 특별한 타이머입니다. 이는 poll phase가 종료된 직후 실행하도록 스케줄하는 libuv API를 사용합니다.
+
+일반적으로, 코드가 실행됨에 따라, 이벤트 루프는 결국 incoming connection, request 등을 기다리는 poll phase에 도달하게 됩니다. 그러나, 만약 callback이 setImmediate()에 의해 스케줄 되어있고 poll phase가 idle된다면, 기다리지 않고 poll phase를 종료 후 check phase로 진입하게 됩니다.
+
+## 5. close callbacks
+만약 소켓 혹은 handle이 예상치 못하게(abruptly) closed 되었다면(예를 들어, socket.destroy()), 'close' 이벤트가 이 phase에서 발생(emitted)될 것입니다. 이 경우가 아니라면, process.nextTick()을 통해 발생(emitted)됩니다.
+
+# setImmediate() vs setTimeout()
 
