@@ -143,3 +143,36 @@ constructor(
   ) {}
 ```
 
+
+## Or, use decorator (this not follows Nest.js DI. please refer to kafka-client/src/decorators)
+### Decorator Factory (you can check out implementaion in kafka-client/src/factory.ts)
+```typescript
+  export function kafkaEventDecoratorFactory(
+  topic: string,
+  kafkaSender: KafkaBatchSender,
+  kafkaSenderMethodEvent: symbol,
+) {
+  let messages = [];
+  return function kafkaTopicDecorator() {
+    return function (
+      target: any,
+      prop: string,
+      descriptor: PropertyDescriptor,
+    ) {
+      // implements event receiver factory..
+      };
+    };
+  };
+}
+
+// then use it like this in the controller...
+ @Post('FIRST_TOPIC_DECORATED')
+ @KafkaFirstTopic()
+ async someAsynchronousHandler_1(@Text() text) {
+   // some async task....
+   await new Promise((res) => {
+     setTimeout(() => res(text), 500);
+   });
+ }
+```
+
