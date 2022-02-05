@@ -10,6 +10,27 @@
 * 다만 nodejs 개발자로서, nodejs가 어떻게 동작하는지는 이해해야한다고 생각한다. 우리가 컴퓨터를 개발할 것은 아니지만 컴퓨터의 작동원리를 공부하는 것 처럼.
 */
 
+// a. 압도적으로 많은 상황에서, 우리는 사실 pipe외에 사용할 일은 없다. 아래와 같다.
+const myReadable = createReadStream('./data.mp4')
+const myWritable = createWriteStream('./test2.txt', { encoding:'utf8', highWaterMark: 100 })
+myReadable3.pipe(myWritable3)
+
+// b. 이벤트별로 상세한 로깅 혹은 연관된 control이 필요하다면 event를 필요에 따라 listen하는 것만으로 충분하다.
+const myReadable = createReadStream('./data.mp4')
+const myWritable = createWriteStream('./test.txt', { encoding:'utf8', highWaterMark: 100 })
+
+myWritable.on('drain',() => {console.log('resume!'); myReadable.resume()})
+
+myReadable.on('data', (chunk) => {
+  console.log('data emitted')
+  const canWrite = myWritable.write(chunk)
+  if (!canWrite) { console.log('pause!'); myReadable.pause(); }
+}).on('end', ()=>{
+  console.log('read stream ended!')
+})
+
+// c. 다만, Readable을 직접 구현해 highWaterMark를 컨트롤 해보고자 했다(createWriteStream의 힘을 빌린다면 readable의 highWaterMark도 자동으로 컨트롤 된다.). 
+
 // 구현 주안점
 // 1. drain 이벤트가 없는 Readable의 threshold를 어떻게 컨트롤 할 것인가? (Writable은 drain이벤트에 맞춰 pause-resume 사이클을 조정하면 되지만 Readable은 추가 구현 필요)
 // 2. Readable과 Writable이 서로의 상태를 파악하고 유기적으로 동작할 수 있는가?
