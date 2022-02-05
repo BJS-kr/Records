@@ -17,6 +17,19 @@ and also, you can update your obejct simply updating your YAML file and run appl
 
 apply command is useful when you have to update complexed things like environment variables and detailed features, will save your times from errors.
 
+# Apply
+We know apply command is declarative and smart enough to catch contexts from previous study. now, let's dig up the details. if you run apply command,
+kubernetes will refer your local file and store Live Object Configuration in the memory that looks similar with your local definition file but having more fields like status section.
+the local YAML file will converted to JSON file and will stored in Last Applied Configuration. These three file(local definition, Last Applied Configuration, Live Object Configuration) will be compared to each other to figure out what changes have been made.
+for example, if you update image version in the local definition file, it will be applied to Live Object Configuration only when it is diffent. and when Live Object Configuration is updated, Last Applied Configuration will be also updated because this change affected to your object.
+
+this is simple process but WHY do we need Last Applied Configuration?
+think about deletion of certain field in your local definition file, like type field in labels section. it will affect to Live Object Configuration. and because of local file and Live object configuration have no type field,
+type field in Last Applied Configuration will be last as it is. Why? because it have to be compared to figure out what changes have been made.
+so, Where does Live Object Configuration data is stored? it's in the Live Object Configuration in metatdata/annotations/kubectl.kubernetes.io/last-applied-configuration field. because of Last Applied Configuration stored only when you run apply command, you must bear in mind that not to mix declarative and imperative approaches while managing kubernetes objects.
+
+if you need more details go to https://kubernetes.io/docs/tasks/manage-kubernetes-objects/declarative-config/
+
 # Practice Test
 1. kubectl run redis --image=redis:alpine --dry-run=client -o yaml > nginx-pod.yaml
 1-2. add 'tier' under 'labels' in the yaml and command 'kubectl create -f '
