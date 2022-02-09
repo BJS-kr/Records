@@ -98,4 +98,4 @@ setImmediate()는 사실 별도의 phase에서 실행되게 하는 특별한 타
 만약 소켓 혹은 handle이 예상치 못하게(abruptly) closed 되었다면(예를 들어, socket.destroy()), 'close' 이벤트가 이 phase에서 발생(emitted)될 것입니다. 이 경우가 아니라면, process.nextTick()을 통해 발생(emitted)됩니다.
 
 # setImmediate() vs setTimeout()
-
+# 번역하다 보니 한국어 문서가 존재한다는 걸 뒤늦게 발견해서 중단합니다.... 어쨌든 많은 공부가 되었습니다.
