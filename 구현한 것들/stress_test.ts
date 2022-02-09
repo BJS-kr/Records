@@ -95,3 +95,4 @@ const strategy_2: Strategy = {
 const strategies: Strategy[] = [strategy_1, strategy_2];
 
 artillery('http://localhost:3000', 10, 10, strategies, false);
+// Dependency는 타입스크립트를 사용중이라는 전제하에 js-yaml과 artillery뿐이다.
