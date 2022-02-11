@@ -18,6 +18,108 @@ After environment all be set, run 'npm i' and './starter' bash script on the roo
 ## Here's the architecture and code
 ![explained](https://user-images.githubusercontent.com/78771384/151653623-6778824e-5de4-4346-841f-f07773f4db25.png)
 
+## use decorator (this not follows Nest.js DI. please refer to kafka-client/src/decorators)
+### Decorator Factory (you can check whole implementation in kafka-client/src/factory.ts)
+```typescript
+function kafkaEventDecoratorFactory<T extends (...args: any) => any>(
+  topic: string,
+  kafkaSender: KafkaBatchSender,
+  kafkaEvent: symbol,
+  // you have to specify the ACTUAL event collecting processes(specifier)
+  specifier: (
+    args: IArguments,
+    preservedMethod: any,
+  ) => Promise<{
+    preservedResult: ReturnType<ReturnType<T>>;
+    message: Message;
+  }>,
+) {
+  let messages: Message[] = [];
+
+  return function kafkaTopicDecorator() {
+    return function (
+      target: any,
+      prop: string,
+      descriptor: PropertyDescriptor,
+    ) {
+      const preservedMethod = descriptor.value;
+
+      descriptor.value = async function () {
+        const specifierResult = await specifier(arguments, preservedMethod);
+
+        messages.push(specifierResult.message);
+
+        if (messages.length >= 10) {
+          kafkaSender.topicMessages = { topic, messages };
+          // for expandable usages of function, it use events
+          kafkaSender.emit(kafkaEvent);
+          messages = [];
+        }
+
+        return specifierResult.preservedResult;
+      };
+    };
+  };
+}
+
+// then use it like this in the controller...
+ @Post('FIRST_TOPIC_DECORATED')
+ @exampleDecorator()
+ async someAsynchronousHandler_1(@Text() text) {
+   // some async task....
+   await new Promise((res) => {
+     setTimeout(() => res(text), 500);
+   });
+ }
+```
+
+## EventEmitter extended Kafka sender
+uses queueMicrotask function to execute send method
+```typescript
+export class KafkaBatchSender extends EventEmitter {
+  constructor(private readonly producer: Producer) {
+    super();
+  }
+
+  private batchForm: ProducerBatch = {
+    compression: CompressionTypes.GZIP,
+    topicMessages: [],
+  };
+
+  // 토픽 메세지를 채워넣습니다
+  set topicMessages(topicMessages: TopicMessages) {
+    // batchForm 기본 값이 존재하므로 언제나 undefined가 아닙니다.
+    this.batchForm.topicMessages
+      ? this.batchForm.topicMessages.push(topicMessages)
+      : // 'possibly undefined' since 'topicMessages' is optional  
+        Object.defineProperty(this.batchForm, 'topicMessages', {
+          writable: true,
+          value: [],
+        }) &&
+        (this.batchForm.topicMessages as any as Array<TopicMessages>).push(
+          topicMessages,
+        );
+  }
+
+  public sendBatch() {
+    if (
+      this.batchForm.topicMessages &&
+      this.batchForm.topicMessages.length >= 10
+    ) {
+
+      queueMicrotask(async () => {
+        await this.producer.connect();
+        await this.producer.sendBatch(this.batchForm);
+        await this.producer.disconnect();
+
+        this.batchForm.topicMessages = [];
+      });
+    }
+  }
+}
+```
+
+## Or, use collector functions explicitly
 ## Topic-specific closure func Factory
 ```typescript
 export function eventReceiverFactory(
@@ -47,35 +149,7 @@ export function eventReceiverFactory(
   };
 }
 ```
-## EventEmitter extdended Kafka sender
-uses queueMicrotask function to execute send method
-```typescript
-export class KafkaSender extends EventEmitter {
-  constructor(private readonly producer: Producer) {
-    super();
-  }
 
-  private batchForm: ProducerBatch = {
-    compression: CompressionTypes.GZIP,
-    topicMessages: [],
-  };
-
-  set topicMessages(messages) {
-    this.batchForm.topicMessages.push(messages);
-  }
-
-  public sendBatch() {
-    // uses queueMicrotask to not interfere and affect to buisness logic
-    queueMicrotask(async () => {
-      await this.producer.connect();
-      await this.producer.sendBatch(this.batchForm);
-      await this.producer.disconnect();
-
-      this.batchForm.topicMessages = [];
-    });
-  }
-}
-```
 
 ## Chaining dependencies by token to inject only end of the chain
 ```typescript
@@ -144,35 +218,5 @@ constructor(
 ```
 
 
-## Or, use decorator (this not follows Nest.js DI. please refer to kafka-client/src/decorators)
-### Decorator Factory (you can check out implementaion in kafka-client/src/factory.ts)
-```typescript
-  export function kafkaEventDecoratorFactory(
-  topic: string,
-  kafkaSender: KafkaBatchSender,
-  kafkaSenderMethodEvent: symbol,
-) {
-  let messages = [];
-  return function kafkaTopicDecorator() {
-    return function (
-      target: any,
-      prop: string,
-      descriptor: PropertyDescriptor,
-    ) {
-      // implements event receiver factory..
-      };
-    };
-  };
-}
 
-// then use it like this in the controller...
- @Post('FIRST_TOPIC_DECORATED')
- @KafkaFirstTopic()
- async someAsynchronousHandler_1(@Text() text) {
-   // some async task....
-   await new Promise((res) => {
-     setTimeout(() => res(text), 500);
-   });
- }
-```
 
