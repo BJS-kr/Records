@@ -1,8 +1,36 @@
 # Rescource requirements
 Every Nodes have CPU, MEM, DISK capacities. since every POOs consumes those capacities so there might be troublesome situation that a POD can't land
 any of Nodes because they have not enough Resources. you can check if these situation occured by POD's state(pending) and Events in described informations.
-Kubernetes assumes defaultly that one POD or container in a POD will need 0.5 CPU & 256Mi. this is known as Resource Request for a container, minimum CPU and MEM.
-you can amend those minimum values to actual needed values by POD or Deployment definition. 
+to make kubernetes pick default values, you have to set those default values in Namespace by creating LimitRange.  
+MEM Limit: https://kubernetes.io/docs/tasks/administer-cluster/manage-resources/memory-default-namespace/
+```YAML
+apiVersion: v1
+kind: LimitRange
+metadata:
+  name: mem-limit-range
+spec:
+  limits:
+  - default:
+      memory: 512Mi
+    defaultRequest:
+      memory: 256Mi
+    type: Container
+```
+CPU Limit: https://kubernetes.io/docs/tasks/administer-cluster/manage-resources/cpu-default-namespace/  
+```YAML
+apiVersion: v1
+kind: LimitRange
+metadata:
+  name: cpu-limit-range
+spec:
+  limits:
+  - default:
+      cpu: 1
+    defaultRequest:
+      cpu: 0.5
+    type: Container
+```
+you can amend those default values to actual needed values by POD or Deployment definition. 
 ```YAML
 ...pod definitions...
 spec:
@@ -40,5 +68,14 @@ spec:
 so, waht happens if POD trying to exceeds the resource limits? Kubernets throttles the cpu so POD cannot go beyond of it's limits.
 BUT, this is not applied when the case is MEM. POD can exceed the memory limit, and if this state continues, POD will be terminated.
 
-# Practice Test
+# Quick Note about editing PODs and Deployments
+https://www.udemy.com/course/certified-kubernetes-administrator-with-practice-tests/learn/lecture/14937592#overview
 
+# Practice Test
+1. kubectl describe pod <podname> -> in Requests block, you can check how much cpu needed
+2. kubectl describe pod elephant | grep Reason  -> can inspect reason of crash. OOMKilled  means pod ran out of memory.
+3. kubectl get pod elephant -o yaml > elephant.yml
+4. kubectl replace -f <filename>.yml --force -> replace object by updated configuration file
+
+
+           
