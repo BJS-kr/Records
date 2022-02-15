@@ -18,4 +18,10 @@ When you choose this way, you can view them by 'docker ps'. why? because kube-ap
 theres few ways to kubelet create PODs. first, you can pass definitions to kubelet by designated directory as you saw. second, through HTTP API endpoint. and that is how kube api-server provides inputs to kubelet.
 
 so, above all, why use Static Pods? here are some use cases.
-Since Static Pods are not dependent on kubernetes controlplane, you can use static pods to deploy contolplane components itself as PODs on the Nodes.
+Since Static Pods are not dependent on kubernetes control plane, you can use static pods to deploy contolplane components itself as PODs on the Nodes. start by installing Kubelet on the Master Nodes then create pod-definitions representing control plane components such as apiserver.yml, etcd.yml, controller_manager.yaml etc...via put them in together in designated directory. you don't have to worry about app crash because kubelet will always restart those PODs. and, this is not a side-trick. this is how admin tool sets up the kubernetes cluster. 
+
+# Static Pods vs Damon Sets
+Daemon sets used for ensure that one instance of an application available on all the Nodes. and, Daemon Sets are handled by DeamonSet Controller through kube-apiserver. and as we saw, Static Pods are created directly by Kubelet. there use cases also different. Static Pods are used to deploy control plane components as static pods. and Daemon sets are used for deploy monitoring agents, logging agents on nodes. And both Static Pods and Daemon Sets will be ignored by Kube-Scheduler. 
+
+# Practic Test
+1. kubectl get pods -n <namespace>
