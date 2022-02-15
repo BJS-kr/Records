@@ -21,7 +21,13 @@ so, above all, why use Static Pods? here are some use cases.
 Since Static Pods are not dependent on kubernetes control plane, you can use static pods to deploy contolplane components itself as PODs on the Nodes. start by installing Kubelet on the Master Nodes then create pod-definitions representing control plane components such as apiserver.yml, etcd.yml, controller_manager.yaml etc...via put them in together in designated directory. you don't have to worry about app crash because kubelet will always restart those PODs. and, this is not a side-trick. this is how admin tool sets up the kubernetes cluster. 
 
 # Static Pods vs Damon Sets
-Daemon sets used for ensure that one instance of an application available on all the Nodes. and, Daemon Sets are handled by DeamonSet Controller through kube-apiserver. and as we saw, Static Pods are created directly by Kubelet. there use cases also different. Static Pods are used to deploy control plane components as static pods. and Daemon sets are used for deploy monitoring agents, logging agents on nodes. And both Static Pods and Daemon Sets will be ignored by Kube-Scheduler. 
+Daemon sets used for ensure that one instance of an application available on all the Nodes. and, Daemon Sets are handled by DeamonSet Controller through kube-apiserver. and as we saw, Static Pods are created directly by Kubelet. there use cases also different. Static Pods are used to deploy control plane components as static pods. and Daemon sets are used for deploy monitoring agents, logging agents on nodes. And both Static Pods and Daemon Sets will be ignored by Kube-Scheduler. Kube-scheduler have no effect to these PODs.
 
 # Practic Test
-1. kubectl get pods -n <namespace>
+1. kubectl get pods -n <namespace> -> if POD is static, namespace string will append to POD name
+2. kubectl get pods --all-namespaces
+3. kubectl get pods --all-namespaces -o wide
+4. kubectl run --restart=Never --image=busybox:1.28.4 static-busybox --dry-run=client -o yaml --command -- sleep 1000 > /etc/kubernetes/manifests/static-busybox.yaml
+5. kubectl get nodes -o wide
+6. ssh <node's ip>
+7. kubectl run --restart=Never --image=busybox static-busybox --dry-run=client -o yaml --command -- sleep 1000 > /etc/kubernetes/manifests/static-busybox.yaml
