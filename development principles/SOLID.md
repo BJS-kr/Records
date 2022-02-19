@@ -34,12 +34,12 @@
   **"q(x)를 타입 T의 객체 x에 대해 증명할 수 있는 속성이라 하자. 그렇다면 S가 T의 하위 타입이라면 q(y)는 타입 S의 객체 y에 대해 증명할 수 있어야 한다."** -> **예상치 못한 작동을 방지한다**  
   정의 그대로인 얘기다. 하위 타입이라면 같은 q()함수에 대하여 똑같이 작동해야한다는 뜻이다. JS를 예로 들어, 인터페이스 T를 각각 implements하여 S와 U라는 새로운 class 두개를 생성했다고 가정하자.
   또한 s는 S, u는 U의 인스턴스라고 가정하자. q()의 인자로 T를 implements한 객체를 넣는다고 생각했을 때 q(s)와 q(u)는 모두 잘 작동해야 한다는 것이다. 또 다시 보고서 전송의 예를 떠올려보자.
-  sendReport()함수는 보고서 객체를 인자로 받는 함수라고 가정해보자. sendReport(new FinancialReport(financailArguments))는 sendReport(new MarketingReport(marketingArguments))와 같게 작동해야 할 것이다.
+  sendReport()함수는 보고서 객체를 인자로 받는 함수라고 가정해보자. sendReport(new FinancialReport(financialArguments))는 sendReport(new MarketingReport(marketingArguments))와 같게 작동해야 할 것이다.
   그렇지만 그렇게 작동하지 않을 경우 리스코프 치환 원칙에 위배되게 된다. 원인은 너무 다양할 것이다. 우리의 예로서는 특정 양식은 특정 전송방법으로 전송시 오류가 발생하는 경우를 떠올려 볼 수 있겠다.
   
   ### 4. Interface segregation principle(ISP)
   **"클라이언트는 자신이 이용하지 않는 메서드에 의존하지 않아야 한다"** -> **인터페이스를 분리하면 불필요한 의존관계가 사라져 더 가볍게 인터페이스를 이용 할 수 있다**  
-  정의만 읽어봐도 이해하기 쉬운 원칙이다. Report 인터페이스에 다양한 메서드들이 포함되는 경우를 떠올려보자. 필요한건 sendReport() 하나뿐이라고 해도, 다른 메서드들도 어쩔 수 없이 구현해야만 할 것이ㅏㄷ.
+  정의만 읽어봐도 이해하기 쉬운 원칙이다. Report 인터페이스에 다양한 메서드들이 포함되는 경우를 떠올려보자. 필요한건 sendReport() 하나뿐이라고 해도, 다른 메서드들도 어쩔 수 없이 구현해야만 할 것이다.
   올바른 방식은 필요한 인터페이스만 존재하도록 sendReport()외의 다른 메서드들은 제외한 interface를 만드는 것이다.
   
   ### 5. Dependency inversion principle(DIP)
@@ -47,16 +47,16 @@
   원칙 1. 상위 모듈은 하위 모듈에 의존하는 것이 아니라, 둘다 추상 모듈에 의존해야 한다.  
   원칙 2. 추상 모듈은 구체화된 모듈에 의존해서는 안된다. 구체화된 모듈은 추상 모듈에 의존해야 한다.  
   -> **추상모듈에 의존함으로써 확장성이 증가된다. 또한 상호 결합도가 낮아져 이식성이 증가된다.**  
-  DIP의 예는 사실 프론트 JS코드에서 항상 발견 할 수 있다. 흔히 볼수 있는 EventListner가 바로 그것이다. 무슨 말인지 이해가 가지 않을 수 있다. 좀더 구체적인 예를 들어보겠다.
+  DIP의 예는 사실 프론트 JS코드에서 항상 발견 할 수 있다. 흔히 볼수 있는 EventListener가 바로 그것이다. 무슨 말인지 이해가 가지 않을 수 있다. 좀더 구체적인 예를 들어보겠다.
   click시 실행되며 click을 인자로 받는 onReceive(click)이라는 함수가 있다고 가정하자. 이 함수의 내부에는 alarm 메서드가 존재하며 클릭시 알람이 실행되게 된다.
   이는 DIP를 크게 위반한 설계다. 구체화된 모듈(alarm)이 구체화된 모듈(click)에 의존하고 있기 때문이다. 이를 원칙 1,2에 부합하도록 변경해보자. 먼저 상위 모듈(alarm)과 하위모듈(click)을 모두
-  추상화된 모듈에 의존시켜야한다. 여기서 등장하는 것이 Event와 EventListner이다. 즉 click은 Event에, alarm은 EventListner에 의존시키는 것인데 EventListner는 또한 Event에 의존시킨다.
+  추상화된 모듈에 의존시켜야한다. 여기서 등장하는 것이 Event와 EventListener이다. 즉 click은 Event에, alarm은 EventListener에 의존시키는 것인데 EventListener는 또한 Event에 의존시킨다.
   이렇게 하면 2원칙까지 모두 만족된다. 작동 순서는 이러하다.  
   
   
-  click은 event라는 인터페이스를 구현하고, 알람은 eventListner를 구현한다. event는 register라는 메서드를 가지며 eventListner는 onFire라는 메서드를 가진다고 가정한다. 
-  click발생시 register(eventListner)가 동작하여 eventListner의 onFire()로 호출 된다. onFire는 알람을 표시한다. click과 alarm이 추상화된 모듈들의 관계를 통해 분리 된 것이다.
-  이제 우리는 click뿐 아니라 mail, chat등의 각종 이벤트를 자유롭게 event인터페이스에 구현할 수 있고, 마찬가지로 alarm또한 팝업, 조건부 알람 등 원하는 대로 eventListner의 onFire도 구현 할 수 있게 되었다.
+  click은 event라는 인터페이스를 구현하고, 알람은 eventListener를 구현한다. event는 register라는 메서드를 가지며 eventListener는 onFire라는 메서드를 가진다고 가정한다. 
+  click발생시 register(eventListener)가 동작하여 eventListener의 onFire()로 호출 된다. onFire는 알람을 표시한다. click과 alarm이 추상화된 모듈들의 관계를 통해 분리 된 것이다.
+  이제 우리는 click뿐 아니라 mail, chat등의 각종 이벤트를 자유롭게 event인터페이스에 구현할 수 있고, 마찬가지로 alarm또한 팝업, 조건부 알람 등 원하는 대로 eventListener의 onFire도 구현 할 수 있게 되었다.
   확장성 및 이식성이 극대화 된 것이다.
   
   
