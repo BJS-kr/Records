@@ -17,7 +17,7 @@ try {
 왜냐하면 return이 finally를 실행시키지 않을까봐 try-catch에 release를 욱여넣은 형태이기 때문이다.  
 
 이런 걱정은 할 필요가 없다.   
-finally block이 값을 반환할 경우, finally 이전의 return은 잠시 '억류(suspended)'되고 finally가 실행된 후 값을 반환하게 된다.   
+finally block이 존재할 경우, finally 이전의 return은 잠시 '억류(suspended)'되고 finally가 실행된 후 값을 반환하게 된다.   
 
 즉 위와 같은 코드는 다음과 같이 수정되어야 한다.  
 ```javascript
