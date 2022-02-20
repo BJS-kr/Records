@@ -44,17 +44,11 @@ const filter = (f, iterable) => {
   return res;
 };
 
-const filterAndReduce = (FF, RF, iterable, initV = null) => {
-  const toReduce = filter(FF, iterable);
-  return promisedReduce(RF, toReduce, initV);
-};
-
-filterAndReduce(
-  (x) => x instanceof Promise,
+promisedReduce(
   async (acc, cur, i) => {
     acc.push([(await cur.catch(error)) ?? 'must have rejected', i]);
     return acc;
   },
-  target,
+  filter((x) => x instanceof Promise, target),
   new Array()
 ).then(log); // [ [ 'res 1', 0 ], [ 'must have rejected', 1 ], [ 'res 2', 2 ] ]
