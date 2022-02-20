@@ -44,11 +44,24 @@ const filter = (f, iterable) => {
   return res;
 };
 
-promisedReduce(
-  async (acc, cur, i) => {
-    acc.push([(await cur.catch(error)) ?? 'must have rejected', i]);
-    return acc;
-  },
-  filter((x) => x instanceof Promise, target),
-  new Array()
-).then(log); // [ [ 'res 1', 0 ], [ 'must have rejected', 1 ], [ 'res 2', 2 ] ]
+const map = (f, iterable) => {
+  let res = [];
+  for (const v of iterable) {
+    res.push(f(v));
+  }
+  return res;
+};
+
+const resolveAndPush = async (acc, cur, i) => {
+  acc.push([(await cur.catch(error)) ?? 'must have rejected', i]);
+  return acc;
+};
+const wherePromise = (x) => x instanceof Promise;
+const getFirstValue = (x) => x[0];
+
+// more readable
+promisedReduce(resolveAndPush, filter(wherePromise, target), new Array()).then(
+  (res) => {
+    log(map(getFirstValue, res)); // [ 'res 1', 'must have rejected', 'res 2' ]
+  }
+);
