@@ -1,6 +1,6 @@
 const log = console.log;
 
-const reduce = (f, iterable, initV = null) => {
+const reduce = (f, initV = null, iterable) => {
   let acc;
   let i = 0;
 
@@ -8,7 +8,7 @@ const reduce = (f, iterable, initV = null) => {
     try {
       Symbol.iterator in initV;
 
-      iterable = initV;
+      iterable = initV[Symbol.iterator]();
       acc = iterable.next().value;
     } catch {
       throw new Error('reduce function must be used with iterable');
@@ -17,18 +17,14 @@ const reduce = (f, iterable, initV = null) => {
     acc = initV;
   }
 
-  for (const v of iterable) {
-    acc = f(acc, v, i++);
+  for (const cur of iterable) {
+    acc = f(acc, cur, i++);
   }
 
   return acc;
 };
 
-const go = (...args) =>
-  reduce((a, f) => {
-    log(a, f);
-    f(a);
-  }, args);
+const go = (...args) => reduce((acc, cur) => cur(acc), args);
 
 go(
   0,
