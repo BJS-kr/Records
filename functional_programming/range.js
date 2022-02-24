@@ -2,7 +2,7 @@ import { log } from 'console';
 import { reduce } from './reduce.js';
 
 export const range = (range, step = 1, start = 0) => {
-  if (step === 0) step = 1;
+  if (!step) step = 1; // if step is falsy(to include case when given step is 0 or null)
   if (range === start) return [];
   if (range < 0 && step > 0) step = -1;
 
@@ -40,7 +40,7 @@ log(reduce((acc, cur) => acc + cur, range(10, 2, 4))); // 18
 // lazy range
 // none of were evaluated till generator was called
 export const lazyRange = function* (range, step = 1, start = 0) {
-  if (step === 0) step = 1;
+  if (!step) step = 1;
   if (range === start) return [];
   if (range < 0 && step > 0) step = -1;
 
