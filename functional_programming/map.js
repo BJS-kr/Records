@@ -1,23 +1,24 @@
-const log = console.log;
+import { log } from 'console';
+import { curry } from './curry.js';
+import { go, go1 } from './go.js';
+import { pipe } from './pipe.js';
+import { take } from './take.js';
 
-const m = new Map();
-
-const map = (f, iterable) => {
-  let res = [];
-  for (const v of iterable) {
-    res.push(f(v));
+export const lazyMap = curry(function* (f, iter) {
+  iter = iter[Symbol.iterator]();
+  let cur;
+  while (!(cur = iter.next()).done) {
+    yield go1(cur.value, f);
   }
-  return res;
-};
+});
 
-function* gen() {
-  for (let i = 0; i < 3; i++) {
-    yield i;
-  }
-}
+export const map = curry(pipe(lazyMap, take(Infinity)));
 
-m.set("a", 1);
-m.set("b", 2);
-
-log(map((x) => x * x, gen()));
-log(map(([k, v]) => [k, v * 2], m));
+go(
+  [Promise.resolve(1), 4, Promise.resolve(2), 6, Promise.resolve(3)],
+  lazyMap((x) => {
+    return x + 10;
+  }),
+  take(4),
+  log
+);
