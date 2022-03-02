@@ -1,17 +1,17 @@
-const log = console.log;
+import { curry } from './curry.js';
+import { go1 } from './go.js';
+import { nop } from './resources.js';
 
-const m = new Map();
+const reduceF = (f, acc, curV, i) => {
+  return curV instanceof Promise
+    ? curV.then(
+        (curV) => f(acc, curV, i),
+        (err) => (err == nop ? acc : Promise.reject(err))
+      )
+    : f(acc, curV);
+};
 
-m.set("a", 1);
-m.set("b", 2);
-
-function* gen() {
-  for (let i = 0; i < 20; i++) {
-    yield i;
-  }
-}
-
-const reduce = (f, iterable, initV = null) => {
+export const reduce = curry((f, initV = null, iterable) => {
   let acc;
   let i = 0;
 
@@ -19,82 +19,29 @@ const reduce = (f, iterable, initV = null) => {
     try {
       Symbol.iterator in initV;
 
-      iterable = initV;
+      iterable = initV[Symbol.iterator]();
       acc = iterable.next().value;
     } catch {
-      throw new Error("reduce function must be used with iterable");
+      throw new Error('reduce function must be used with iterable');
     }
   } else {
     acc = initV;
   }
 
-  for (const v of iterable) {
-    acc = f(acc, v, ++i);
+  function recur(acc) {
+    let cur;
+    while (!(cur = iterable.next()).done) {
+      const curV = cur.value;
+      // acc가 변하기 때문에 똑같은 모양의 코드를 함수에 담아서 실행시켜야 한다는데 무슨 말인지 이해가 잘 안간다.
+      acc = reduceF(f, acc, curV, i);
+
+      if (acc instanceof Promise) {
+        return acc.then(recur);
+      }
+    }
+
+    return acc;
   }
 
-  return acc;
-};
-
-log(
-  reduce(
-    (acc, cur, i) => {
-      if (acc === null) return cur;
-      if (typeof acc === "number") {
-        if (i > 10) return acc;
-        return acc + cur;
-      }
-
-      return null;
-    },
-    gen(),
-    "NOT_NUMBER"
-  )
-);
-
-log(
-  reduce(
-    (acc, cur, i) => {
-      if (acc === null) return cur[1];
-      if (typeof acc === "number") {
-        if (i > 10) return acc;
-        return acc + cur[1];
-      }
-
-      return null;
-    },
-    m,
-    99
-  )
-);
-
-log(
-  reduce(
-    (acc, cur, i) => {
-      if (acc === null) return cur;
-      if (typeof acc === "number") {
-        if (i > 10) return acc;
-        return acc + cur;
-      }
-
-      return null;
-    },
-    null,
-    gen()
-  )
-);
-
-log(
-  reduce(
-    (acc, cur, i) => {
-      if (acc === null) return cur;
-      if (typeof acc === "number") {
-        if (i > 10) return acc;
-        return acc + cur;
-      }
-
-      return null;
-    },
-    null,
-    "NOT_ITERABLE"
-  )
-);
+  return go1(acc, recur);
+});
