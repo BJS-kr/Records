@@ -26,5 +26,11 @@ export const take = curry((limit, iter) => {
   })();
 });
 
+export const conTake = (limit, iter) => {
+  let conIter;
+  (conIter = [...iter]).forEach((each) =>
+    each instanceof Promise ? each.catch((e) => e) : each
+  );
 
-
+  return take(limit, conIter);
+};
