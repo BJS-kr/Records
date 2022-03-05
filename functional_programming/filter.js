@@ -1,6 +1,6 @@
 import { curry } from './curry.js';
 import { pipe } from './pipe.js';
-import { take } from './take.js';
+import { conTake, take } from './take.js';
 import { go1 } from './go.js';
 import { nop } from './resources.js';
 
@@ -20,3 +20,5 @@ export const lazyFilter = curry(function* (f, iter) {
 });
 
 export const filter = curry(pipe(lazyFilter, take(Infinity)));
+export const conFilter = curry(pipe(lazyFilter, conTake(Infinity)));
+
