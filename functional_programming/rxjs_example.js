@@ -72,3 +72,35 @@ const query = (obj) => {
 
 query(objectToQuery).subscribe(console.log);
 
+// mergeMap으로 동시성을 가진 요청을 해봅시다
+// 아래와 같이 request를 promisify하여 응답에 2초가 걸리는 GET요청이 있다고 가정해보겠습니다.
+const URLs = ['google.com', 'naver.com', 'daum.net'];
+const PR = (url) =>
+  new Promise((res) => {
+    const options = {
+      host: url,
+      path: '/',
+    };
+
+    setTimeout(
+      () =>
+        request(options, (response) => {
+          res(response.statusCode);
+        }).end(),
+      2000
+    );
+  });
+
+// mergeMap에서 concurrent는 기본적으로 infinity입니다. 즉 명시하지 않으면 Observable들을 동시에 처리한다는 뜻이지요.
+// concurrent의 값을 다르게 설정해서 이를 확인해보겠습니다.
+// 먼저 1로 값을 줘보겠습니다. 2초마다 응답 코드가 돌아옵니다.
+from(URLs)
+  .pipe(mergeMap(PR, 1))
+  .subscribe(console.log);
+
+// 여기선 모든 Observable을 풀었으므로 한꺼번에 결과가 돌아옵니다. 
+from(URLs)
+  .pipe(mergeMap(PR /**concurrent = infinity */))
+  .subscribe(console.log);
+
+
