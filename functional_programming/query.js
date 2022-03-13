@@ -1,6 +1,9 @@
+import { pipe } from './pipe.js';
+import { curry } from './curry.js';
 import { lazyFilter } from './filter.js';
 import { lazyMap } from './map.js';
 import { reduce } from './reduce.js';
+import { map } from './map.js';
 
 const possibleQueryParams = {
   a: 1,
@@ -36,11 +39,11 @@ function query_2(obj) {
 
 console.log(query_2(possibleQueryParams)); // ?a=1&c=stringParam1&d=stringParam2
 
-// iterable protocol을 따르는 함수들로 바꿔봅시다
+// iterable protocol을 따르는 함수들로 바꿔봅시다.
 function query_3(obj) {
-  reduce(
+  return reduce(
     (query, kv) => {
-      return `${query}&${kv}`;
+      return query !== '?' ? `${query}&${kv}` : `${query}${kv}`;
     },
     '?',
     lazyMap(
@@ -51,3 +54,14 @@ function query_3(obj) {
 }
 
 console.log(query_3(possibleQueryParams));
+
+// 반대로 쿼리를 코드에서 사용하기 쉽게 object로 바꾸는 함수를 작성해봅시다.
+const split = curry((sep, str) => str.split(sep));
+const queryToObject = pipe(
+  split('&'),
+  map(split('=')),
+  map(([k, v]) => ({ [k]: v })),
+  reduce(Object.assign)
+);
+
+console.log(queryToObject(query_3(possibleQueryParams)));
