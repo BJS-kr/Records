@@ -9,9 +9,17 @@ import {
   scan,
   reduce,
   mergeMap,
-  firstValueFrom,
-  filter
+  bufferCount,
+  of,
 } from 'rxjs';
+import { filter } from 'rxjs/operators';
+
+const objectToQuery = {
+  a: 'AA',
+  b: 'BB',
+  c: undefined,
+  d: 'DD',
+};
 
 function* user() {
   let age = 20;
@@ -42,10 +50,25 @@ obsUsers
   )
   .subscribe((x) => console.log(x));
 
-firstValueFrom(
-  enUsers.pipe(
+enUsers
+  .pipe(
     mergeMap(({ name: en, _ }) =>
       krUsers.pipe(map(({ name: kr, _ }) => en + kr))
-    )
+    ),
+    bufferCount(3, 6)
   )
-).then((x) => console.log(x));
+  .subscribe((x) => console.log(x));
+
+// object를 쿼리로 변형하는 Observable을 작성해봅시다.
+const query = (obj) => {
+  return from(Object.entries(obj)).pipe(
+    filter(([_, v]) => v !== undefined),
+    map(([k, v]) => `${k}=${v}`),
+    reduce((acc, cur) => {
+      return acc === '' ? `${acc}${cur}` : `${acc}&${cur}`;
+    }, '')
+  );
+};
+
+query(objectToQuery).subscribe(console.log);
+
