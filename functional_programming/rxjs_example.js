@@ -103,4 +103,20 @@ from(URLs)
   .pipe(mergeMap(PR /**concurrent = infinity */))
   .subscribe(console.log);
 
+// subscribe내부에서 잡힌 값을 리턴하고 싶으면 어떻게 해야할까요?
+// 예를 들어 엔드포인트에서 값을 Observable이 아니라 값을 반환받고 싶은 상황이겠지요. 함수로 표현해보겠습니다.
+// 값을 하나 받는 것은 어렵지 않지만 연속적인 Observable의
+async function getRes(URLs) {
+  return new Promise((resolve) => {
+    from(URLs)
+      .pipe(mergeMap(PR /**concurrent = infinity */), bufferCount(Infinity)/**혹은 reduce로 값을 만들어도 결과는 같습니다. */)
+      .subscribe((x) => resolve(x));
+  });
+}
+
+console.time('');
+getRes(URLs).then((x) => {
+  console.log(x); // URLs의 길이만큼 응답이 들어옵니다.
+  console.timeEnd(''); // 동시처리로 인해 세가지 값이 2초뒤에 들어옵니다.
+});
 
