@@ -130,6 +130,7 @@ function getRes(URLs) {
 // 이런 시도를 하는 이유는, 코드 재사용이 가능해지기 때문입니다.
 // concat된 Observable을 다루는 코드는 for loop이 제거되고 이터러블 프로그래밍 코드로 완전히 마이그레이션 된 이후(즉, 애초에 이터러블 프로토콜로 인해 연속적인 subscribe가 가능한 Observable로 출발한다는 의미)에도 정확히 같게 사용할 수 있겠지요.
 function getRes(URLs) {
+  // 이 코드에서 URLs 배열은 이미 즉시 평가되어있으므로 shift를 사용하고 있지만, 이터러블 인자가 지연평가된다면 next로 처리하면 되겠지요
   let target = of(URLs.shift()).pipe(map(PR));
   for (const url of URLs) {
     target = concat(target, of(url).pipe(map(PR)));
