@@ -123,6 +123,20 @@ function getRes(URLs) {
   });
 }
 
+// 마지막 버전입니다. 이터러블 프로그래밍이 잘 설계되지 않은 경우(혹은 기존 코드에서 즉시 마이그레이션이 불가능할 경우)에 아래와 같은 상황에 맞닥뜨리게 됩니다.
+// 이미 코드가 for loop에 너무 깊게 연관되어 있어 아예 코드를 다시 짜야하는 경우(제가 회사에서 겪고 있는 경우입니다 ㅠㅠ), 일단 첫 단계로 시도해볼만한 방법입니다.
+// Observable을 for loop에서 반환중이었다고 가정합니다. 각 Observable마다 따로 처리를 해야한다는 뜻이지요. Observable을 사용하는 의미도 없을 뿐더러 코드가 매우 지저분 할 것입니다.
+// 이런 경우 순차적으로 반환되는 Observable들을 합친 후, 한번에 처리해봅시다.
+// 이런 시도를 하는 이유는, 코드 재사용이 가능해지기 때문입니다.
+// concat된 Observable을 다루는 코드는 for loop이 제거되고 이터러블 프로그래밍 코드로 완전히 마이그레이션 된 이후(즉, 애초에 이터러블 프로토콜로 인해 연속적인 subscribe가 가능한 Observable로 출발한다는 의미)에도 정확히 같게 사용할 수 있겠지요.
+function getRes(URLs) {
+  let target = of(URLs.shift()).pipe(map(PR));
+  for (const url of URLs) {
+    target = concat(target, of(url).pipe(map(PR)));
+  }
+  target.pipe(zipAll()).subscribe(console.log);
+}
+
 console.time('');
 getRes(URLs).then((x) => {
   console.log(x); // URLs의 길이만큼 응답이 들어옵니다.
