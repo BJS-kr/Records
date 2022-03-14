@@ -114,6 +114,15 @@ async function getRes(URLs) {
   });
 }
 
+// mergeMap을 사용하지 않고 map으로 연산한 후, 모든 결과를 한번에 전달하는 zipAll을 사용해도 결과는 같습니다 :)
+function getRes(URLs) {
+  return new Promise((resolve) => {
+    from(URLs)
+      .pipe(map(PR), zipAll())
+      .subscribe((x) => resolve(x));
+  });
+}
+
 console.time('');
 getRes(URLs).then((x) => {
   console.log(x); // URLs의 길이만큼 응답이 들어옵니다.
