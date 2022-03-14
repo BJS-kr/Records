@@ -105,7 +105,8 @@ from(URLs)
 
 // subscribe내부에서 잡힌 값을 리턴하고 싶으면 어떻게 해야할까요?
 // 예를 들어 엔드포인트에서 값을 Observable이 아니라 값을 반환받고 싶은 상황이겠지요. 함수로 표현해보겠습니다.
-// 값을 하나 받는 것은 어렵지 않지만 연속적인 Observable의
+// 값을 하나 받는 것은 어렵지 않지만 연속적인 Observable의 값을 하나씩 받는 다는 것은 지리한 일입니다. 다행히도 받아야할 만큼의 결과를 pipe내에서 계산하는 것이 가능합니다.
+// 아래의 경우에선 모든 결과를 받아야하기 때문에 따로 take하지 않았지만 Observable의 지연평가를 제대로 활용하려면, 먼저 받아야할 만큼 take하는 것이 좋습니다.
 async function getRes(URLs) {
   return new Promise((resolve) => {
     from(URLs)
