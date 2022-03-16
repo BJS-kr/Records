@@ -42,6 +42,7 @@ export const reduce = curry((f, initV = null, iterable) => {
     }
   } else {
     acc = initV;
+    iterable = iterable[Symbol.iterator]();
   }
 
   function recur(acc) {
