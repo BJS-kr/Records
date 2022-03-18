@@ -1,3 +1,4 @@
+// https://www.acmicpc.net/problem/1193
 // 1: 1
 // 2: 2 3
 // 3: 4 5 6
@@ -14,7 +15,7 @@ while (target > lineLimit) {
 
 const adjust = lineLimit - target
 
-if (line % 2 === 0) console.log(`${line - adjust}/${1 + adjust}`)
-else console.log(`${1 + adjust}/${line - adjust}`)
+console.log(line % 2 === 0 ? `${line - adjust}/${1 + adjust}` : `${1 + adjust}/${line - adjust}`)
+
 
 

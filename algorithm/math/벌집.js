@@ -1,3 +1,4 @@
+// https://www.acmicpc.net/problem/2292
 // 1: 2~7
 // 2: 8~19
 // 3: 20~37
@@ -12,5 +13,4 @@ while (n > 1 + add) {
   add += ++count * step
 }
 
-if (n == 1) console.log(1);
-else console.log(count + 1)
+console.log(n == 1 ? 1 : count + 1)
