@@ -1,3 +1,4 @@
+// https://www.acmicpc.net/problem/10250
 const stdin = require('fs').readFileSync('/dev/stdin').toString().trim().split('\n');
 stdin.shift();
 
