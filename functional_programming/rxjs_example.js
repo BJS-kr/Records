@@ -1,6 +1,6 @@
 // 유명한 라이브러리들도 함수형 프로그래밍의 해법을 제시합니다. 대표적으로 rxjs가 있겠지요.
 // rxjs의 Observable은 monad입니다. 이에 대한 설명 링크를 첨부합니다: https://stackoverflow.com/questions/51542865/is-rxjs-observable-a-monad
-// rxjs는 side effect를 tap으로 다룰 것을 권고합니다(파이프라인의 나머지는 순수함수가 될 수 있도록). 이 곳에서 tap을 통한 처리는 제외합니다. 다만 로깅 혹은 에러 처리가 가장 대표적인 tap usecase라는 것을 알아두시기 바랍니다.
+// rxjs는 side effect를 tap으로 다룰 것을 권고합니다(파이프라인의 나머지는 순수함수가 될 수 있도록). 이 곳에서 tap을 통한 처리는 제외합니다. 다만 로깅 혹은 throwing error가 가장 대표적인 tap use-case라는 것을 알아두시기 바랍니다.
 // 간단하게 데이터를 Lisp하게 다뤄보겠습니다.
 
 import {
