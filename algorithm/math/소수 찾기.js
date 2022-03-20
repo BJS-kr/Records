@@ -9,9 +9,8 @@ for (const n of input) {
   let num = 2;
   let is = true;
 
-  while(num <= n / 2) {
-    if(n % num === 0) {is = false; break;}
-    num++
+  while(num <= Math.sqrt(n)) {
+    if(n % num++ === 0) {is = false; break;}
   }
 
   if (is) count++
