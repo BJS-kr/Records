@@ -1,43 +1,24 @@
 // https://www.acmicpc.net/problem/1929
-let [M, N] = require('fs').readFileSync('/dev/stdin').toString().split(' ').map(x => +x)
+let [M, N] = require('fs').readFileSync('/dev/stdin').toString().split(' ').map(x => +x);
+let index = Array(N + 1).fill(1);
 
-function range(M, N) {
-  if (M === 1) {
-    if (M !== N)
-      M = 2;
-    else return [];
+function* range(end, start=0, step=1) {
+  while (start <= end) {
+    yield start
+    start += step;
   }
-
-  let num = [];
-
-  while (M <= N) {
-    num.push(M++)
-  }
-
-  return num;
 }
 
-let rangeNum = range(M, N);
-let index = 2
-function filter(rangeNum) {
-  for (const num of rangeNum) {
-    if (num <= index) continue;
-    let divider = 2;
+const limit = Math.sqrt(N)
 
-    while(divider <= Math.sqrt(N) && divider <= num) {
-      if (num % divider === 0 && num !== divider) {
-
-        let count = 1
-        index = num
-        rangeNum = rangeNum.filter(x => num * count === x ? (count++, false) : true)
-        
-        return filter(rangeNum)
+for (const n of range(limit, 2)) {
+  if (index[n]) {
+    for (const v of range(N, n * 2, n)) {
+      index[v] = 0;
     }
-    divider++
   }
 }
 
-return rangeNum;
-}
+const res = index.map((x, i) => x && i >= M && i > 1 && i).filter(x => x)
+console.log(res.join('\n'))
 
-console.log(filter(rangeNum).join('\n'))
