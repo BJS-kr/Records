@@ -1,3 +1,4 @@
+// https://www.acmicpc.net/problem/9020
 const [caseCount, ...cases] = require('fs').readFileSync('/dev/stdin').toString().trim().split('\n').map(x => +x);
 
 function *range(end, start = 0, step = 1) {
