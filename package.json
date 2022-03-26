@@ -1,0 +1,22 @@
+{
+  "name": "records",
+  "version": "1.0.0",
+  "description": "timid hints of what I've been thorough",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/BJS-kr/Records.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/BJS-kr/Records/issues"
+  },
+  "homepage": "https://github.com/BJS-kr/Records#readme",
+  "dependencies": {
+    "@types/node": "^17.0.23"
+  }
+}
