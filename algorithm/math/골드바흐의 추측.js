@@ -1,5 +1,5 @@
-const numbers = range(10000, 4, 2)
-// require('fs').readFileSync('./input.txt').toString().split('\n').map(x => +x);
+const [caseCount, ...cases] = require('fs').readFileSync('/dev/stdin').toString().trim().split('\n').map(x => +x);
+
 function *range(end, start = 0, step = 1) {
   while(start <= end) {
     yield start;
@@ -7,29 +7,31 @@ function *range(end, start = 0, step = 1) {
   }
 }
 
-function getGoldbachPartition(n) {
-  let index = Array(n + 1).fill(1, 2);
+const maxNumber = Math.max(...cases);
+const maxRange = range(Math.sqrt(maxNumber), 2);
+const primes = (() => {
+  let primeRange = Array(maxNumber + 1).fill(1, 2);
 
-  for (const num of range(Math.sqrt(n), 2)) {
-    if (index[num]) {
-      for (const num2 of range(n, num * 2, num)) {
-        index[num2] = 0;
+  for (const number of maxRange) {
+    if (primeRange[number]) {
+      const multiples = range(maxNumber, number * 2, number);
+      for (const multiple of multiples) {
+        primeRange[multiple] = 0;
       }
     }
   }
 
-  index = index.map((x, i)=> x && i).filter(x => x);
-  
-  const indexLength = index.length;
-  
-  let fromMiddle = indexLength > 2 ? Math.floor(index.length / 2) : 0;
-  
-  while(!index.includes(n - index[fromMiddle]) && fromMiddle <= indexLength) {
-    fromMiddle++
+  return primeRange.map((x, i) => x && i).filter(x => x);
+})()
+
+for (const caseNumber of cases) {
+  let goldbachPartition;
+  for (const prime of primes) {
+    const between = caseNumber - prime;
+    if (between < 2 || between < prime) break;
+    if (primes.includes(between)) {
+      goldbachPartition = [prime, between]
+    }
   }
-
-  const [maybeBigger, maybeSmaller] = [n - index[fromMiddle], index[fromMiddle] ];
-  console.log(maybeBigger > maybeSmaller ? `${maybeSmaller} ${maybeBigger}` : `${maybeBigger} ${maybeSmaller}`);
+  console.log(...goldbachPartition)
 }
-
-[...numbers].forEach((n, i) => i > 0 && getGoldbachPartition(n));
