@@ -28,11 +28,12 @@ const primes = (() => {
 for (const caseNumber of cases) {
   let goldbachPartition;
   for (const prime of primes) {
-    const between = caseNumber - prime;
-    if (between < 2 || between < prime) break;
-    if (primes.includes(between)) {
-      goldbachPartition = [prime, between]
+    const remaining = caseNumber - prime;
+    if (remaining < 2 || remaining < prime) break;
+    if (primes.includes(remaining)) {
+      goldbachPartition = [prime, remaining]
     }
   }
-  console.log(...goldbachPartition)
+  
+  console.log(...goldbachPartition);
 }
