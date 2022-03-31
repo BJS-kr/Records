@@ -17,6 +17,11 @@
   },
   "homepage": "https://github.com/BJS-kr/Records#readme",
   "dependencies": {
-    "@types/node": "^17.0.23"
+    "@types/node": "^17.0.23",
+    "axios": "^0.26.1",
+    "split": "^1.0.1"
+  },
+  "devDependencies": {
+    "@types/split": "^1.0.1"
   }
 }

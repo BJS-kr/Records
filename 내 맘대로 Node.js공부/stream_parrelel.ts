@@ -1,5 +1,5 @@
-import { createReadStream, createWriteStream, PathLike, readdirSync, readFileSync } from 'fs';
-import { Readable, Transform, TransformCallback, TransformOptions, pipeline } from 'stream';
+import { createReadStream, createWriteStream } from 'fs';
+import { Transform, TransformCallback, TransformOptions, pipeline } from 'stream';
 // chunk를 지정 문자열을 기준(String.prototype.split과 다르게 기본값 \n)으로 분리하여 stream 시켜주는 패키지
 // 즉 line별로 스트림 시켜준다는 것과 같다.
 import split from 'split'
@@ -7,10 +7,11 @@ import axios from 'axios'
 
 class ParallelTransform extends Transform {
   constructor(
-    private readonly transformFunc:(...args:any[]) => any,
+    private readonly transformFunc:(chunk:any, encoding:BufferEncoding, push:(chunk:any, encoding?:BufferEncoding) => boolean, done:(err?)=>boolean) => any,
     options: TransformOptions
   ) {
     super(options);
+    
   }
   private running = 0;
   private terminateCb: TransformCallback | null = null;
@@ -41,7 +42,7 @@ class ParallelTransform extends Transform {
   }
 
   // 커스텀 종료 메서드
-  _done(err:any) {
+  _done(err:Error) {
     this.running--;
     if (err) return this.emit('error', err)
     // running 갯수가 0이면 
