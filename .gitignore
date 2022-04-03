@@ -1,3 +1,5 @@
 node_modules
 urls.txt
 health_check_result.txt
+.prettierrc
+input.txt
