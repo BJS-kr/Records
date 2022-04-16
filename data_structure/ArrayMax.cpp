@@ -13,6 +13,7 @@ int ArrayMax(int num[]) {
 
 int main() {
   int num[] = {0, 6, 2, 4, 3, 5};
-  ArrayMax(num);
+  int result = ArrayMax(num);
+  cout << result;
   return 0;
 }
