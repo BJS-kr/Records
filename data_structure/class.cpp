@@ -30,17 +30,3 @@ class Car {
       std::cout << "address: " << this << std::endl;
     }
 };
-
-int main() {
-  Car myCar(0, 0, "bjs");
-  
-  myCar.whereAmI();
-  myCar.speedUp();
-  myCar.changeGear();
-  myCar.changeGear(8);
-  myCar.speedUp();
-  myCar.display();
-  myCar.whereAmI();
-
-  return 0;
-}
