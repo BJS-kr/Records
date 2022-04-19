@@ -24,7 +24,7 @@ int main() {
   
   cout << x << ' ' << y << endl;
   nothingChanges(x, y);
-  // 값이 변하지 않았다. 메모리 주소에 x, y의 메모리 주소에 직접 접근한 것이 아니기 때문이다.
+  // 값이 변하지 않았다. x, y의 메모리 주소에 직접 접근한 것이 아니기 때문이다.
   
   cout << x << ' ' << y << endl;
   pointerChange(xP, yP);
