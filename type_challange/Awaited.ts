@@ -6,9 +6,5 @@
  */
 
 // Answer
-type AwaitedType<T> = T extends null
-  ? T
-  : T extends object & { then(onfullfilled: infer R): any }
-  ? R extends (v:infer V):'':''
-
-type t = Awaited<number>;
+type AwaitedType<T> = T extends Promise<infer R> ? AwaitedType<R> : T;
+type Resolved = AwaitedType<Promise<Promise<number>>>;
