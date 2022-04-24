@@ -7,14 +7,14 @@
 type MyExcluded<T, U> = T extends U ? never : T;
 type MyOmit<T, U> = { [K in MyExcluded<keyof T, U>]: T[K] };
 
-interface Todo {
+interface ToDo {
   title: string;
   description: string;
   completed: boolean;
 }
 
-type TodoPreview = MyOmit<Todo, 'description' | 'title'>;
+type TodoPreview = MyOmit<ToDo, 'description' | 'title'>;
 
-const todo: TodoPreview = {
+const toDo: TodoPreview = {
   completed: false,
 };
