@@ -8,4 +8,4 @@
 type StringLength<S extends string> = S extends `${infer Start}${infer End}`
   ? [Start, StringLength<End>]
   : never;
-type StringLengthMeasured = StringLength<'h'>;
+type StringLengthMeasured = StringLength<'hello'>;
