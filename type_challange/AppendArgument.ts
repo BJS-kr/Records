@@ -13,5 +13,5 @@ type AppendArgument<F, A> = F extends (...params: infer P) => infer R
   : never;
 type Fn = (a: number, b: string) => number;
 
-type Result = AppendArgument<Fn, boolean>;
+type ResultA = AppendArgument<Fn, boolean>;
 // expected be (a: number, b: string, x: boolean) => number
