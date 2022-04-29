@@ -1,4 +1,3 @@
-// merge sort사용
 const [n, ...ints] = require('fs')
   .readFileSync('../input.txt')
   .toString()
@@ -6,6 +5,7 @@ const [n, ...ints] = require('fs')
   .split('\n')
   .map((x) => +x);
 
+// merge sort 시간초과
 function merge(left, right) {
   const sorted = [];
   let [leftIndex, rightIndex] = [0, 0];
