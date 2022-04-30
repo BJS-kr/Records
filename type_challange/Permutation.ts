@@ -18,20 +18,20 @@ type loop = Loop<'a' | 'b' | 'c'>; // "loop a" | "loop b" | "loop c"
 type Loop2<T, K = T> = T extends T ? [T, K] : never;
 type loop2 = Loop2<'a' | 'b' | 'c'>;
 // 위의 결과는 ["a", "a" | "b" | "c"] | ["b", "a" | "b" | "c"] | ["c", "a" | "b" | "c"] 이다.
-// 무슨 차이인지 보이는가? T는 분배되었지만 K는 분배되지 않았다!
+// 무슨 차이인지 보이는가? T는 분배되었지만 K는 분배되지 않았다.
 // T extends T를 K extends K로 바꿔보자
 type Loop3<T, K = T> = K extends K ? [T, K] : never;
 type loop3 = Loop3<'a' | 'b' | 'c'>;
-// 결과가 완전히 바뀌었다!
+// 결과가 완전히 바뀌었다.
 // ["a" | "b" | "c", "a"] | ["a" | "b" | "c", "b"] | ["a" | "b" | "c", "c"]
-// 즉 T는 분배되지 않았고, K만 분배되었다!
+// 즉 T는 분배되지 않았고, K만 분배되었다.
 
 // 이뿐이 아니다. never는 distributive extends 로 검증할 수 없다. 예를 들어보자
 type ExtendsNever1<T> = T extends never ? true : false;
 type extendsNever1 = ExtendsNever1<never>; // never
 // true도 false도 아닌 never가 튀어나왔다. never는 검증할 수 없는 것일까?
 // distributive type을 avoid하면 never도 검증할 수 있다.
-// 정확히는 square bracket을 씌우면 가능하다. 이를 배열을 표현한 것으로 오해하면 안된다!
+// 정확히는 square bracket을 씌우면 가능하다. 이를 배열을 표현한 것으로 오해하면 안된다.
 type ExtendsNever2<T> = [T] extends [never] ? true : false;
 type extendsNever2 = ExtendsNever2<never>; // true
 // 보너스로 distributive type이 무엇인지도 살펴보자
