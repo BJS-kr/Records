@@ -21,3 +21,13 @@ INNER JOIN Grades
   Students.Marks >= Grades.Min_Mark 
   AND Students.Marks <= Grades.Max_Mark 
   ORDER BY Grades.Grade DESC, Students.Name
+
+-- Population Census
+SELECT SUM(CITY.POPULATION) 
+FROM CITY 
+INNER JOIN COUNTRY 
+  ON CITY.COUNTRYCODE=COUNTRY.CODE 
+WHERE COUNTRY.CONTINENT='Asia';
+
+-- Ollivander's Inventory
+SELECT W.id, WP.age, W.coins_needed, W.power FROM Wands W INNER JOIN Wands_Property WP USING (code) WHERE WP.is_evil != 1  ORDER BY W.power DESC, WP.age DESC;
