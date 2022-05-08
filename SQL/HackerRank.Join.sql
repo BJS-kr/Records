@@ -36,5 +36,12 @@ INNER JOIN Wands_Property WP
   USING (code) 
 WHERE WP.is_evil != 1 
   AND W.coins_needed = 
-    (SELECT MIN(Wands.coins_needed) FROM Wands INNER JOIN Wands_Property USING (code) WHERE Wands.power = W.power AND Wands_Property.age = WP.age) 
+    (
+      SELECT MIN(Wands.coins_needed) 
+      FROM Wands 
+      INNER JOIN Wands_Property 
+        USING (code) 
+      WHERE Wands.power = W.power 
+        AND Wands_Property.age = WP.age
+      ) 
 ORDER BY W.power DESC, WP.age DESC;
