@@ -30,4 +30,11 @@ INNER JOIN COUNTRY
 WHERE COUNTRY.CONTINENT='Asia';
 
 -- Ollivander's Inventory
-SELECT W.id, WP.age, W.coins_needed, W.power FROM Wands W INNER JOIN Wands_Property WP USING (code) WHERE WP.is_evil != 1  ORDER BY W.power DESC, WP.age DESC;
+SELECT W.id, WP.age, W.coins_needed, W.power 
+FROM Wands W 
+INNER JOIN Wands_Property WP 
+  USING (code) 
+WHERE WP.is_evil != 1 
+  AND W.coins_needed = 
+    (SELECT MIN(Wands.coins_needed) FROM Wands INNER JOIN Wands_Property USING (code) WHERE Wands.power = W.power AND Wands_Property.age = WP.age) 
+ORDER BY W.power DESC, WP.age DESC;
