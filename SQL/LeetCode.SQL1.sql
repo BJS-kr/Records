@@ -42,3 +42,14 @@ FROM Person P1
 INNER JOIN Person P2 
 WHERE 
   P1.id > P2.id and P1.email = P2.email;
+
+-- Fix Names in a Table
+SELECT user_id, 
+    CONCAT(
+        UPPER(
+            SUBSTR(name, 1, 1)
+        ),
+        LOWER(
+            SUBSTR(name, 2)
+        )
+    ) FROM Users ORDER BY user_id;
