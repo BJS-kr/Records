@@ -1,5 +1,5 @@
 const [N, ...ints] = require('fs')
-  .readFileSync('../input.txt')
+  .readFileSync('/dev/stdin')
   .toString()
   .trim()
   .split('\n')
@@ -7,13 +7,13 @@ const [N, ...ints] = require('fs')
 
 const intsLength = ints.length;
 
-function sum(ints) {
-  let result = 0;
+function avg(ints) {
+  let sum = 0;
   for (const n of ints) {
-    result += n;
+    sum += n;
   }
-
-  return (result / intsLength).toFixed(1);
+  const result = Math.round(sum / intsLength);
+  return result === -0 ? 0 : result;
 }
 
 function mid(ints) {
@@ -32,10 +32,17 @@ function common(ints) {
       : ((acc[howCommon[cur]] = [cur]), acc);
   }, {});
 
-  mostCommonCount = Math.max(...Object.keys(howCommonInverted));
+  const mostCommonCount = Math.max(...Object.keys(howCommonInverted));
+  const mostCommonIntsSorted = howCommonInverted[mostCommonCount].sort(
+    (x, y) => x - y
+  );
+
+  return mostCommonIntsSorted.length > 1
+    ? mostCommonIntsSorted[1]
+    : mostCommonIntsSorted[0];
 }
 
-console.log(sum(ints));
+console.log(avg(ints));
 console.log(mid(ints));
 console.log(common(ints));
 console.log(Math.max(...ints) - Math.min(...ints));
