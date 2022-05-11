@@ -1,3 +1,4 @@
+#### 회사에서 카프카를 도입함에 따라 구현 연구의 일환으로 작성했던 개인 프로젝트입니다.
 # Full implementaion
 https://github.com/BJS-kr/nestjs_kafka_microservice
 
@@ -15,7 +16,8 @@ After environment all be set, run 'npm i' and './starter' bash script on the roo
 #### 4. How to encapsulate collected datas?
 #### 5. How to make commuicate between data collecting function and Kafka sender object?
 
-## Here's the architecture and code
+## architecture
+### 발퀄 그림 죄송합니다..
 ![explained](https://user-images.githubusercontent.com/78771384/151653623-6778824e-5de4-4346-841f-f07773f4db25.png)
 
 ## use decorator (this not follows Nest.js DI. please refer to kafka-client/src/decorators)

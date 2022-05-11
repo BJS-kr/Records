@@ -52,4 +52,12 @@ SELECT user_id,
         LOWER(
             SUBSTR(name, 2)
         )
-    ) FROM Users ORDER BY user_id;
+    ) name FROM Users ORDER BY user_id;
+
+-- Group Sold Products By The Date
+select 
+  sell_date, 
+  count(DISTINCT product) num_sold, 
+  GROUP_CONCAT(DISTINCT product) products 
+from Activities 
+group by sell_date;
