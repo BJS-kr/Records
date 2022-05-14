@@ -70,9 +70,6 @@ console.log(target.getter); // 처음엔 null을 반환했지만 지금은 false
 
 // receiver가 Proxy가 되는 상황, 상속받은 객체가 되는 상황 두 가지의 예를 모두 알아보겠습니다.
 
-// https://stackoverflow.com/questions/35276559/benefits-of-es6-reflect-api
-// https://www.stefanjudis.com/today-i-learned/the-global-reflect-object-its-use-cases-and-things-to-watch-out-for/
-
 const foobar = {
   get foo() {
     return this.bar;
