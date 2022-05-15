@@ -164,7 +164,7 @@ console.log(Reflect.getMetadata('hi', newTarget)); // [Function: hi]
 
 // 자, 정말 멀리도 돌아온 것 같습니다. 이제 Nest.js의 코드를 이해해봅시다!
 // 코드 원본은: https://github.com/nestjs/nest/blob/master/packages/common/decorators/modules/module.decorator.ts
-// 이지만 이곳에서 패키지를 모두 가져오긴 복잡하니 코드를 간략화 시키겠습니다
+// 이지만 이곳에 패키지를 모두 가져오긴 복잡하니 코드를 간략화 시키겠습니다
 export interface ModuleMetadata {
   imports?: Array<any>;
   controllers?: any[];
@@ -195,9 +195,9 @@ function Module(metadata: ModuleMetadata): ClassDecorator {
         /**
          * Module Class [[Metadata]]
          * Map {
-         *  undefined: Map {
-         *      imports(metadata key): importsMetadataValue
-         *      providers(metadata key): providersMetadataValue
+         *  undefined => Map {
+         *      imports(metadata key) => importsMetadataValue
+         *      providers(metadata key) => providersMetadataValue
          *    }
          * }
          */
