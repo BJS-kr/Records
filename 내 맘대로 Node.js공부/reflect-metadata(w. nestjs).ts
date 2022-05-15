@@ -4,7 +4,7 @@
  * 살펴보면서 Production에서 사용되는 코드도 살펴봅시다.
  * 살펴볼 코드 예는 TS 공식 문서와 Nest.js의 레포에서 가져왔습니다.
  *
- * 추가로, reflect-metadata를 살펴볼 가치가 충분한 이유는
+ * reflect-metadata를 살펴볼 가치가 있는 추가적인 이유는
  * 이 패키지에서 제공하는 semantics가 ECMA script의 standard로 포함될 가능성이 충분하기 때문입니다.
  */
 
@@ -70,12 +70,10 @@ class Point {
 class Test {}
 
 class Line {
-  private _start: any;
+  private _start: Point | undefined;
   private _end: Point | undefined;
-  private custom: any;
 
   @validate
-  // @Reflect.metadata('design:type', Test)
   set start(value: Point) {
     this._start = value;
   }
@@ -85,7 +83,7 @@ class Line {
   }
 
   @validate
-  // @Reflect.metadata('design:type', Test)
+  @Reflect.metadata('design:type', Test)
   set end(value: Point) {
     this._end = value;
   }
@@ -104,7 +102,7 @@ function validate<T>(
 
   descriptor.set = function (value: T) {
     let type = Reflect.getMetadata('design:type', target, propertyKey);
-    console.log(type);
+
     if (!(value instanceof type)) {
       throw new TypeError(
         `Invalid type, got ${typeof value} not ${type.name}.`
@@ -116,30 +114,96 @@ function validate<T>(
 }
 
 const line = new Line();
+
 line.start = new Point(0, 0);
-console.log(line.start);
+
+/**
+ * 여기가 재밌는 부분입니다.
+ * 과연 Test객체를 할당할때 에러가 날까요 아니면 Point객체를 할당할때 에러가 날까요?
+ * 정답은 Point를 할당할 때입니다! 굉장하지 않나요? 컴파일된 JS가 동작할때도 참조를 유지할 수 있다는 것입니다.
+ * JS상태에서 참조해야하니 type을 쓰지않고 class를 사용하게 되는 것이구요
+ */
 
 // @ts-ignore
-// line.end = {};
+line.end = new Test(); // TS가 에러를 표시하니 잠시 ignore로 무시해줍니다.
+line.end = new Point(10, 10); // TS는 정상이라고 표시하지만 metadata에서는 Point가 아니라 Test이니 런타임에서 에러!
 
-// Fails at runtime with:
-// > Invalid type, got object not Point
+/**
+ * 마지막으로 Nest.js의 Module 소스 코드를 살펴보기 전에 이해를 위한 배경을 다집시다.
+ * hasOwnProperty와 metadata가 정확히 어떻게 출력되는지 생각해봅시다.
+ */
+
 const objParent = { hello: '' };
 const obj = {
   hi: function () {
     return 'hi?';
   },
+  // __proto__또한 [[Prototype]]과 마찬가지로 Object의 prototype에 접근할 수 있게 해줍니다.
   __proto__: objParent,
 };
+
 for (const prop in obj) {
   console.log(prop);
 }
-console.log(obj.hasOwnProperty('hi'));
-console.log('hi' in obj);
-console.log(obj.hasOwnProperty('hello'));
-console.log('hello' in obj);
+
+console.log(obj.hasOwnProperty('hi')); // true
+console.log('hi' in obj); // true
+// hasOwnProperty는 prototype을 탐색하지 않으므로 false!
+console.log(obj.hasOwnProperty('hello')); // false
+console.log('hello' in obj); // true
 
 const newTarget = {};
+
 Reflect.defineMetadata('hi', obj['hi'], newTarget);
-console.log(newTarget);
-console.log(Reflect.getMetadata('hi', newTarget));
+console.log(newTarget); // {}
+console.log(Reflect.getMetadata('hi', newTarget)); // [Function: hi]
+
+// 정말 마지막으로 Class Decorator에 관한 내용도 이해해야합니다.
+// 이 내용은 단순한 명세이므로, TS 공식 문서로 대체하겠습니다.
+// https://www.typescriptlang.org/docs/handbook/decorators.html#class-decorators
+
+// 자, 정말 멀리도 돌아온 것 같습니다. 이제 Nest.js의 코드를 이해해봅시다!
+// 코드 원본은: https://github.com/nestjs/nest/blob/master/packages/common/decorators/modules/module.decorator.ts
+// 이지만 이곳에서 패키지를 모두 가져오긴 복잡하니 코드를 간략화 시키겠습니다
+export interface ModuleMetadata {
+  imports?: Array<any>;
+  controllers?: any[];
+  providers?: any[];
+  exports?: Array<any>;
+}
+function validateModuleKeys(Keys) {
+  return true;
+}
+// 간략화 시키느라 타입이 생략되었습니다만, 아래 Module 함수의 metadata param은
+// 지금까지 설명한 metadata가 아니고, Module 객체를 정의하기 위한 인자로서의 metadata입니다.
+function Module(metadata: ModuleMetadata): ClassDecorator {
+  const propsKeys = Object.keys(metadata);
+  // 올바른 키인지 유효성 검증합니다.
+  validateModuleKeys(propsKeys);
+
+  // Class Decorator명세와 같은 형식을 반환합니다
+  return (target: Function) => {
+    // property는 optional한 imports, controllers, providers, exports들이겠네요
+    for (const property in metadata) {
+      // 상속받은 prop이 아니라면
+      if (metadata.hasOwnProperty(property)) {
+        // imperative하게 메타데이터를 정의합니다
+        // 지금까지 살펴본 개념과 defineMetadata예제로 살펴본 바에 따라 설명해볼까요?
+        // Module class.internal slot [[Metadata]]에 undefined를 key로 하는 Map에
+        // 다시 metadataKey(property)를 key로, metadataValue((metadata as any)[property])를 할당!
+        // 이를 표현해보면,
+        /**
+         * Module Class [[Metadata]]
+         * Map {
+         *  undefined: Map {
+         *      imports(metadata key): importsMetadataValue
+         *      providers(metadata key): providersMetadataValue
+         *    }
+         * }
+         */
+        // 가 되겠네요!
+        Reflect.defineMetadata(property, (metadata as any)[property], target);
+      }
+    }
+  };
+}
