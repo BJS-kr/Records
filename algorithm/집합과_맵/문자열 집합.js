@@ -13,5 +13,9 @@ const [n, m] = nm.split(' ').map(Number);
 const s = new Set(rest.splice(0, n));
 
 let res = 0;
-rest.forEach((x) => s.has(x) && res++);
+
+for (const x of rest) {
+  s.has(x) && res++;
+}
+
 console.log(res);
