@@ -43,4 +43,9 @@ class dynamic_array {
   ~dynamic_array() {
     delete[] data;
   }
+
+  T* begin() { return data; }
+  const T* begin() const { return data;}
+  T* end() { return data + n;}
+  const T* end() const { return data + n;}
 };
