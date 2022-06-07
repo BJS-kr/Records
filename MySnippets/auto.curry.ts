@@ -14,7 +14,7 @@ type Curry<T> = T extends (...args: infer Arguments) => infer ReturnValue
     ? RestArguments extends []
       ? (arg: FirstArgument) => ReturnValue
       : MergeFunction<
-          (arg: FirstArgument) => any,
+          (arg: FirstArgument) => ReturnValue,
           Curry<(...args: RestArguments) => ReturnValue>
         >
     : (...lastArgs: Arguments) => ReturnValue
