@@ -4,7 +4,6 @@ health_check_result.txt
 .prettierrc
 input.txt
 *.exe
-test.ts
-계획표.txt
-리팩토링.txt
+test.*
+*.txt
 prac.cpp
