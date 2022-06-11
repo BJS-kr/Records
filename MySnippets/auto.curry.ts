@@ -15,7 +15,7 @@ type Curry<T> = T extends (...args: infer Arguments) => infer ReturnValue
           (arg: FirstArgument) => ReturnValue,
           Curry<(...args: RestArguments) => ReturnValue>
         >
-    : (...lastArgs: Arguments) => ReturnValue
+    : never
   : never;
 
 // original
