@@ -38,7 +38,7 @@ Functor F는 별개의 카테고리인 A와 B사이의 변환이다. 이걸 F : 
 1. a ∈ ob(A) 일 때,  F(a) ∈ ob(B) -> object가 모두 변환되므로 F: A->B일 때 a도 변환되어서 B에 속하게 되었을 것이므로 성립한다.
 2. f ∈ Hom(A) 일 때, F(f) ∈ Hom(B) -> arrow가 모두 변환되므로 F: A->B일 때 f화살표도 변환되어서 B에 매핑되었을 것이기 때문에 성립한다.
 
-Functor F의 변환이 A카테고리 내부에서 일어나게 되면 이를 endofunctor라고 부르며, F:A->A라고 할 수 있다.
+Functor F의 변환이 A카테고리 내부에서 일어나게 되면 이를 endofunctor라고 부르며, :A->A라고 할 수 있다.
 즉, a ∈ ob(A) 일 때, F(a) ∈ ob(A)가 성립한다.
 
 이 개념을 프로그래밍적으로 해석하면 어떻게 보일까?
@@ -53,8 +53,25 @@ Functor를 정의하기 위해선 arrow 매핑도 정의해야 한다. arrows는
 
 ![functor_in_fp](https://nikgrozev.com/images/blog/Functional%20Programming%20and%20Category%20Theory%20Part%201%20-%20Categories%20and%20Functors/haskfunctor1.jpg)
 
-# Apply
-Apply 또한 Functor의 하위개념이다. Fantasy Land 스펙 기준으로 설명하도록 하겠다. 
+# fantasy-land specification
+js에는 아주 유명한 algebraic structure specifications가 있는데, 바로 fantasy-land이다. fp 솔루션을 제공하는 js의 거의 모든 라이브러리가 이 spec을 바탕으로 제작되었다고 해도 과언이 아니다. 모든 것을 살펴봐도 좋지만 바쁜 현대인들 답게 우선순위를 정해서 살펴보는 것이 좋겠다.
+
+Monad 자체도 algebraic structure이지만 이 Monad는 또 다시 다른 타입들에 의존하고 있으므로 그 시작인 Functor의 spec부터 살펴보겠다.
+(참고로 모나드에 이르는 길은 Functor -> Apply -> Chain, Applicative -> Monad이다)
+
+# Functor in fantasy-land
+```ts
+// map :: (a -> b) -> Array a -> Array b
+const map = (f:(a) => b) => (U:a[])=> U.map(f) // Return: b[]
+const id = a => a
+const identified = map(id)(['hel','lo']) // exactly the same value returned!
+
+const compose = (f, g) => x => f(g(x))
+const composeMapped = compose(map(id), map(id))(['hel','lo'])
+const mapComposed = map(compose(id, id))(['hel','lo'])
+
+import('util').then(util => util.isDeepStrictEqual(composeMapped, mapComposed)) // true!
+```
 
 # lambda calculus & javascript
 1. 람다 대수는 함수형 프로그래밍 언어를 구축하는 근간이 되었다.
