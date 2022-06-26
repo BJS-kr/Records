@@ -1,10 +1,15 @@
 **부족한 제 자신이 조금이라도 이해하기 위해 작성하는 글이니 신랄한 비판과 가르침 언제든지 대환영입니다!!!**
 
 # Monad
+Monad Functor와 동의어. 애초에 모나드가 Functor의 하위개념이다.
 모나드. 처음에는 정상과 오류가 하나로 추상화된 형태정도로 생각했다. 그 다음에는 함수 합성을 위해 모든 결과값을 하나로 추상화하는 것으로 생각했다. 그 다음에는 혼란에 빠져들었다. Ramda, FantasyLand, PureScript등의 모나드 정의를 읽어봐도 읽으면 읽을 수록 정의하기가 모호해졌다. 프로그래밍 세계에서의 모나드와 수학에서의 모나드는 그 범위가 상당히 차이가 나는 것 같았다. 요즘들어 알게 된 것은 모나드의 종류가 꽤나 다양하다는 것이고, 그 다양한 형태들이 합쳐져 새로운 형태를 이루기도 한다는 것이다. 그리고 모나드를 이해하기 위해선 하위 혹은 관련 개념들도 알아야하는데 대표적으로 이항연산, functor, monoid, lamda calculus, 카테고리 이론, kleisli composition 등이 있는 것 같았다.
 
 지금도 이해 수준이 바닥이지만 한번 최대한 의미에 집중하여 풀어가보려고 한다.
 먼저 자주 발견되는 용어들부터 정리해야할 필요성을 느낀다.
+
+## Curry
+(curry, partial application등의 개념은 알고있을 것이라고 생각하고 넘어갑니다)
+재사용성 극대화도 물론 너무 좋지만(OOP유저들은 잘 이해하지 못하지만 FP환경을 생각해보면 재사용성은 OOP의 몇 배는 뛰는 것 같다)핵심은 결국 합성이다. 더 algebraic하게 말하면 Chain의 가능성을 매우매우 높여준다. 가독성이 높아짐은 물론이거니와 예외처리도 단계별로 실행할 수 있어 훨씬 직관적으로 변한다.
 
 # 카테고리 이론 for functional programming
 Category, Functor, Monad등의 개념들은 원래 카테고리 이론에서 정의된것이다.
@@ -48,28 +53,16 @@ Functor를 정의하기 위해선 arrow 매핑도 정의해야 한다. arrows는
 
 ![functor_in_fp](https://nikgrozev.com/images/blog/Functional%20Programming%20and%20Category%20Theory%20Part%201%20-%20Categories%20and%20Functors/haskfunctor1.jpg)
 
+# Apply
+Apply 또한 Functor의 하위개념이다. Fantasy Land 스펙 기준으로 설명하도록 하겠다. 
+
 # lambda calculus & javascript
 1. 람다 대수는 함수형 프로그래밍 언어를 구축하는 근간이 되었다.
 2. 람다 대수는 튜링-완전하다.
 3. 함수가 이름을 가질 필요는 없다. 예를 들어, 흔히들 표현하는 Identity에서 I(x) => x와 같은 형태로 표현하곤 하는데 이는 x => x와 정확히 같다.
 
-### 추상화
- λx.t는 x를 인자로 받는 unary로서 t로 치환됨을 의미한다. 예를 들어  λx.x + 1 은 f(x) = x + 1 과 같다. 추상화는 함수를 '호출'하지 않음을 의미한다. 또 한 추상화를 통해 변수 x는 표현 t에 속박된다.
-### 자유변수
-자유 변수는 추상화를 통해 표현식에 속박되지 않은 변수를 말한다.
-즉, 다음과 같다.
-1. x라면 x는 자유변수다.
-2. λx.t라면 x를 제외하고 표현 t에서 등장하는 변수들은 자유변수이다.
-3. 표현 집합 ts에서 자유변수는 t와 s에 등장하는 자유변수들의 합집합이다.
+abstraction, application 등을 wikipedia의 람다 대수 설명을 읽고 적용해보았습니다.
 
-위 규칙들을 종합해보면 λx.x에서 자유변수는 없다. 또는 λx.x + y에서 y는 자유변수이다.
-
-### lambda term(람다 항)
-줄여서 term이라고 표현하겠다. 
-1. 모든 변수와 상수는 term이다.
-2. 두 term M과 N에 대하여 (MN)은 term이다. 이를 N에 대한 M의 application이라 한다.
-3. term M 과 변수 x에 대하여 λx.M은 term이다. 이를 x에 대한 M의 abstraction이라 한다.
-
-
+## 왜 Promise는 Functor or Monad or Applicative가 아닌가?
 
 
