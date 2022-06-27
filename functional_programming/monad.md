@@ -60,6 +60,8 @@ Monad 자체도 algebraic structure이지만 이 Monad는 또 다시 다른 타�
 (참고로 모나드에 이르는 길은 Functor -> Apply -> Chain, Applicative -> Monad이다)
 
 # Functor in fantasy-land
+Functor가 무엇인지는 살펴보았으니, 그 핵심조건을 js적으로 표현해보겠다.
+되짚자면 Functor의 핵심요건은 Identity와 Map이다.
 ```ts
 // map :: (a -> b) -> Array a -> Array b
 const map = (f:(a) => b) => (U:a[])=> U.map(f) // Return: b[]
@@ -67,11 +69,14 @@ const id = a => a
 const identified = map(id)(['hel','lo']) // exactly the same value returned!
 
 const compose = (f, g) => x => f(g(x))
-const composeMapped = compose(map(id), map(id))(['hel','lo'])
-const mapComposed = map(compose(id, id))(['hel','lo'])
+const twice = x => x * 2
+const length = x => x.length
+const composeMapped = compose(map(twice), map(length))(['hel','lo'])
+const mapComposed = map(compose(twice, length))(['hel','lo'])
 
-import('util').then(util => util.isDeepStrictEqual(composeMapped, mapComposed)) // true!
+import('util').then(util => console.log(util.isDeepStrictEqual(composeMapped, mapComposed))) // true!
 ```
+위의 구현은 전적으로 js의 Array 구현에 의존하고 있다. 첫 줄의 U.map은 U가 Array이기 때문에 실행되는 것이다. 그러나 지금은 구현의 범용성에 관해 이야기할 때가 아니다. 중요한 것은 Array가 Functor의 핵심인 Map을 내장하고 있고, Identity와 Composition을 구현하고 있다는 것이다. 
 
 # lambda calculus & javascript
 1. 람다 대수는 함수형 프로그래밍 언어를 구축하는 근간이 되었다.
