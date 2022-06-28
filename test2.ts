@@ -1,26 +1,32 @@
-// 더 이상 x는 Array타입이라는 제한이 없다.
-const Functor = (x: any) => ({
-  // map의 기본 형태: map :: Functor f => f a ~> (a -> b) -> f b
-  // map이 Identity이도록 구성해보자
-  // map :: Identity a ~> (a -> b) -> Identity b
-  map: (f: Function) => Functor(f(x)),
-  get getX() {
-    return x;
-  },
+const Just = (x: any) => ({
+  map: (f: Function) => Just(f(x)),
+  // fold는 단지 값을 꺼내오기 위한 것이니 무시해도 상관없다
+  fold: (_: unknown, f: Function) => f(x),
 });
 
-const id = (x: any) => x;
-const hello = 'hello!';
+// Nothing에 대하여 map을 실행한다고 해도 그 어떤 일도 일어나지 않는다.
+// fold로 값을 찾으면 단지 default value만 return된다.
+const Nothing = (x: any) => ({
+  // 굳이 unknown으로 지정한 이유는 딱히 쓸 일이 없다는 걸 강조하기 위해서다
+  map: (f: unknown) => Nothing(null),
+  // d는 default를 뜻한다.
+  fold: (d: any, _: unknown) => d,
+});
 
-console.log(Functor(hello).map(id).getX === Functor(id(hello)).getX);
-console.log(Functor(hello).map(id).getX === Functor(hello).getX);
+const Maybe = (x: any) => ([null, undefined].includes(x) ? Nothing : Just)(x);
 
-// Composition이라고 다를까? fantasy-land의 스펙에 맞춰 구현해보자
-// u['fantasy-land/map'](x => f(g(x))) is equivalent to u['fantasy-land/map'](g)['fantasy-land/map'](f)
-const getLength = (s: string) => s.length;
-const multiply = (n: number) => n * 2;
+const dv = 'DEFAULT_VALUE';
 
 console.log(
-  Functor(hello).map((x: string) => multiply(getLength(x))).getX ===
-    Functor(hello).map(getLength).map(multiply).getX
+  Maybe(null)
+    .map((x: any) => x.length)
+    .map((x: any) => x + 3)
+    .fold(dv, (x: any) => x)
+);
+
+console.log(
+  Maybe([1, 2, 3, 4])
+    .map((x: any) => x.length)
+    .map((x: any) => x + 3)
+    .fold(dv, (x: any) => x)
 );

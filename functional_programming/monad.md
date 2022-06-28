@@ -1,5 +1,19 @@
 **부족한 제 자신이 조금이라도 이해하기 위해 작성하는 글이니 신랄한 비판과 가르침 언제든지 대환영입니다!!!**
 
+# 거대한 의문
+1. 액션이 포함된 함수(비순수함수)로도 함수형 프로그래밍이 가능한가? 함수형 자체가 순수함수가 전제인데? -> 답을 얻은 것 같다. 간단하다. 안된다.
+2. 비순수함수의 부수효과를 모나드로 추상화하면 그건 순수함수임? 예를 들어서 IO monad. clojure는 느슨한 순수함수형 언어라고하고 하스켈은 엄격한 순수함수형 언어라고 하는데 난 하스켈의 IO monad부터 이해가 안간다.
+3. DB read는 시점에 영향을 받기 때문에 액션이지만 상태를 변경시키는 것이 아니므로 상관없다고 주장하기도 하는 것 같다. 어떤게 맞는 것인가
+4. UoW에는 순수함수와 비순수함수가 함께 동작해도 된다. 다만 겉으로 봤을때 작업단위가 순수해보이긴 한다. -> 이해완료. 사실 생각해보니 당연한 얘기
+# 정리가 안되었지만 기억해둘만한 내용
+1. rich hickey(clojure 창시자)가 말하길, 보이지 않는 부수 효과를 포함한 함수는 순수함수이다(????)
+2. 1은 실용적 함수형과 순수한 함수형의 관점의 차이인듯??
+3. js에 모나드를 사용하기는 쉽지 않다(네이티브가 아니니까).
+다만, 함수형 장점들을 차용할 순 있다. 그래서 모나드를 구현한 js라이브러리들이 있는 것이다. 장점들이란 의존성을 떼내고 테스트하기 편하다는 것. 그리고 불변객체들로 인해 오류의 가능성이 적다는 것.
+
+4. DB와 연동되어있다고 무조건 액션이라기보다는 DB에서 가져온 데이터를 메모리에서 조작하고, 원본 데이터와 비교하여 조작이 완료된 데이터가 변화가 있다면 DB에 반영함으로써 함수형을 실현한다.
+
+5. 인터페이스가 순수해보이면 순수함수다
 # Monad
 Monad Functor와 동의어. 애초에 모나드가 Functor의 하위개념이다.
 모나드. 처음에는 정상과 오류가 하나로 추상화된 형태정도로 생각했다. 그 다음에는 함수 합성을 위해 모든 결과값을 하나로 추상화하는 것으로 생각했다. 그 다음에는 혼란에 빠져들었다. Ramda, FantasyLand, PureScript등의 모나드 정의를 읽어봐도 읽으면 읽을 수록 정의하기가 모호해졌다. 프로그래밍 세계에서의 모나드와 수학에서의 모나드는 그 범위가 상당히 차이가 나는 것 같았다. 요즘들어 알게 된 것은 모나드의 종류가 꽤나 다양하다는 것이고, 그 다양한 형태들이 합쳐져 새로운 형태를 이루기도 한다는 것이다. 그리고 모나드를 이해하기 위해선 하위 혹은 관련 개념들도 알아야하는데 대표적으로 이항연산, functor, monoid, lamda calculus, 카테고리 이론, kleisli composition 등이 있는 것 같았다.
@@ -109,6 +123,48 @@ console.log(
   Functor(hello).map((x: string) => multiply(getLength(x))).getX ===
     Functor(hello).map(getLength).map(multiply).getX
 ); // true
+```
+
+### Maybe
+개념적인 접근은 충분하다. 실용적인 예를 들어보자. 지금까지 배운 것을 토대로 Maybe를 만들어보면 어떨까?
+일단 Maybe는 두 가지로 이루어져 있는데, Nothing과 Just이다. 전혀 혼란을 느낄 필요가 없다. Boolean타입이 True와 False로 이루어져 있는 것과 완전히 동일한 개념이다.
+
+이렇게 상위 개념에 하위 개념들이 묶여 있는 경우, 하위 개념들은 동일한 인터페이스를 구현해야한다. 아래의 구현을 참고해보면 Just와 Nothing 모두 map과 fold를 구현하고 있다는 것을 알 수 있다. 다만, 인터페이스만 같은 것이지 동작은 전혀다르다.
+
+먼저, Just와 Nothing을 구현해 Maybe를 완성해보자!
+```ts
+const Just = (x: any) => ({
+  map: (f: Function) => Just(f(x)),
+  // fold는 단지 값을 꺼내오기 위한 것이니 무시해도 상관없다
+  fold: (_: unknown, f: Function) => f(x),
+});
+
+// Nothing에 대하여 map을 실행한다고 해도 그 어떤 일도 일어나지 않는다.
+// fold로 값을 찾으면 단지 default value만 return된다.
+const Nothing = (x: any) => ({
+  // 굳이 unknown으로 지정한 이유는 딱히 쓸 일이 없다는 걸 강조하기 위해서다
+  map: (f: unknown) => Nothing(null),
+  // d는 default를 뜻한다.
+  fold: (d: any, _: unknown) => d,
+});
+
+const Maybe = (x: any) => ([null, undefined].includes(x) ? Nothing : Just)(x);
+
+const dv = 'DEFAULT_VALUE';
+
+console.log(
+  Maybe(null)
+    .map((x: any) => x.length)
+    .map((x: any) => x + 3)
+    .fold(dv, (x: any) => x)
+); // 'DEFAULT_VALUE'
+
+console.log(
+  Maybe([1, 2, 3, 4])
+    .map((x: any) => x.length)
+    .map((x: any) => x + 3)
+    .fold(dv, (x: any) => x)
+); // 7
 ```
 
 
