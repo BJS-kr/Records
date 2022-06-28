@@ -64,7 +64,8 @@ Functor가 무엇인지는 살펴보았으니, 그 핵심조건을 js적으로 �
 되짚자면 Functor의 핵심요건은 Identity와 Map이다.
 ```ts
 // map :: (a -> b) -> Array a -> Array b
-const map = (f:(a) => b) => (U:a[])=> U.map(f) // Return: b[]
+// 아래는 직관성을 위한 타이핑입니다. 타입 변환이라는 의미에 집중하시면 됩니다
+const map = <T1, T2>(f:(a:Array<T1>) => b:Array<T2>) => (U:T1[])=> U.map(f) // Return: b[]
 const id = a => a
 const identified = map(id)(['hel','lo']) // exactly the same value returned!
 
@@ -77,6 +78,40 @@ const mapComposed = map(compose(twice, length))(['hel','lo'])
 import('util').then(util => console.log(util.isDeepStrictEqual(composeMapped, mapComposed))) // true!
 ```
 위의 구현은 전적으로 js의 Array 구현에 의존하고 있다. 첫 줄의 U.map은 U가 Array이기 때문에 실행되는 것이다. 그러나 지금은 구현의 범용성에 관해 이야기할 때가 아니다. 중요한 것은 Array가 Functor의 핵심인 Map을 내장하고 있고, Identity와 Composition을 구현하고 있다는 것이다. 
+
+참고로 변수 mapComposed는 1번의 loop(map)으로 두 번의 맵을 사용하는 composeMapped와 동일한 결과를 내고 있다. 인접한 두 loop을 한번으로 끝낼 수 있는 mapComposed와 같은 형태를 loop fusion이라고 부른다.
+
+자, Array가 Functor의 요건을 갖추었음은 살펴보았다. 그런데 js로 다른 Functor들을 만들 순 없을까? 물론 가능하다.
+```ts
+// 더 이상 x는 Array타입이라는 제한이 없다.
+const Functor = (x: any) => ({
+  // map의 기본 형태: map :: Functor f => f a ~> (a -> b) -> f b
+  // map이 Identity이도록 구성해보자
+  // map :: Identity a ~> (a -> b) -> Identity b
+  map: (f: Function) => Functor(f(x)),
+  get getX() {
+    return x;
+  },
+});
+
+const id = (x: any) => x;
+const hello = 'hello!';
+
+console.log(Functor(hello).map(id).getX === Functor(id(hello)).getX); // true
+console.log(Functor(hello).map(id).getX === Functor(hello).getX); // true
+
+// Composition이라고 다를까? fantasy-land의 스펙에 맞춰 구현해보자
+// u['fantasy-land/map'](x => f(g(x))) is equivalent to u['fantasy-land/map'](g)['fantasy-land/map'](f)
+const getLength = (s: string) => s.length;
+const multiply = (n: number) => n * 2;
+
+console.log(
+  Functor(hello).map((x: string) => multiply(getLength(x))).getX ===
+    Functor(hello).map(getLength).map(multiply).getX
+); // true
+```
+
+
 
 # lambda calculus & javascript
 1. 람다 대수는 함수형 프로그래밍 언어를 구축하는 근간이 되었다.
