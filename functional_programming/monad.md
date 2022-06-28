@@ -150,25 +150,16 @@ const Nothing = (x: any) => ({
 
 const Maybe = (x: any) => ([null, undefined].includes(x) ? Nothing : Just)(x);
 
-const dv = 'DEFAULT_VALUE';
-
-console.log(
-  Maybe(null)
+const getLengthAndPlus3 = (maybe: ReturnType<typeof Maybe>) => {
+  return maybe
     .map((x: any) => x.length)
     .map((x: any) => x + 3)
-    .fold(dv, (x: any) => x)
-); // 'DEFAULT_VALUE'
+    .fold('DEFAULT_VALUE', (x: any) => x);
+};
 
-console.log(
-  Maybe([1, 2, 3, 4])
-    .map((x: any) => x.length)
-    .map((x: any) => x + 3)
-    .fold(dv, (x: any) => x)
-); // 7
+console.log(getLengthAndPlus3(Maybe(null))); // 'DEFAULT_VALUE'
+console.log(getLengthAndPlus3(Maybe([1, 2, 3, 4]))); // 7
 ```
-
-
-
 # lambda calculus & javascript
 1. 람다 대수는 함수형 프로그래밍 언어를 구축하는 근간이 되었다.
 2. 람다 대수는 튜링-완전하다.
