@@ -160,6 +160,65 @@ const getLengthAndPlus3 = (maybe: ReturnType<typeof Maybe>) => {
 console.log(getLengthAndPlus3(Maybe(null))); // 'DEFAULT_VALUE'
 console.log(getLengthAndPlus3(Maybe([1, 2, 3, 4]))); // 7
 ```
+
+### Either
+Functor의 spec으로 Either도 만들 순 없을까?
+물론 가능하다. Left와 Right를 지니고 '잘 못된 값'은 Left로 넘기되, 에러가 발생하건 제대로 연산 수행되건 무조건 끝까지 Either라는 하나의 형태로 파이프 전체를 타고 내려간다는 것만 기억하면 된다.
+```js
+const Right = (x: any) => ({
+  map: (f: Function) => {
+    try {
+      return Right(f(x));
+    } catch (e) {
+      return Left(e);
+    }
+  },
+  fold: (_: unknown, R: Function) => R(x),
+});
+
+const Left = (x: any) => ({
+  // Left는 Right와 다르게 함수를 실행하지 않음
+  // 아무것도 하지 않는 다는 면에서 Nothing과 비슷하지만
+  // Nothing이 아무런 값도 지니지 않는 다는 것에 비해서
+  // Left는 실제 값(x)를 가진 상태이다.
+  map: (_: unknown) => Left(x),
+  fold: (L: Function, _: unknown) => L(x),
+});
+
+const Either = (x: any) => ([null, undefined].includes(x) ? Left(x) : Right(x));
+
+const fns = [
+  (e: any) => console.log('Either got Error!', e),
+  (v: any) => console.log('result:', v),
+] as const;
+
+const Eithered = (x: any) =>
+  Either(x)
+    .map((x: any) => x.toUpperCase())
+    .map((x: any) => x.substring(0, 5))
+    .fold(...fns);
+
+Eithered([1, 2, 3, 4]); // 첫 번째 map에서 발생한 에러를 끝까지 가지고 fold에 도달해 출력합니다.
+Eithered('hellow!'); // 에러가 발생하지 않았으니 HELLO가 출력됩니다!
+```
+
+### Function
+더 재밌는 것은, Function도 Functor가 될 수 있다는 사실이다. 사실 자바스크립트 프로토타입을 활용하면 map을 Function객체(js에선 그냥 다 객체다)에 끼워넣은 것은 쉽다.
+```js
+// arrow function을 쓰면 안된다!
+// function keyword를 써야만 this가 Function객체가 된다.
+Function.prototype.map = function (f) {
+  return (x) => f(this(x));
+};
+
+const mapped = ((x) => {
+  return x;
+})
+  .map((x) => x + '! ')
+  .map((x) => x + 'I love FP!')('hi');
+
+console.log(mapped); // hi! I love FP!
+```
 # lambda calculus & javascript
 1. 람다 대수는 함수형 프로그래밍 언어를 구축하는 근간이 되었다.
 2. 람다 대수는 튜링-완전하다.
