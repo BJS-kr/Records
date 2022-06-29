@@ -219,6 +219,21 @@ const mapped = ((x) => {
 
 console.log(mapped); // hi! I love FP!
 ```
+
+## Apply
+Apply는 Functor다. Monad도 Functor다. 지겹게 들어봤을 법한 말들이다. 그렇다면 차이는 무엇인가? 왜 필요한가? 직관적으로 알아보자. 정확히 말해서, Apply는 Functor의 요구사항에서 'ap'라는 메서드가 추가된 형태이다.
+
+먼저 fantasy-land의 조건과 명세를 파악해보자
+1. 조건: v['fantasy-land/ap'](u['fantasy-land/ap'](a['fantasy-land/map'](f => g => x => f(g(x))))) is equivalent to v['fantasy-land/ap'](u)['fantasy-land/ap'](a)
+
+2. 명세: fantasy-land/ap :: Apply f => f a ~> f (a -> b) -> f b
+
+제한 사항도 있다.
+1. b는 함수여야한다.
+2. b는 Apply여야한다.
+3. a는 any value의 Apply여야한다.
+4. ap메서드로 인해 반환된 Apply는 a,b와 같은 형태여야한다.
+5. ap메서드는 Apply b의 function을 Apply a의 value에 적용해야 한다. 반환 값은 check되지 않아도 된다.
 # lambda calculus & javascript
 1. 람다 대수는 함수형 프로그래밍 언어를 구축하는 근간이 되었다.
 2. 람다 대수는 튜링-완전하다.
