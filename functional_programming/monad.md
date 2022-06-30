@@ -67,6 +67,74 @@ Functor를 정의하기 위해선 arrow 매핑도 정의해야 한다. arrows는
 
 ![functor_in_fp](https://nikgrozev.com/images/blog/Functional%20Programming%20and%20Category%20Theory%20Part%201%20-%20Categories%20and%20Functors/haskfunctor1.jpg)
 
+# Container
+(순서 꼬여서 글 정리해야 함)
+Functor를 코드에 적용하기 위해 먼저 컨테이너를 떠올려보자. 컨테이너는 강철문으로 굳게 닫혀 있어 열어보기 전까지 무엇이 들어있는지 알 수 없다. 일단 가장 기본적인 형태의 컨테이너를 코드로 작성해보자
+```js
+class Container {
+  constructor(x) {
+    this.$value = x;
+  }
+
+  static of(x) {
+    return new Container(x);
+  }
+}
+```
+처음 보는 메서드가 설명도 없이 등장했다. of는 new 키워드를 대신하는 역할 정도로 생각해도 지금은 충분하다(물론 더 많은 역할이 있다). 일단은 of를 컨테이너에 값을 넣는 적절한 방법으로 이해하자.
+
+위의 컨테이너 구현의 특징은 다음과 같다.
+1. 컨테이너는 한 개의 프로퍼티를 가진 객체이다.$value라는 not specific한 이름을 지었다.
+2. $value는 한 가지 타입에 국한되지 않는다.
+3. 데이터는 삽입된 후 Container에 머문다.
+
+## Container를 Functor로!
+Container에 데이터를 넣었다. 그래서 어떻게 하라는 것인가? 우리는 Container에 들어있는 값에 대하여 연산을 수행할 수 있어야 한다. Container에 메서드를 하나 추가해야겠다.
+```js
+// (a -> b) -> Container a -> Container b
+Container.prototype.map = function (f) {
+  return Container.of(f(this.$value));
+}
+```
+너무나도 직관적인 map이 완성되었다. Container가 가진 value에 대하여, 우리가 수행하고자 하는 연산(f)를 수행한 값을 가지고, 다시 새로운 Container를 반환한다. 가장 굉장한 것은, 우리가 절대 Container를 벗어나지 않는다는 것이다. 그러므로 map을 끝없이 이어서 실행하는 것도 가능하다. 
+
+그리고 이 모양 어디서 분명히 본적 있지 않은가? 바로 composition이다. Functor의 조건이란 바로 composition과 identity가 가능한 map임을 되짚어보자.
+
+## Functor를 Maybe로!
+```js
+class Maybe {
+  static of(x) {
+    return new Maybe(x)
+  }
+
+  get isNothing() {
+    return this.$value === null || this.$value === undefined;
+  }
+
+  constructor(x) {
+    this.$value = x;
+  }
+
+  map(fn) {
+    return this.isNothing ? this: Maybe.of(fn(this.$value))
+  }
+
+  inspect() {
+    return this.isNothing ? 'Nothing' : `Just(${inspect(this.$value)})`
+  }
+}
+```
+Maybe를 완성(한참 구현할게 남았지만)했다! map에 isNothing을 참조하는 과정을 넣은 것 빼곤 거의 차이가 없다. null혹은 undefined를 감내하는 클래스가 완성되었다.
+
+pointfree style로 항상 Functor.map형식으로 호출되어야하는 상황을 바꿔보자.
+```js
+// map :: Functor f => (a -> b) -> f a -> f b
+const map = curry((f, anyFunctor) => anyFunctor.map(f))
+```
+완벽하다. 
+
+사소하지만, Functor f라는 말은 f가 반드시 Functor여야함을 나타낸다. 잊지말자.
+
 # fantasy-land specification
 js에는 아주 유명한 algebraic structure specifications가 있는데, 바로 fantasy-land이다. fp 솔루션을 제공하는 js의 거의 모든 라이브러리가 이 spec을 바탕으로 제작되었다고 해도 과언이 아니다. 모든 것을 살펴봐도 좋지만 바쁜 현대인들 답게 우선순위를 정해서 살펴보는 것이 좋겠다.
 
