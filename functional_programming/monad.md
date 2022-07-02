@@ -67,6 +67,58 @@ Functor를 정의하기 위해선 arrow 매핑도 정의해야 한다. arrows는
 
 ![functor_in_fp](https://nikgrozev.com/images/blog/Functional%20Programming%20and%20Category%20Theory%20Part%201%20-%20Categories%20and%20Functors/haskfunctor1.jpg)
 
+# Composition
+함수형 프로그래밍을 이해하기 위한 기초단계에 진입해보자. Composition은 사실상 함수형 프로그래밍의 전체에 관여하므로 잘 이해하고 다음 단계로 넘어가보자.
+```js
+const compose = (f, g) => x => f(g(x));
+```
+간단하다. x가 f와 g함수의 파이프를 타고 있다. Composition은 축산업과 굉장히 유사하다. 원하는 결과물(새끼)를 얻기 위해 두 마리를 신중하게 선택하고 교배시킨다.
+중요한 것은, 소(함수)와 소를 교배시키면 당연히 소가 태어난다는 것이다.
+
+함수와 함수를 합성하면 새로운 함수가 된다.
+Composition은 Associativity를 만족한다. 아래와 같은 형태이다.
+```js
+compose(f, compose(g, h)) === compose(compose(f, g), h)
+```
+위와 같은 Associativity 덕분에 우리는 compose를 아래와 같은 형태로 고쳐쓸 수 있다.
+```js
+const compose = (...fns) => (...args) => fns.reduceRight((res, fn) => [fn.call(null, ...res)], args)[0];
+```
+처음 작성했던 compose는 오직 함수 두 개씩만 합성이 가능했지만 compose를 통해 반환된 함수도 또한 compose할 수 있다는 사실이 증명되었기 때문에, reduceRight해도 결과는 완전히 같음 또한 알 수 있다.
+
+우리는 이런 식으로 함수를 조합(파이프 제작)해나갈 수 있으며, 이는 함수형이 가진 강력한 힘이다. 
+
+여기서 주목할 만한점은 또 하나 있다. 이런 순간에 Currying이 매우 유용하다는 것이다. 
+compose되는 함수들은 항상 1 input 1 output을 따라야한다. 당연하게도, 이를 지키지 않으면 파이프를 이어붙이기가 힘들다(당연히 불가능하진 않지만, 추가적인 노력이 들어가야하고 가독성을 심각하게 저해시킬 것이다).
+
+### Pointfree
+pointfree 스타일은 함수 합성이 간편하고 가독성을 좋게 만든다는 점에서 자주 쓰인다. 더 정확히말하면 매우 Declarative한 코드를 완성할 수 있다.
+실제로 우리가 아는 거의 모든 함수형 라이브러리들이 pointfree 스타일로 쓰여있음을 기억하자.
+
+이미 rxjs, ramda, lodash/fp등을 접해본 독자라면 아래의 pointfree 스타일을 본적이 있을 것이다.
+
+```js
+// not pointfree because we mention the data: word
+const snakeCase = word => word.toLowerCase().replace(/\s+/ig, '_');
+
+// pointfree
+const snakeCase = compose(replace(/\s+/ig, '_'), toLowerCase);
+```
+# 다시 카테고리로
+카테고리 이론을 상단에서 살펴보았다면, 이제 이 카테고리를 실제로 어떻게 코드에 적용할 수 있을지 고민해보야한다.
+
+프로그래밍과 대응시키기 위해 카테고리가 무엇으로 이루어져있는지 번호로 정의해보겠다.
+1. object의 모임 = 타입(string, boolean 등)
+2. morphism의 모임 = 순수 함수
+3. morphism 중, identity = (x) => x 와 같은 morphism을 일컫는 것인데, 이 쓸모는 나중에 등장한다. 그래도 맛보기로 아래의 코드를 보자.
+```js
+compose(id, f) === compose(f, id) === f;
+```
+
+4. morphsim에서, composition의 개념 = 예를 들어, 어떤 morphism이 string에서 int를 가리키고 있다. 그리고 그 int에서 뻗어나온 morphism이 boolean을 가리키고 있다면 두 morphism은 string -> boolean으로(string -> int -> boolean) 합성가능하다.
+맞다. 위에서 살펴본 compose다.
+
+
 # Container
 (순서 꼬여서 글 정리해야 함)
 Functor를 코드에 적용하기 위해 먼저 컨테이너를 떠올려보자. 컨테이너는 강철문으로 굳게 닫혀 있어 열어보기 전까지 무엇이 들어있는지 알 수 없다. 일단 가장 기본적인 형태의 컨테이너를 코드로 작성해보자
