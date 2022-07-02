@@ -92,7 +92,7 @@ const compose = (...fns) => (...args) => fns.reduceRight((res, fn) => [fn.call(n
 compose되는 함수들은 항상 1 input 1 output을 따라야한다. 당연하게도, 이를 지키지 않으면 파이프를 이어붙이기가 힘들다(당연히 불가능하진 않지만, 추가적인 노력이 들어가야하고 가독성을 심각하게 저해시킬 것이다).
 
 ### Pointfree
-pointfree 스타일은 함수 합성이 간편하고 가독성을 좋게 만든다는 점에서 자주 쓰인다. 더 정확히말하면 매우 Declarative한 코드를 완성할 수 있다.
+pointfree 스타일은 함수 합성이 간편하고 가독성을 좋게 만든다는 점에서 자주 쓰인다. 더 정확히말하면 동작만을 나열함으로써 매우 Declarative한 코드를 완성할 수 있다.
 실제로 우리가 아는 거의 모든 함수형 라이브러리들이 pointfree 스타일로 쓰여있음을 기억하자.
 
 이미 rxjs, ramda, lodash/fp등을 접해본 독자라면 아래의 pointfree 스타일을 본적이 있을 것이다.
