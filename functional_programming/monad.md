@@ -234,7 +234,68 @@ compose(map(f), map(g)) === map(compose(f, g));
 또 하나 중요한 것은 사상이 향하는 가리키는 방향이 일치하면, 결과의 타입 또한 일치한다는 것이다. 예를 들어 f(a) -> b라면 map(f(F a)) -> F b라는 것이다(a가 b로).
 마찬가지로 of라면 F.of(a) -> a 이고 F.of(b) -> b이다(같은 타입 반환).
 
+# of의 진짜 역할
+of메서드가 포함된 functor를 pointed functor라고 한다. of의 역할은 항상 new ClassName(constructorParam)형태의 호출이 아닌 어떤 값이던 즉시 같은 타입의 펑터로 감싸여진 값을 얻기위해 사용된다. X타입의 펑터를 만들고 map하고 ㅅ 싶다면 X.of(value).map(fn)와 같은 형태로 즉시 가능하게 만들어 준다는 것이다. default minimal context라는 말이 이를 잘 표현해준다. 타입의 값을 제거한 후 어떤 펑터의 어떤 행동이던간에 평소대로 map할 수 있게 한다는 것이다.
+
+사실 Left.of는 말이 안된다. 각 펑터는 값을 넣을 하나의 방법을 가져야하는데 Either의 경우라면 new Right(value)이다. 즉, Either.of는 Right를 사용한다는 것인데, 그 이유는 map을 실행하면 map이 동작해야하기 때문이다(Left는 아무런 동작도 하지 않는다).
+
+pure, point, unit, return등 여러 이름으로 불리지만 다 of의 또 다른 이름들일 뿐이다.
+
 # 드디어, Monad
+지금까지 배운 것들을 바탕으로 Monad의 정의를 살펴보자: "Monads are pointed functors that can flatten". join(flat), of, 모나드의 조건들을 가지는 functor는 모나드이다.
+flat한다는 것이 상당히 중요한데, 예를 들어 지금까지 살펴본 functor를 반환하는 함수를 compose하면 어떤 일이 일어날까?
+```js
+const container_X = x => new Container(x);
+const container_Y = y => new Container(Y);
+const XY = compose(map(container_X), container_Y)
+// === Container('hi').map(container_X)
+
+XY('hi!')
+// === Container(Container('hi!'))
+```
+즉, 우리가 원하는 값인 'hi!'를 얻기 위해선 XY('hi!').fold().fold()라고 실행해야 하는 것이다. 문제는, 이런 상황이 매우 자주 일어나고 더욱 여러번 중첩되는 경우들이 생겨난다는 것이다.
+
+모나드는 Flat할 수 있다고 위에서 언급했으므로, 이런 원리를 그대로 사용하는 Maybe의 join을 살펴보자
+```js
+Maybe.prototype.join = function join() {
+  return this.isNothing() ? Maybe.of(null) : this.$value;
+}
+```
+isNothing은 단순히 객체가 Nothing인지를 판별하는 것이고, Nothing이 맞다면 아무런 값도 가지지 않아야 함은 이미 살펴본바 있다. Nothing이 아니라면 value를 반환하고 있는데, 이런 구현으로 우리는 중첩된 객체를 한꺼풀 한꺼풀씩 벗겨낼 수 있다. IO펑터라면 함수로 구성한 값들일테니 join을 실행하면 그 함수를 실행하면 된다. fold와 같은 원리로 unsafePerformIO등의 이름으로 IO펑터안에 메서드가 존재할 것이므로 합성 중간중간에 join을 끼워넣으면 여전히 순수한 연산을 유지함과 동시에 연결된 함수를 평가할 때는 join도 실제로 실행되면서 꺼풀을 벗겨내게 되는 것이다.
+
+## 뭔가 이상하다..
+join한꺼풀 씩 layer들을 벗겨낸다면, 최종 결과가 IO(IO(IO('hi!')))와 같은 경우 compose에는 join이 세번이나 들어가야한다. 너무나 불편하게 느껴진다. 매번 펑터 껍질이 생기는 부분을 인지하면서 join을 파이프에 수기로 작성하라는 것은 개발의 효율을 전혀 늘려주지 않는다. 차라리 IO(IO(IO('hi!'))).join().join().join()을 실행하는 것이 개발 속도를 높여줄 것 같다.
+
+## Chain: 패턴에 주목하자
+사실 윗 문단에서 살펴본 지루한 동작에는 패턴이 존재하는데, 보통 새로운 layer가 생기는 부분이 map이라는 것이다. 그렇다면... map을 실행할 때 자동으로 join을 시키면 되는 것 아닌가?
+```js
+// chain :: Monad m => (a -> m b) -> m a -> m b
+
+const chain = curry((f, m) => m.map(f).join());
+// or
+const chain = f => compose(join, map(f));
+```
+정답이다. map에 들어가는 함수가 새로운 펑터를 반환할 경우 map -> join -> map -> join하기 보다는 chain -> chain으로 하면 훨씬 깔끔해질 것이다.
+```js
+// map/join
+const container_hi = hi => new Container('hi')
+
+const hi_mapJoin = compose(
+  join,
+  map(container_hi),
+  join,
+  map(container_hi),
+  container_hi,
+);
+
+// chain
+const hi_chain = compose(
+  chain(container_hi),
+  chain(container_hi),
+  container_hi,
+);
+```
+
 
 # fantasy-land specification
 js에는 아주 유명한 algebraic structure specifications가 있는데, 바로 fantasy-land이다. fp 솔루션을 제공하는 js의 거의 모든 라이브러리가 이 spec을 바탕으로 제작되었다고 해도 과언이 아니다. 모든 것을 살펴봐도 좋지만 바쁜 현대인들 답게 우선순위를 정해서 살펴보는 것이 좋겠다.
