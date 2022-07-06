@@ -55,6 +55,7 @@ Functor를 정의하기 위해선 arrow 매핑도 정의해야 한다. arrows는
 
 ![functor_in_fp](https://nikgrozev.com/images/blog/Functional%20Programming%20and%20Category%20Theory%20Part%201%20-%20Categories%20and%20Functors/haskfunctor1.jpg)
 
+
 # Composition
 함수형 프로그래밍을 이해하기 위한 기초단계에 진입해보자. Composition은 사실상 함수형 프로그래밍의 전체에 관여하므로 잘 이해하고 다음 단계로 넘어가야한다.
 ```js
@@ -78,6 +79,44 @@ const compose = (...fns) => (...args) => fns.reduceRight((res, fn) => [fn.call(n
 
 여기서 주목할 만한점은 또 하나 있다. 이런 순간에 Currying이 매우 유용하다는 것이다. 
 compose되는 함수들은 항상 1 input 1 output을 따라야한다. 당연하게도, 이를 지키지 않으면 파이프를 이어붙이기가 힘들다(당연히 불가능하진 않지만, 추가적인 노력이 들어가야하고 가독성을 심각하게 저해시킬 것이다).
+
+# Monoid
+monoid는 세 가지 조건을 충족한다. 다음과 같다.
+1. 어떤 set에 포함된 두 값 a,b가 있다고 하자. a와 b를 concat한 결과값 c의 set과 a,b가 포함된 set이 같아야한다. 이를 magma라고 한다. 
+2. a,b,c가 한 set에 포함된다고 가정할 때, 다음을 만족한다. 이를 associativity라고 한다.
+```js
+concat(a, concat(b,c)) === concat(concat(a,b), c)
+```
+3. set은 neutral value를 포함해야한다. neutral value가 set의 다른 값 x와 concat되었을 때, x는 변하지 않아야한다. 다음과 같다.
+```js
+concat(x, nv) === concat(nv, x) === x
+```
+
+와닿을 수 있는 실례를 들어보자. monoid는 자바스크립트에서 흔하게 찾아볼 수 있는데, number addition, string concatenation등이 그렇다. 예를 들어보자.
+```js
+// number
+1 + 1 === 2 // magma
+(1 + 2) + 3 === 1 + (2 + 3) // associativity
+1 + 0 === 0 + 1 === 1 // 0은 neutral value
+``` 
+string도 마찬가지이다. string의 neutral value는 빈 문자열("")이며 세 가지 조건을 모두 만족한다.
+
+놀라운 것은, 이 세가지 조건이 위에서 살펴본 compose함수에도 적용된다는 것이다. 함수와 함수를 합성한 결과가 함수이니 magma이고, associativity도 검증했으며, neutral은 x => x로 left와 right identity를 모두 만족한다.
+
+그래서 monoid가 언제 쓸모가 있는가? 세 가지 특성을 합한 연산은 reduce와 함께 강력한 힘을 발휘한다.
+```js
+reduce(concat, neutral_value)
+```
+concat은 monoid이고, monoid는 magma, associative하니, reduce의 결과도 또한 마찬가지 일 것을 알 수 있다. 또한 reduce의 시작은 neutral value로 처리할 수 있다.
+
+associative가 주는 장점은 하나 더 있는데, 연산을 분리할 수 있다는 것이다. number를 예로 들어보자.
+```js
+const add = (x, y) => x + y;
+add(reduce(add, 0)([1,2,3,4,5]), reduce(add, 0)([6,7,8,9,10])) ===
+reduce(add, 0)([1,2,3,4,5,6,7,8,9,10])
+```
+보이는 것과 같이 범위를 나워서 계산한 결과를 또 다시 concat하는 것과 전체를 한번에 concat하는 것은 차이가 없으므로, 필요한 만큼 연산을 나눠 진행할 수 있다.
+
 
 ### Pointfree
 pointfree 스타일은 함수 합성이 간편하고 가독성을 좋게 만든다는 점에서 자주 쓰인다. 더 정확히말하면 동작만을 나열함으로써 매우 Declarative한 코드를 완성할 수 있다.
@@ -173,6 +212,7 @@ const map = curry((f, anyFunctor) => anyFunctor.map(f))
 완벽하다. 
 
 사소하지만, Functor f라는 말은 f가 반드시 Functor여야함을 나타낸다. 잊지말자.
+
 
 ## IO(그리고 추상화에 대하여)
 함수형 프로그래밍을 하다보면 무조건 마주치게 되는 문제가 있다. 아무리 순수 함수를 작성하려고 해도 도저히 불가능할 때가 있는데, 바로 외부와 소통하는 상황(fs, db 등등..)즉, IO이다. 
