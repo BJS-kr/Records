@@ -310,7 +310,6 @@ join한꺼풀 씩 layer들을 벗겨낸다면, 최종 결과가 IO(IO(IO('hi!'))
 사실 윗 문단에서 살펴본 동작에는 패턴이 존재하는데, 보통 새로운 layer가 생기는 부분이 map이라는 것이다. 그렇다면... map을 실행할 때 자동으로 join을 시키면 되는 것 아닌가?
 ```js
 // chain :: Monad m => (a -> m b) -> m a -> m b
-
 const chain = curry((f, m) => m.map(f).join());
 // or
 const chain = f => compose(join, map(f));
@@ -382,8 +381,82 @@ mcompose(mcompose(f, g), h) === mcompose(f, mcompose(g, h));
 # Applicative
 대망의 Applicative까지 도달하고야 말았다. 괄목할만한 일이다. 바로 chain과 applicative가 fantasy-land에서 정의하는 monad의 laws이기 때문이다. 기초적이더라도 monad를 이해했다고 볼 수 있는 단계에 도달했다는 것이다.
 
+보통 ap라는 메서드로 표현되는 apply functor는 어떤 연산을 functor로 감싸인 값에 적용하기 위해 사용된다. ap는 단지 코드양을 줄여줄 뿐 아니라 sequential evaluation에서 벗어날 수 있게 해준다. 예제로 살펴보자.
 
+```js
+// ap가 없을 때
+Container.of(2).chain(two => Container.of(3).map(add(two)));
+```
+2와 3은 동시에 생성되어도 아무 상관 없으나 단지 코드의 진행 때문에 3이 2보다 늦게 instantiate될 것은 자명하다. 
 
+먼저 ap를 정의해보자. 중요한 것은 $value가 function이어야 한다는 것이다.
+```js
+// ap 정의
+Container.prototype.ap = function (otherContainer) {
+  return otherContainer.map(this.$value);
+};
+```
+지금까지 써오던 map과의 구조를 비교해보도록 하자.
+```js
+F.of(x).map(f) === F.of(f).ap(F.of(x));
+```
+이 연산에서 주목할 만한 점은 left-to-right으로 코드를 작성할 가능성을 보여준다는 것이다. 또 다시 예를 들어보자
+```js
+Container.of(2).map(add).ap(Container.of(3)) === 
+Container.of(add).ap(Container.of(2)).ap(Container.of(3))
+```
+
+아직 이게 뭐가 그리 장점인지 와닿지는 않을 것이다. 가독성이 올라가는 것도 좋지만 ap의 진짜 힘은 병렬평가에 있다.
+
+```js
+Task.of(renderPage).ap(Http.get('/destinations')).ap(Http.get('/events'));
+```
+renderPage함수는 항수가 2이고 curry되었으며, 각 인자로 HTML을 생성해 반환하는 함수라고 가정한다. Http의 메서드는 Task(Folktale)를 사용해 비동기 처리를 수행 중이며 새로운 Task객체를 반환한다고 가정한다.
+
+원래 쓰던 코드와 다른 점은 두 개의 Http 요청이 즉시 실행될 것이며, renderPage는 요청들이 모두 완료된 후 실행된다는 것. 즉, sequential evaluation에서 벗어난 것이다.
+이는 renderPage가 curried되었기 때문에, 두 개의 인자가 모두 들어온 후에야 작동함을 보장받고 있기에 가능한 일이다.
+### Pointfree로 바꿔보기
+우리가 ap메서드까지 작성한 시점에서, map은 of/ap와 같아진다(map(g) === of(g).ap).
+그러므로 다음과 같은 코드를 작성할 수 있다.
+```js
+const liftA2 = curry((g, f1, f2) => f1.map(g).ap(f2));
+const liftA3 = curry((g, f1, f2, f3) => f1.map(g).ap(f2).ap(f3));
+// liftA4, liftA5, ..., liftAn
+```
+g는 함수이며, f들은 모두 applicative functor이다.  A2, A3등과 같은 이름들이 굉장히 불편하게 느껴질 수 있지만, 이런 naming convention은 self descriptive하고 인자의 갯수를 변경할 수 없다는 점에서 안정성이 높으므로 널리 사용된다.
+
+새롭게 작성한 lift함수들을 사용하여 위에서 작성한 예제들을 재작성해보자
+```js
+liftA2(add, Maybe.of(2), Maybe.of(3));
+// Maybe(5)
+
+liftA2(renderPage, Http.get('/destinations'), Http.get('/events'));
+// Task('<div>some page with dest and events</div>')
+```
+코드의 양이 줄어듦은 물론이거니와 가독성이 극대화되었다.
+
+## ap를 활용해 map 재정의하기
+```js
+X.prototype.map = function map(f) {
+  return this.constructor.of(f).ap(this)
+}
+```
+of/ap가 map과 같음은 상술했으니 생략하겠다. 다만, monad(chain 보유)라고 생각하면 구현을 조금 다르게 할 수 있다. 
+
+chain이 존재할 경우의 map과 ap는 다음처럼 작성할 수 있다.
+(X 객체를 사용하는 이유는 아래의 구현이 실 구현이라기보다 )
+```js
+// map derived from chain
+X.prototype.map = function map(f) {
+  return this.chain(a => this.constructor.of(f(a)));
+};
+
+// ap derived from chain/map
+X.prototype.ap = function ap(other) {
+  return this.chain(f => other.map(f));
+};
+```
+만약 모나드를 작성할 수 있다면, 우리는 자동으로 functor와 applicative를 얻게 된다. 
 # fantasy-land specification
 js에는 아주 유명한 algebraic structure specifications가 있는데, 바로 fantasy-land이다. fp 솔루션을 제공하는 js의 거의 모든 라이브러리가 이 spec을 바탕으로 제작되었다고 해도 과언이 아니다. 모든 것을 살펴봐도 좋지만 바쁜 현대인들 답게 우선순위를 정해서 살펴보는 것이 좋겠다.
 
