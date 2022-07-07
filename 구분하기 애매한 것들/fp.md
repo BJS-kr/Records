@@ -87,7 +87,7 @@ monoid는 세 가지 조건을 충족한다. 다음과 같다.
 ```js
 concat(a, concat(b,c)) === concat(concat(a,b), c)
 ```
-3. set은 neutral value를 포함해야한다. neutral value가 set의 다른 값 x와 concat되었을 때, x는 변하지 않아야한다. 다음과 같다.
+3. set은 neutral value를 포함해야한다. neutral value가 set의 다른 값 x와 concat되었을 때, x는 변하지 않아야한다. 이를 left identity, right identity라고 한다. 다음과 같다.
 ```js
 concat(x, nv) === concat(nv, x) === x
 ```
@@ -137,7 +137,7 @@ const snakeCase = compose(replace(/\s+/ig, '_'), toLowerCase);
 프로그래밍과 대응시키기 위해 카테고리가 무엇으로 이루어져있는지 번호로 정의해보겠다.
 1. object의 모임 = 타입(string, boolean 등)
 2. morphism의 모임 = 순수 함수
-3. morphism 중, identity = (x) => x 와 같은 morphism을 일컫는 것인데, 이 쓸모는 나중에 등장한다. 그래도 맛보기로 아래의 코드를 보자.
+3. morphism 중, identity = (x) => x 와 같은 morphism을 일컫는 것이다.
 ```js
 compose(id, f) === compose(f, id) === f;
 ```
@@ -174,11 +174,12 @@ Container.prototype.map = function (f) {
   return Container.of(f(this.$value));
 }
 ```
-너무나도 직관적인 map이 완성되었다. Container가 가진 value에 대하여, 우리가 수행하고자 하는 연산(f)를 수행한 값을 가지고, 다시 새로운 Container를 반환한다. 가장 굉장한 것은, 우리가 절대 Container를 벗어나지 않는다는 것이다. 그러므로 map을 끝없이 이어서 실행하는 것도 가능하다. 
+너무나도 직관적인 map이 완성되었다. Container가 가진 value에 대하여, 우리가 수행하고자 하는 연산(f)를 수행한 값을 가지고, 다시 새로운 Container를 반환한다. 굉장한 것은, 우리가 절대 Container를 벗어나지 않는다는 것이다. 그러므로 map을 끝없이 이어서 실행하는 것도 가능하다. 
 
 그리고 이 모양 어디서 분명히 본적 있지 않은가? 바로 composition이다. Functor의 조건이란 바로 composition과 identity가 가능한 map임을 되짚어보자.
 
 ## Functor를 Maybe로!
+Maybe능 Nothing과 Just로 이루어진다. Nothing이라면 default value를, Just라면 연산을 수행한 결과를 가지고 있다.
 ```js
 class Maybe {
   static of(x) {
@@ -202,7 +203,7 @@ class Maybe {
   }
 }
 ```
-Maybe를 완성(한참 구현할게 남았지만)했다! map에 isNothing을 참조하는 과정을 넣은 것 빼곤 거의 차이가 없다. null혹은 undefined를 감내하는 클래스가 완성되었다.
+Maybe를 완성(한참 구현할게 남았지만)했다. map에 isNothing을 참조하는 과정을 넣은 것 빼곤 거의 차이가 없다. null혹은 undefined를 감내하는 클래스가 완성되었다.
 
 pointfree style로 항상 Functor.map형식으로 호출되어야하는 상황을 바꿔보자.
 ```js
@@ -217,21 +218,21 @@ const map = curry((f, anyFunctor) => anyFunctor.map(f))
 ## IO(그리고 추상화에 대하여)
 함수형 프로그래밍을 하다보면 무조건 마주치게 되는 문제가 있다. 아무리 순수 함수를 작성하려고 해도 도저히 불가능할 때가 있는데, 바로 외부와 소통하는 상황(fs, db 등등..)즉, IO이다. 
 
-순수함수의 의미를 되짚어보자. 순수 함수란 dictionary와 하등 다를바 없는 mapping이라는 것을 이해하고 있다면 이해하기가 쉽다. 이와 같은 특성으로 인해 순수함수는 cacheable하고, parallel으로 실행하기에 완벽하다. 또한 순수함수는 절대로 외부(상위 스코프, 외부 프로세스 등등...) 참조하지 않는다. 즉 함수가 실행된 컨텍스트에서 모든 것이 일어난다. 이러한 특성으로 인해 순수 함수는 '시점'과 '횟수'에 아무런 영향을 받지 않는다. 
+순수함수의 의미를 되짚어보자. 순수 함수란 dictionary와 하등 다를바 없는 mapping이라는 것을 이해하고 있으면 된다. 이와 같은 특성으로 인해 순수함수는 cacheable하고, parallel으로 실행하기에 완벽하다. 또한 순수함수는 절대로 외부(partial application으로 인한 클로저를 제외한 상위 스코프, 외부 프로세스 등등...) 참조하지 않는다. 즉 함수가 실행된 컨텍스트에서 모든 것이 일어난다. 이러한 특성으로 인해 순수 함수는 '시점'과 '횟수'에 아무런 영향을 받지 않는다. 
 
 보통 거의 모든 글이 위의 문단에서 설명을 끝낸다.
 잠시만 진행을 멈추고 생각해보자. 윗 문단의 내용이 과연 맞는 말인가?
 
 답은, 틀렸다 이다.
 
-사실 프로그래밍은 '무조건 비순수'하다. 어째서? 프로그램은 개념이 아니라 실체에 의해 동작하기 때문에 수학과 근본적으로 다르기 때문이다. 아주 간단한 예를 들어보자.  커널에서 에러를 일으킬 수도 있고, 누군가가 캐시전략을 해괴망측하게 세워두는 바람에 Redis가 메모리를 다 잡아먹어버려 함수를 실행하는 순간 메모리 한계에 도달할 수도 있다. 혹은 당신이 사용중인 클라우드 가상 컴퓨터 서비스가 원인을 알 수 없이 나가버릴 수도 있다. 이런 상황들은 실제로 전세계 어딘가에서 당연한 것처럼 매일 발생하고 있다. 개념의 영역에서 벗어나는 순간 부수효과를 일으킬 수 있는 요소는 말 그대로 셀 수 없게 된다. 그에 반해 수학은? 우주가 멸망하는 날까지 수학의 함수는 올바르다.
+사실 프로그래밍은 '무조건 비순수'하다. 프로그램은 개념이 아니라 실체에 의해 동작하기 때문에 수학과 근본적으로 다르기 때문이다. 아주 간단한 예를 들어보자.  커널에서 에러를 일으킬 수도 있고, 누군가가 캐시전략을 해괴망측하게 세워두는 바람에 Redis가 메모리를 다 잡아먹어버려 함수를 실행하는 순간 메모리 한계에 도달할 수도 있다. 혹은 당신이 사용중인 클라우드 가상 컴퓨터 서비스가 원인을 알 수 없이 나가버릴 수도 있다. 이런 상황들은 실제로 전세계 어딘가에서 당연한 것처럼 매일 발생하고 있다. 개념의 영역에서 벗어나는 순간 부수효과를 일으킬 수 있는 요소는 말 그대로 셀 수 없게 된다. 그에 반해 수학은? 우주가 멸망하는 날까지 수학의 함수는 올바르다.
 
 지나치게 극단적인 상황을 다룬다고 생각하는 사람들이 있을 것이다. 맞다. 합리적인 생각이다. 그 합리적인 생각이 지금부터 설명할 추상화의 근간이다.
 
 ### 추상화
-예를 들어보자. 우리는 nodejs가 잘 동작하는지를 테스트하려고 들지 않는다. 혹은 cpu가 코드를 잘 실행하는지를 검사하려고 들지 않는다. 왜인가? 잘 동작할 것이라는 확신이 있기 때문이다. 왜 확신하는가? 우리는 경험적으로 CPU나 프로그래밍 언어가 오작동을 일으킬 확률이 극히 적다는 것을 알고 있고, 유능한 엔지니어들이 온갖 테스트를 했을 것을 확신하기 때문이다. 조금 더 높은 수준으로 올라가서, 테스트로 생각해보자. 어떤 어플리케이션을 배포할 때 테스트를 하지 않고 올리지는 않을 것이다. 개발자들이 심혈을 기울여 엄청난 완성도의 테스트 코드를 만들어 100% 통과를 확인하고 배포를 했다고 가정하겠다. 이 어플리케이션은 오류가 없을까? 당연하게도 개발자들은 버그와 싸워야할 것이다(물론 엄청나게 줄여주겠지만).
+예를 들어보자. 우리는 nodejs가 잘 동작하는지를 테스트하려고 들지 않는다. 혹은 cpu가 코드를 잘 실행하는지를 검사하려고 들지 않는다. 잘 동작할 것이라는 확신이 있기 때문이다. 우리는 경험적으로 CPU나 프로그래밍 언어가 오작동을 일으킬 확률이 극히 적다는 것을 알고 있고, 유능한 엔지니어들이 온갖 테스트를 했을 것을 확신하기 때문이다. 조금 더 높은 수준으로 올라가서, 테스트로 생각해보자. 어떤 어플리케이션을 배포할 때 테스트를 하지 않고 올리지는 않을 것이다. 개발자들이 심혈을 기울여 엄청난 완성도의 테스트 코드를 만들어 100% 통과를 확인하고 배포를 했다고 가정하겠다. 이 어플리케이션은 오류가 없을까? 당연하게도 개발자들은 버그와 싸워야할 것이다(물론 엄청나게 줄여주겠지만).
 
-하고 싶은 말은, 프로그래밍은 수학이 아니라 과학에 훨씬 훨씬 가깝다는 것이다. 동작 확률이 100%(애초에 100%를 달성하는 것 자체가 불가능)가 아니라 99%이기 때문에 자신있게 배포한다는 것이다. 로켓 발사 성공 확률이 100%가 아님에도 불구하고 목숨을 거는 우주 비행사들과 같은 것이다.
+하고 싶은 말은, 프로그래밍은 수학이 아니라 과학에 훨씬 가깝다는 것이다. 동작 확률이 100%(애초에 100%를 달성하는 것 자체가 불가능)가 아니라 99%이기 때문에 자신있게 배포한다는 것이다. 로켓 발사 성공 확률이 100%가 아님에도 불구하고 목숨을 거는 우주 비행사들과 같은 것이다.
 
 즉, 함수형 프로그래밍에선 극히 낮은 확률로 일어날 부수효과에 대해선 퉁(추상화) 친다. 어떤 개발자도 이 전제에서 벗어날 수 없다.
 
@@ -242,7 +243,7 @@ const map = curry((f, anyFunctor) => anyFunctor.map(f))
 Functional Programming Doesn't Work: https://prog21.dadgum.com/54.html  
 85% functional language purity: https://www.johndcook.com/blog/2010/04/15/85-functional-language-purity/
 
-누군가는 여전히 순수성을 위해 많은 것들을 포기해도 된다고 생각할지도 모른다. 그것은 의견의 차이다. 나의 의견은 다음의 소프트웨어 개발 격언으로 압축된다.
+누군가는 여전히 순수성을 위해 많은 것들을 포기해도 된다고 생각할지도 모른다. 그것은 의견의 차이다. 나의 의견은 다음 소프트웨어 개발 격언으로 압축된다.
 
 **"실용성은 순수성을 이긴다"**
 
@@ -256,7 +257,9 @@ IO는 앞서말했듯이 비순수하기 때문에 순수한 연산에 포함시
 흔히 사용하는 기법은, '함수의 평가를 미루는 것'이다. IO함수의 평가를 미뤘으니 합성될 함수들도 평가될 수 없다. 이 때 함수들을 체이닝하여 하나의 커다란 함수를 만드는 식으로 순수한 연산을 만들 수 있다. 뭔가 아쉽지 않은가? 아쉬운 이유는 어차피 함수 체이닝을 완료한 시점에는 비순수함수가 호출되어야 하기 때문이다. 이것은 IO가 가지는 본질적인 한계다. 앞서 말한 impurity는 결국 포함될 수 밖에 없는 상황이 이런 것이다. 그러나 이것만으로도 우리는 얻는 것이 많다. 첫 번째, impurity를 격리했다. Action은 그 Action을 포함하는 함수 자체를 Action으로 만든다(99% pure, 1% impure라고 하더라도 그 함수는 무조건 Action이다). 순수한 연산과 비순수한 함수 호출을 분리함으로써 안전한 영토를 꽤 많이 확보 했다. 두 번째, 부수효과 핸들링의 편의성이다. 비순수한 함수를 특정 위치에서 실행하며 그 부수효과를 처리하는 과정을 일관된 형태로 작성할 수 있다는 것이다.
 
 ### IO side-effect 격리하기
-여전히 답답하다! 우리에겐 Monad(or Functor)가 있기 때문이다. 그래서 윗 문단은 '밀어내기'이고 이번 문단은 '격리하기'이다. 에러를 일으킬 값들을 추상화해서 격리시키거나(ex: Maybe) 에러 자체를 추상화하거나(ex: Either)혹은 둘다 활용해도 된다. 다시 말하지만 추상화 레벨을 결정하는 것은 철저히 개발자의 몫이다. 밀어내기와 격리하기를 둘다 활용해도 되고, 격리하기만 활용해도 되고, 아무것도 활용하지 않아도 된다(비순수함을 유지). 현대의 IO는 아무리 순수함수보다 위험하다고 해도 그 작동성을 꽤나 보장받는다(개발자가 오타가 포함된 쿼리를 날리는 등의 경우는 작동성의 영역이 아니다). 그러므로 '항상 동작한다'를 가정해도 문제가 없다(이미 많은 함수형 프로그래밍 솔루션에서 채택하는 방식이다). '항상 동작한다'와 에러를 함께 추상화해서 EitherIO 라고 이름 붙여도 좋다. 이런 컨벤션은 실제로 fp-ts에서 활용하는 방식이다. FolkTale의 Task는 이와 이름은 달라도 마찬가지의 동작을 수행한다.
+여전히 답답하다! 우리에겐 Monad(or Functor)가 있기 때문이다. 그래서 윗 문단은 '밀어내기'이고 이번 문단은 '격리하기'이다. 에러를 일으킬 값들을 추상화해서 격리시키거나(ex: Maybe) 에러 자체를 추상화하거나(ex: Either)혹은 둘다 활용해도 된다. 다시 말하지만 추상화 레벨을 결정하는 것은 철저히 개발자의 몫이다. 밀어내기와 격리하기를 둘다 활용해도 되고, 격리하기만 활용해도 되고, 아무것도 활용하지 않아도 된다(비순수함을 유지). 
+
+현대의 IO는 아무리 순수함수보다 위험하다고 해도 그 작동성을 꽤나 보장받는다(개발자가 오타가 포함된 쿼리를 날리는 등의 경우는 작동성의 영역이 아니다). 그러므로 '항상 동작한다'를 가정해도 문제가 없다(이미 많은 함수형 프로그래밍 솔루션에서 채택하는 방식이다). '항상 동작한다'와 에러를 함께 추상화해서 EitherIO 라고 이름 붙여도 좋다. 이런 컨벤션은 실제로 fp-ts에서 활용하는 방식이다. Folktale의 Task는 이와 이름은 달라도 마찬가지의 동작을 수행한다.
 
 # Functor의 identity와 compose가 뜻하는 의미
 먼저 만족해야하는 조건부터 살펴보자
@@ -267,7 +270,7 @@ map(id) === id;
 // composition rule
 compose(map(f), map(g)) === map(compose(f, g));
 ```
-처음봤을 때는 identity라는 것이 왜 필요한지 난해하게 느껴졌다. compose는 말 그대로 뭐라도 하지만 id는 말 그대로 자신이 자신과 같다는 것이 뭐가 그리 중요한가 싶었다. 핵심은 map(id)부분에 있다. id가 자기 자신인 것은 당연하지만 map(id)가 자기 자신을 반환하는 것은 map이 그렇게 설계되어있어야 한다는 뜻이다. map(id)가 id라면(f -> f(x)라면), 또 compose를 올바르게 구현했다면 composition또한 성립할 것이다.
+처음봤을 때는 identity라는 것이 왜 필요한지 난해하게 느껴졌다. compose는 뭐라도 하지만 id는 말 그대로 자신이 자신과 같다는 것이 뭐가 그리 중요한가 싶었다. 핵심은 map(id)부분에 있다. id가 자기 자신인 것은 당연하지만 map(id)가 자기 자신을 반환하는 것은 map이 그렇게 설계되어있어야 한다는 뜻이다. map(id)가 id라면(f -> f(x)라면), 또 compose를 올바르게 구현했다면 composition또한 성립할 것이다.
 
 카테고리 이론에서, 펑터들은 카테고리의 객체와 사상들을 받아 다른 카테고리로 map하는 역할을 한다. 상술했듯 객체와 사상들은 빠짐없이 map되야한다. identity도 포함해서 말이다. 그러나 앞서 살펴본 카테고리 이론에서 언급했듯 프로그래밍에서 functor는 항상 endofunctor다. 즉, Category -> Another Category가 아니라, Category -> Subcategory이다. 
 
@@ -275,7 +278,7 @@ compose(map(f), map(g)) === map(compose(f, g));
 마찬가지로 of라면 F.of(a) -> a 이고 F.of(b) -> b이다(같은 타입 반환).
 
 # of의 진짜 역할
-of메서드가 포함된 functor를 pointed functor라고 한다. of의 역할은 항상 new ClassName(constructorParam)형태의 호출이 아닌 어떤 값이던 즉시 같은 타입의 펑터로 감싸여진 값을 얻기위해 사용된다. X타입의 펑터를 만들고 map하고 ㅅ 싶다면 X.of(value).map(fn)와 같은 형태로 즉시 가능하게 만들어 준다는 것이다. default minimal context라는 말이 이를 잘 표현해준다. 타입의 값을 제거한 후 어떤 펑터의 어떤 행동이던간에 평소대로 map할 수 있게 한다는 것이다.
+of메서드가 포함된 functor를 pointed functor라고 한다. of의 역할은 항상 new ClassName(constructorParam)형태의 호출이 아닌 어떤 값이던 즉시 같은 타입의 펑터로 감싸여진 값을 얻기위해 사용된다. X타입의 펑터를 만들고 map하고 싶다면 X.of(value).map(fn)와 같은 형태로 즉시 가능하게 만들어 준다는 것이다. default minimal context라는 말이 이를 잘 표현해준다. 타입의 값을 제거한 후 어떤 펑터의 어떤 행동이던간에 평소대로 map할 수 있게 한다는 것이다.
 
 사실 Left.of는 말이 안된다. 각 펑터는 값을 넣을 하나의 방법을 가져야하는데 Either의 경우라면 new Right(value)이다. 즉, Either.of는 Right를 사용한다는 것인데, 그 이유는 map을 실행하면 map이 동작해야하기 때문이다(Left는 아무런 동작도 하지 않는다).
 
@@ -307,7 +310,7 @@ isNothing은 단순히 객체가 Nothing인지를 판별하는 것이고, Nothin
 join한꺼풀 씩 layer들을 벗겨낸다면, 최종 결과가 IO(IO(IO('hi!')))와 같은 경우 compose에는 join이 세번이나 들어가야한다. 너무나 불편하게 느껴진다. 매번 펑터 껍질이 생기는 부분을 인지하면서 join을 파이프에 수기로 작성하라는 것은 개발의 효율을 전혀 늘려주지 않는다. 차라리 IO(IO(IO('hi!'))).join().join().join()을 실행하는 것이 개발 속도를 높여줄 것 같다.
 
 ## Chain: 패턴에 주목하자
-사실 윗 문단에서 살펴본 동작에는 패턴이 존재하는데, 보통 새로운 layer가 생기는 부분이 map이라는 것이다. 그렇다면... map을 실행할 때 자동으로 join을 시키면 되는 것 아닌가?
+사실 윗 문단에서 살펴본 동작에는 패턴이 존재하는데, 보통 새로운 layer가 생기는 부분이 map이라는 것이다. 그렇다면... map을 실행할 때 자동으로 join을 시키면 되는 것 아닐까?
 ```js
 // chain :: Monad m => (a -> m b) -> m a -> m b
 const chain = curry((f, m) => m.map(f).join());
@@ -443,20 +446,82 @@ X.prototype.map = function map(f) {
 ```
 of/ap가 map과 같음은 상술했으니 생략하겠다. 다만, monad(chain 보유)라고 생각하면 구현을 조금 다르게 할 수 있다. 
 
-chain이 존재할 경우의 map과 ap는 다음처럼 작성할 수 있다.
-(X 객체를 사용하는 이유는 아래의 구현이 실 구현이라기보다 )
+여기서 잠시 chain을 곱씹어볼 필요가 있다. chain을 map과 join 구현이 선행된 상태에서 prototype에 추가한다고 생각해보자.
 ```js
-// map derived from chain
+X.prototype.chain = function(f) { return this.map(f).join(); }
+```
+그런데 chain은 사실 'map와 join이 일어나는 것과 같다'면 어떤 식으로 작성하더라도 상관없다. chain은 단지 새로운 monad가 반환된다면 그 값을 연결시키는 역할이다. 꼭 map과 join구현이 완성된 상태에서 구현해야하는 메서드가 아니라는 것이다.
+
+그렇다면 chain의 구현이 map보다 선행되었을 경우로 뒤집어서 생각해 볼 수 있다. map이 chain을 통해 구현되는 것이다.
+
+아래의 구현에서 map을 정의하는 과정에서 a 인자는 'any value'로 받아들이면 된다.
+this(of를 통해 생성된 객체)의 value가 a이다. 어떤 식이던, chain의 내부 구현은 $value를 사용하도록 작성되어있다고 가정하는 것이다.
+
+반면 두번째 구현인 ap에 할당되고 있는 함수에서, f 인자는 this.$value가 function일때 만 가능(이해가 안된다면 ap의 목적을 다시 읽어보자)하기 때문에 f라고 명시한것이다.
+```js
 X.prototype.map = function map(f) {
   return this.chain(a => this.constructor.of(f(a)));
 };
 
-// ap derived from chain/map
 X.prototype.ap = function ap(other) {
   return this.chain(f => other.map(f));
 };
 ```
-만약 모나드를 작성할 수 있다면, 우리는 자동으로 functor와 applicative를 얻게 된다. 
+이런식으로 만약 모나드를 작성(chain이 포함된 functor)할 수 있다면, 우리는 자동으로 functor(map)와 applicative(ap)를 얻게 된다. 이런 방식은 구조적으로 상위의 메서드를 구현하면 하위 메서드를 구현 할 수 있다는 것을 보여준다는 점에서 주목할만 하지만, 위와 같은 방식의 chain을 통해 ap를 구현하면 ap의 동시성(병렬 평가)을 잃는다는 점에 주의해야 한다.
+
+일단 applicative functor는 "closed under composition"이라는 것을 기억하자(monad가 아닐 때. 즉 chain을 통해 펑터 꺼풀을 벗겨내지 않을때). 이는 타입이 섞이지 않음을 보장할 수 있다는 점에서 monad대신 applicative functor를 사용할 중요한 이유가 된다(상황에 따라 다른 것).
+
+예를 들어보자
+```js
+const tOfM = compose(Task.of, Maybe.of);
+
+liftA2(liftA2(concat), tOfM('Rainy Days and Mondays'), tOfM(' always get me down'));
+// Task(Maybe(Rainy Days and Mondays always get me down))
+```
+tOfM 타입(Task(Maybe(v)))이 각각 생성되었음에도 불구하고 그대로 유지된채 결과가 반환되었다.
+
+의문이 들 수 있다. 왜 굳이 functor, applicative functor, monad 등을 힘들게 구분하는가? 어차피 monad는 functor의 모든 구현을 가지고 있으니 항상 monad를 사용하면 되는 것 아닌가? 하는 생각을 할 수 있다. 그러나, 자신이 필요한 만큼의 구현만을 가진 다는 것은 상당히 중요한 문제다. 개발자가 문제와 해결책을 정확하게 파악하고 있는지를 가늠할 수 있을 뿐 아니라, 추가적인 functionality는 오히려 예측할 수 없는 작동을 내재하고 있다. 
+적은 구현은 그만큼 직관적이고 예측 가능성을 높여준다. 이러한 이유로 항상 monad만 쓰면 된다는 주장은 옳지 않다.
+
+## applicative functor laws
+#### identity
+```js
+A.of(id).ap(v) === v;
+``` 
+앞서 살펴본 바와 같다. ap를 적용하려면 ap의 this.$value는 function이어야하고, id function은 x => x이며, ap의 인자 v는 functor이다. 주목할 만한 점은 of/ap가 map과 같음을 살펴보았으므로 자동으로 map(id) === id까지 함께 충족한다는 것이다.
+
+#### homomorphism(준동형 혹은 준동형 사상)
+두 구조 사이의, 모든 연산 및 관계를 보존하는 함수. functor는 category사이의 homomorphism임을 떠올려보자.
+```js
+A.of(f).ap(A.of(x)) === A.of(f(x));
+```
+위의 검증은 A.of(f).ap(A.of(x))가 준동형을 만족함을 검사하는 것이다.
+
+#### interchange
+함수를 left or right에 두던 상관없음을 검증해보자. v는 function을 value로 가지고있는 functor이고, x는 any value이다.
+```js
+v.ap(A.of(x)) === A.of(f => f(x)).ap(v);
+```
+예를 들어 다음과 같다.
+```js
+const v = Task.of(reverse);
+const x = 'Sparklehorse';
+
+v.ap(Task.of(x)) === Task.of(f => f(x)).ap(v);
+```
+
+#### composition
+아래에서 u,v는 함수고, w는 인자라고 이해해보자(당연히 u,v,w 모두 functor로 감싸져있다). 함수를 무한정 받을 수 있는 compose를 위에서 완성시켜보았지만 여기선 함수 두 개를 인자로 받는 기본적인 compose로 생각하자.
+```js
+A.of(compose).ap(u).ap(v).ap(w) === u.ap(v.ap(w))
+```
+compose(u, v)(w)와 u(v(w))가 같음을 ap가 실현할 수 있는지를 검증하는 것이다. 
+
+## applicative를 마치며
+applicative는 multiple functor arguments가 필요할 때 유용하다는 것을 기억해두자. 모든 연산을 functor내에서 실행할 수 있게 해주는 존재다. 물론 monad를 통해 이와 비슷한 구현(chain)을 했지만 monadic specific functionality가 필요하지 않다면 applicative functor를 선호해야함을 기억하자. 
+
+# Natural Transformation(자연변환)
+
 # fantasy-land specification
 js에는 아주 유명한 algebraic structure specifications가 있는데, 바로 fantasy-land이다. fp 솔루션을 제공하는 js의 거의 모든 라이브러리가 이 spec을 바탕으로 제작되었다고 해도 과언이 아니다. 모든 것을 살펴봐도 좋지만 바쁜 현대인들 답게 우선순위를 정해서 살펴보는 것이 좋겠다.
 
