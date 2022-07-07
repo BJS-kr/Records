@@ -521,6 +521,137 @@ compose(u, v)(w)와 u(v(w))가 같음을 ap가 실현할 수 있는지를 검증
 applicative는 multiple functor arguments가 필요할 때 유용하다는 것을 기억해두자. 모든 연산을 functor내에서 실행할 수 있게 해주는 존재다. 물론 monad를 통해 이와 비슷한 구현(chain)을 했지만 monadic specific functionality가 필요하지 않다면 applicative functor를 선호해야함을 기억하자. 
 
 # Natural Transformation(자연변환)
+자연변환은 한 줄로 압축된다: "Morphism between functors".
+값이 바뀌는 것이 아니라 값을 감싸고 있는 functor의 type이 바뀌는 것이다.
+
+fp에서 이 개념이 중요한 이유는 NT를 실행하지 않은 경우 functor가 끝없이 nest된다는 점이다. 앞에서 nested functor를 해결하지 않았냐고 물을 수 있다. 그 때는 nest된 예제들이 모두 하나의 타입이었다는 것이 차이점이다. 지금 말하는 nested functor는 마치 Functor A(Functor B(Functor C(Functor A(Functor C(v))))) 와 같은 경우를 말하는 것이다.
+
+functor 내부의 값을 바꾸는 것이 아니라는 점에서 다음이 성립한다.
+```js
+// nt :: (Functor f, Functor g) => f a -> g a
+compose(map(f), nt) ===  compose(nt, map(f))
+```
+nt의 예제를 살펴보자
+```js
+// idToMaybe :: Identity a -> Maybe a
+const idToMaybe = x => Maybe.of(x.$value);
+
+// idToIO :: Identity a -> IO a
+const idToIO = x => IO.of(x.$value);
+```
+간단하다. 값을 꺼내서 새로운 functor에 넣고 있다.
+좀 더 복잡한 예제를 살펴보자
+
+```js
+// eitherToTask :: Either a b -> Task a b
+const eitherToTask = either(Task.rejected, Task.of);
+
+// ioToTask :: IO a -> Task () a
+const ioToTask = x => new Task((reject, resolve) => resolve(x.unsafePerform()));
+```
+eitherToTask는 Task에서 Either의 Left와 Right에 대응되는 값을 대입하고 있다. 물론 이는 either라는 함수가 Left position과 Right position을 인자로 받는 형태라고 가정했기에 가능한 것이다.
+
+ioToTask는 IO functor의 값을 평가(unsafePerform)하여 Task객체로 resolve하고 있다.
+
+이해도를 높이기 위해 조금만 더 복잡한 예제를 살펴보자
+```js
+// maybeToTask :: Maybe a -> Task () a
+const maybeToTask = x => (x.isNothing ? Task.rejected() : Task.of(x.$value));
+
+// arrayToMaybe :: [a] -> Maybe a
+const arrayToMaybe = x => Maybe.of(x[0]);
+```
+Maybe에는 isNothing이 구현되어 있다. Maybe는 잠재적으로 Nothing 혹은 Just이므로 자신이 Nothing이라면 true를 반환하는 간단한 메서드이다. 이름 참조해 Task의 하위 타입으로 변환한다.
+
+다음 예제가 더욱 중요하다. Array는 거의 모든(사실상 모든) 언어에 구현되어 있으며 가장 기본적이고 직관적인 Functor이다. 잠시 Array가 functor가 맞는지 identity와 compose로 검증해보자.
+
+객체를 ===로 비교할 수 없지만 직관적인 표현을 위한 것이니 너그럽게 이해해주길 바란다.
+```js
+const arr = [1,2,3]
+// identity
+arr.map(x => x) === arr // Ok
+
+// compose
+arr.map(x => f(g(x))) === arr.map(x => g(x)).map(x => f(x)) // Ok
+```
+
+이러한 Natural Transformations에서 눈 여겨봐야할 점은 변환이 항상 더 넓은 범위 쪽으로 흐른다는 것이다. 예를 들어 살펴본 예제에서 IO가 Task로 변환되는 이유는 IO가 동기(IO자체가 동기라는 것이 아니고 IO functor는 단지 함수만을 값으로 연산하므로 동기)이고 Task가 비동기이기 때문이다. Array가 Maybe로 변환되는 이유는 Array는 '실패'를 포함하지 않지만 Maybe는 포함하기 때문이다. 넓은 쪽이 좁은 쪽으로 변환되는 것은 불가능함을 주의하자. 특히 IO가 Task로 NT되는 것은 주위에서 가장 많이 찾아볼 수 있는 케이스일 것이다. 
+
+#### 기능 가져오기
+이런 특성은 다른 functor에 존재하는 기능을 사용하고자 할 때 매우 유용한데, 다음을 살펴보자
+```js
+// arrayToList :: [a] -> List a
+const arrayToList = List.of;
+
+const doListyThings = compose(sortBy(h), filter(g), arrayToList, map(f));
+const doListyThings_ = compose(sortBy(h), filter(g), map(f), arrayToList); // law applied
+```
+sortBy라는 메서드가 List객체에만 존재한다고 가정한다. array에는 sortBy가 존재하지 않으므로, array를 list로 nt한 후 sortBy를 실행한다.
+
+#### 자연변환과 isomorphism(동형 사상)
+구조가 동일한 두 대상 사이에서 모든 구조가 보존되면 그것을 동형 사상이라고 한다. 두 대상 사이에 동형 사상이 존재하면 두 대상은 동형이라고 한다. 동형인 두 대상은 구조가 같아 서로 구분할 수 없다.
+
+대표적인 예는 무엇일까? 바로 Array와 List이다. Array와 List는 동형이며 서로 간의 변환이 가능하다. 프로그래밍에서 이는 각 functor가 지니고 있는 데이터가 서로 간의 형 변환에 따라 소실되지 않음을 의미한다. 예를 들어, Array [3] 을 List [3]으로 변환한다고 해서 3이라는 데이터는 전혀 소실되지는 않는다. 
+
+구체적인 예를 들어서 살펴보자
+```js
+// promiseToTask :: Promise a b -> Task a b
+const promiseToTask = x => new Task((reject, resolve) => x.then(resolve).catch(reject));
+
+// taskToPromise :: Task a b -> Promise a b
+const taskToPromise = x => new Promise((resolve, reject) => x.fork(reject, resolve));
+
+const x = Promise.resolve('ring');
+taskToPromise(promiseToTask(x)) === x;
+
+const y = Task.of('rabbit');
+promiseToTask(taskToPromise(y)) === y;
+```
+Task와 Promise는 동형이며 NT하더라도 데이터는 전혀 소실되지 않는다.
+
+그렇다면 isomorphic하지 않은 상황을 살펴보자
+```js
+// maybeToArray :: Maybe a -> [a]
+const maybeToArray = x => (x.isNothing ? [] : [x.$value]);
+
+// arrayToMaybe :: [a] -> Maybe a
+const arrayToMaybe = x => Maybe.of(x[0]);
+
+const x = ['elvis costello', 'the attractions'];
+
+// isomorphic하려면 서로 간 형변환을 해도 데이터 소실이 없어야 함을 기억하자
+// 아래의 예는 'the attractions'가 소실되었다.
+maybeToArray(arrayToMaybe(x)); // ['elvis costello']
+
+// 그러나 NT임에는 분명하다!
+compose(arrayToMaybe, map(replace('elvis', 'lou')))(x); // Just('lou costello')
+// ==
+compose(map(replace('elvis', 'lou'), arrayToMaybe))(x); // Just('lou costello')
+```
+
+### NT 함수를 항상 정의하는 것만이 답?
+물론 아니다. 사실 monad에서 살펴본 chain을 활용하면 자연스럽게 NT를 진행할 수 있다. 생각해보면 join을 통해 한 꺼풀 벗긴 값을 새로운 functor에 할당하면 NT가 된다는 것은 자연스러운 발상이다. 예제를 통해 살펴보자
+```js
+// getValue :: Selector -> Task Error (Maybe String)
+// postComment :: String -> Task Error Comment
+// validate :: String -> Either ValidationError String
+
+// saveComment :: () -> Task Error Comment
+const saveComment = compose(
+  chain(postComment),
+  chain(eitherToTask),
+  map(validate),
+  chain(maybeToTask),
+  getValue('#comment'),
+);
+```
+AtoB와 같은 NT 함수가 포함되어있지 않음에도 불구하고 자연스럽게 NT가 완료되었음을 확인할 수 있다.
+
+## NT의 효과
+를 정리해보자면, 
+1. 필요한 기능을 포함하고 있는 타입으로 변환할 수 있다.
+2. Nested 된 구조를 해결할 수 있다.
+
 
 # fantasy-land specification
 js에는 아주 유명한 algebraic structure specifications가 있는데, 바로 fantasy-land이다. fp 솔루션을 제공하는 js의 거의 모든 라이브러리가 이 spec을 바탕으로 제작되었다고 해도 과언이 아니다. 모든 것을 살펴봐도 좋지만 바쁜 현대인들 답게 우선순위를 정해서 살펴보는 것이 좋겠다.
