@@ -670,7 +670,7 @@ of로 인해 functor가 rearrange되고 있음을 확인 할 수 있다.
 sequence가 구현되어있다는 가정하에 pointfree sequence의 명세를 분석해보자.
 
 **sequence :: (Traversable t, Applicative f) => (a -> f a) -> t (f a) -> f (t a)**
-a -> f a인 함수(of)를 인자로 받아, 두 번째 인자 t (f a) 즉, traversable(f a)하여 f (t a)로 반전시킨다. 사실 첫 번째 인자인 a -> f a는 typed language라면 필수가 아니다(애초에 Applicative 타입만 받으면 되니까). 그래서 sequence의 필수 인자는 엄밀히 말해 t (f a)하나이다. 물론 js는 untyped이기 때문에 
+a -> f a인 함수(of)를 인자로 받아, 두 번째 인자 t (f a) 즉, traversable(f a)하여 f (t a)로 반전시킨다. 사실 첫 번째 인자인 a -> f a는 typed language라면 필수가 아니다(애초에 Applicative 타입만 받으면 되니까). 그래서 sequence의 필수 인자는 엄밀히 말해 t (f a)하나이다.
 
 이런 동작을 하는 sequence 메서드가 정의되어있다고 가정하고, 이를 pointfree로 표현하면 다음과 같다.
 ```js
@@ -698,8 +698,119 @@ class Left extends Either {
 ```
 typed language에서 outer type은 추론할 수 있으므로(Applicative만 사용할 수 있게 하면 되므로) 명시적으로 of를 사용할 필요는 없다는 사실도 기억해두자.
 
-### 효과 정리하기
+### 효과를 정리해보기
+functor가 어떤 순서로 중첩되어 있느냐에 따라 그 값이 내포하는 효과는 달라진다. 예를 들어, [Maybe a]라면 possible values[](Left와 Right가 포함)다. 그러나 Maybe [a]라면 Nothing(default value) 혹은 a[](Right 값) 일 것이다. 
 
+좀 더 자세한 예를 들어보자
+```js
+// fromPredicate :: (a -> Bool) -> a -> Either e a
+
+// partition :: (a -> Bool) -> [a] -> [Either e a]
+const partition = f => map(fromPredicate(f));
+
+// validate :: (a -> Bool) -> [a] -> Either e [a]
+const validate = f => traverse(Either.of, fromPredicate(f));
+```
+partition은 signature에서 보이듯 array를 인자로 받는함수이며, map의 결과 당연하게도 [Either e a]가 되었다. 그러나 traverse를 사용한 validate 함수는 마찬가지로 array를 인자로 받았음에도 불구하고 결과는 Either e [a]로, 모든 값이 array안에 포함되버린 partition과는 다른 결과를 보여주고 있다.
+
+둘 중에 뭐가 더 좋고 나쁘다는 우선순위를 가져선 안된다. 예를 들어, 모든 값이 array안에 그대로 보관된다면 여러 값들에 대한 함수 실행 결과를 그대로 관찰할 수 있게 된다. 반대로 validate와 같이 올바른 경우만 걸러내고 싶을 수도 있다. 상황에 따라 올바른 방식을 선택하면 된다.
+
+traverse의 구현의 예를 살펴보자. 복잡하게 느껴질 수 있으니 설명을 덧붙이겠다.
+```js
+traverse(of, fn) {
+    return this.$value.reduce(
+      (f, a) => fn(a).map(b => bs => bs.concat(b)).ap(f),
+      of(new List([])),
+    );
+  }
+```
+일단 $value가 reduce를 포함한 객체임을 가정하고 있다. reduce는 predicate와 seed를 인자로 취함을 알고 있을 것이다. seed는 빈 List를 값으로 가진 functor이다. 예를 든것 거처럼 Either.of를 of인자로 넘기는 상황이라면 Right([])이 될 것이다. traverse가 인자로 받고 있는 fn은 functor를 반환하는 함수여야 한다. reduce가 받고 있는 f, a에서 f는 accumulator이며, a는 iteree이다. 함수의 진행을 살펴보면, fn(a)로 인해 functor가 생성되고, map하며 b에는 fn(a)로 인해 반환된 functor의 $value를 받고, bs -> bs.concat(b)함수를 리턴하고 있다. 여기까지 도달하면 functor의 $value가 함수가 되었으니 ap를 실행할 수 있다. ap의 대상은 functor이므로 여기까지 도달하면 f가 functor이며, f.$value는 concat메서드를 가지고 있어야 가능함을 알 수 있다. 위의 구현에선 f.$value(bs 인자)는 List이므로 concat을 가지고 있다.
+
+결론적으로 accumulator는 Either e [a]로 출발하여 같은 타입으로 마무리하고 결과를 반환하게 된다.
+
+## Traversable Laws
+피해갈 수 없는 법칙 검증의 시간이다. Identity, Composition, Naturality를 살펴볼 것이다.
+#### Identity
+```js
+u.traverse(F, F.of) === F.of(u)
+```
+예를 들어보자
+```js
+const identity1 = compose(sequence(Identity.of), map(Identity.of));
+const identity2 = Identity.of;
+
+identity1(Either.of('stuff'));
+// Identity(Right('stuff'))
+
+identity2(Either.of('stuff'));
+// Identity(Right('stuff'))
+```
+이전의 Identity들과는 다르게 언뜻 이해가 되지 않을 수도 있다. 일단, identity1의 map단계에 도달했을 때의 상태는 Right(Identity('stuff'))이다. 그 다음 차례인 sequence가 중요한데, Right에 대하여 sequence는 of인자를 받음에도 불구하고 그 인자를 구현에서 무시한다는 것을 기억해야한다. Right의 sequence는 $value에 대하여 map(Either.of)이므로, Identity.of('stuff').map(Either.of)와 같다. 이 때문에 Right가 다시 한번 만들어지게 되고, map은 자신의 타입으로 감싸 반환하므로 Identity(Right('stuff'))가 결과물이 되는 것이다.
+
+#### Composition
+아래 코드에서 등장하는 Compose.of라는 것을 이해하기 위해선 다음의 링크를 참고하자. 또 다른 algebraic structure일 뿐이니 걱정하지 않아도 된다: https://github.com/MostlyAdequate/mostly-adequate-guide/blob/master/appendix_b.md
+아래의 코드는 의사코드라고 생각하는 편이 적절하다. 물론 첨부한 링크의 createCompose가 F,G를 모두 수집하고 실행된 이후라고 생각해도 되지만, 아래의 Compose.of는 단지 Compose객체가 생성되었다는 것만을 표시하기 위한 것이기 때문이다.
+sequence에 도달했을때 sequence가 호출되는 펑터는는 Identity이므로 Identity의 sequence와 traverse가 어떻게 구현되었는지도 살펴봐야한다. 마찬가지로 첨부한 링크에 Identity의 세부 구현도 나와있으니 꼭 참고하여 해석을 위해 노력해도록 하자.
+
+**!중요!**
+
+*아래의 예제는 https://github.com/MostlyAdequate/mostly-adequate-guide/blob/master/ch12.md 에서 발췌한 것이지만, 원본의 comp1의 예제는 올바르지 않은 형식으로, open issue 상태이다. issue는 https://github.com/MostlyAdequate/mostly-adequate-guide/issues/555 에서 확인할 수 있으며, 원본의 형식은 차용했지만 필자가 임의로 comp1을 수정한 예제로 대체한다.*
+```js
+const comp1 = compose(map(map(sequence(Compose.of))), map(sequence(Compose.of)), Compose.of);
+const comp2 = (Fof, Gof) => compose(Compose.of, map(sequence(Gof)), sequence(Fof));
+
+comp1(Identity(Right([true])));
+// Compose(Right([Identity(true)]))
+
+comp2(Either.of, Array)(Identity(Right([true])));
+// Compose(Right([Identity(true)]))
+```
+해석은 각 pointfree function에 '도달했을 때'라고 이해하면 된다.
+
+일단 comp1부터 자세히 들여다보자.
+1. Compose.of: Compose(Identity(Right([true])))
+2. map(sequence(Compose.of)): Compose(Right(Identity([true])))
+3. map(map(sequence(Compose.of))): Compose(Right([Identity(true)]))
+
+comp2는 다음과 같다.
+1. sequence: Right(Identity([true]))
+2. map(sequence(Gof)): Right(Identity([true])).map(sequence(Array)) -> Right(Identity([true]).sequence(Array)) -> Right([true].map(Identity.of)) -> Right([Identity(true)])
+3. Compose.of: Compose(Right([Identity(true)]))
+
+#### Naturality
+```js
+t(u.traverse(F, id)) === u.traverse(G, t)
+```
+어떤 functor에 대하여 traverse를 작성했다면 위의 법칙이 성립해야 함을 의미하는 것으로, 각 객체마다 traverse의 구현은 매우 상이므로 한 가지 형태가 존재한다고 오해해선 안된다.
+
+여기서 traverse의 시그니처를 살펴볼 필요가 있다:  
+Applicative f, Traversable t => t a ~> (TypeRep f, a -> f b) -> f (t b)
+```ts
+traverse(A: Applicative, f: Function):Applicative {...}
+```
+주의할 점은, A는 반드시 Applicative한 functor여야 한다는 것이고 f는 A의 타입 functor를 반환해야한다는 것이다. 또 한, traverse의 반환 값도 A타입이어야 한다.
+
+이를 바탕으로 규칙을 해석해보자.
+일단 F혹은 G는 반드시 Applicative여야하고, id와 t는 F혹은 G가 반환하는 Applicative를 반환해야 한다. 그렇다면 직관적으로 이해가 된다!
+
+즉, naturality는 규칙을 충실히 따랐다면 성립하지 않는 것이 불가능하게 되는 것이다(traverse와 t가 반환하는 타입이 같으니까).
+
+예제를 살펴보자. 위에서 살펴본 스펙에 맞추어 이해가 가능하므로 설명은 생략하도록 하겠다.
+```js
+const natLaw1 = (of, nt) => compose(nt, sequence(of)); // t(u.traverse(F, id))
+const natLaw2 = (of, nt) => compose(sequence(of), map(nt)); // u.traverse(G, t)
+
+// maybeToEither :: Maybe a -> Either () a
+const maybeToEither = x => (x.$value ? new Right(x.$value) : new Left());
+
+natLaw1(Maybe.of, maybeToEither)(Identity.of(Maybe.of('barlow one')))
+// Right(Identity('barlow one'))
+
+===
+
+natLaw2(Either.of, maybeToEither)(Identity.of(Maybe.of('barlow one')))
+// Right(Identity('barlow one'))
+```
 
 # fantasy-land specification
 js에는 아주 유명한 algebraic structure specifications가 있는데, 바로 fantasy-land이다. fp 솔루션을 제공하는 js의 거의 모든 라이브러리가 이 spec을 바탕으로 제작되었다고 해도 과언이 아니다. 모든 것을 살펴봐도 좋지만 바쁜 현대인들 답게 우선순위를 정해서 살펴보는 것이 좋겠다.
