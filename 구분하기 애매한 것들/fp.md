@@ -724,7 +724,7 @@ traverse(of, fn) {
     );
   }
 ```
-일단 $value가 reduce를 포함한 객체임을 가정하고 있다. reduce는 predicate와 seed를 인자로 취함을 알고 있을 것이다. seed는 빈 List를 값으로 가진 functor이다. 예를 든것 거처럼 Either.of를 of인자로 넘기는 상황이라면 Right([])이 될 것이다. traverse가 인자로 받고 있는 fn은 functor를 반환하는 함수여야 한다. reduce가 받고 있는 f, a에서 f는 accumulator이며, a는 iteree이다. 함수의 진행을 살펴보면, fn(a)로 인해 functor가 생성되고, map하며 b에는 fn(a)로 인해 반환된 functor의 $value를 받고, bs -> bs.concat(b)함수를 리턴하고 있다. 여기까지 도달하면 functor의 $value가 함수가 되었으니 ap를 실행할 수 있다. ap의 대상은 functor이므로 여기까지 도달하면 f가 functor이며, f.$value는 concat메서드를 가지고 있어야 가능함을 알 수 있다. 위의 구현에선 f.$value(bs 인자)는 List이므로 concat을 가지고 있다.
+일단 $value가 reduce를 포함한 객체임을 가정하고 있다. reduce는 predicate와 seed를 인자로 취함을 알고 있을 것이다. seed는 빈 List를 값으로 가진 functor이다. 예를 든 것처럼 Either.of를 of인자로 넘기는 상황이라면 Right([])이 될 것이다. traverse가 인자로 받고 있는 fn은 functor를 반환하는 함수여야 한다. reduce가 받고 있는 f, a에서 f는 accumulator이며, a는 iteree이다. 함수의 진행을 살펴보면, fn(a)로 인해 functor가 생성되고, map하며 b에는 fn(a)로 인해 반환된 functor의 $value를 받고, bs -> bs.concat(b)함수를 리턴하고 있다. 여기까지 도달하면 functor의 $value가 함수가 되었으니 ap를 실행할 수 있다. ap의 대상은 functor이므로 여기까지 도달하면 f가 functor이며, f.$value는 concat메서드를 가지고 있어야 가능함을 알 수 있다. 위의 구현에선 f.$value(bs 인자)는 List이므로 concat을 가지고 있다.
 
 결론적으로 accumulator는 Either e [a]로 출발하여 같은 타입으로 마무리하고 결과를 반환하게 된다.
 
@@ -811,6 +811,9 @@ natLaw1(Maybe.of, maybeToEither)(Identity.of(Maybe.of('barlow one')))
 natLaw2(Either.of, maybeToEither)(Identity.of(Maybe.of('barlow one')))
 // Right(Identity('barlow one'))
 ```
+
+# Monoid
+
 
 # fantasy-land specification
 js에는 아주 유명한 algebraic structure specifications가 있는데, 바로 fantasy-land이다. fp 솔루션을 제공하는 js의 거의 모든 라이브러리가 이 spec을 바탕으로 제작되었다고 해도 과언이 아니다. 모든 것을 살펴봐도 좋지만 바쁜 현대인들 답게 우선순위를 정해서 살펴보는 것이 좋겠다.
