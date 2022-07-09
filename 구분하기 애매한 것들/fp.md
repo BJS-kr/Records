@@ -765,7 +765,7 @@ comp1(Identity(Right([true])));
 comp2(Either.of, Array)(Identity(Right([true])));
 // Compose(Right([Identity(true)]))
 ```
-해석은 각 pointfree function에 '도달했을 때'라고 이해하면 된다.
+해석은 각 function에 '도달했을 때'라고 이해하면 된다.
 
 일단 comp1부터 자세히 들여다보자.
 1. Compose.of: Compose(Identity(Right([true])))
