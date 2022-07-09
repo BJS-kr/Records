@@ -652,6 +652,54 @@ AtoB와 같은 NT 함수가 포함되어있지 않음에도 불구하고 자연�
 1. 필요한 기능을 포함하고 있는 타입으로 변환할 수 있다.
 2. Nested 된 구조를 해결할 수 있다.
 
+# Traversal
+어떤 functor가 다른 functor와 중첩되어있을 때 functor를 반전시킬 순 없을까?
+예를 들어서, [Task('hail the monarchy'), Task('smash the patriarchy')] 라면
+Task(['hail the monarchy', 'smash the patriarchy'])로 말이다(array도 functor임을 기억하자). 이런 동작을 왜 해야할까? 예를 들어 join을 하고자 할 때 이런 식의 동작이 필요하다. IO(Maybe(IO('hi')))가 있다고 생각해보자. IO(IO(Maybe('hi')))로 만들어서 IO를 join시켜서 꺼풀을 벗겨낼 수 있다는 것이다.
+
+### sequence와 traverse
+sequence, traverse는 Traversal이 되기 위한 interface이다. sequence의 역할은 functor를 반전시켜 rearrange하는 것이다. 예를 들어 살펴보자. 첫 번째 인자는 모두 Applicative.of이고, 두 번째 인자는 Traversable들이다.
+```js
+sequence(List.of, Maybe.of(['the facts'])); // [Just('the facts')]
+sequence(Task.of, new Map({ a: Task.of(1), b: Task.of(2) })); // Task(Map({ a: 1, b: 2 }))
+sequence(IO.of, Either.of(IO.of('buckle my shoe'))); // IO(Right('buckle my shoe'))
+sequence(Either.of, [Either.of('wing')]); // Right(['wing'])
+sequence(Task.of, left('wing')); // Task(Left('wing'))
+```
+of로 인해 functor가 rearrange되고 있음을 확인 할 수 있다.
+sequence가 구현되어있다는 가정하에 pointfree sequence의 명세를 분석해보자.
+
+**sequence :: (Traversable t, Applicative f) => (a -> f a) -> t (f a) -> f (t a)**
+a -> f a인 함수(of)를 인자로 받아, 두 번째 인자 t (f a) 즉, traversable(f a)하여 f (t a)로 반전시킨다. 사실 첫 번째 인자인 a -> f a는 typed language라면 필수가 아니다(애초에 Applicative 타입만 받으면 되니까). 그래서 sequence의 필수 인자는 엄밀히 말해 t (f a)하나이다. 물론 js는 untyped이기 때문에 
+
+이런 동작을 하는 sequence 메서드가 정의되어있다고 가정하고, 이를 pointfree로 표현하면 다음과 같다.
+```js
+const sequence = curry((of, x) => x.sequence(of));
+``` 
+
+위에서 sequence가 메서드로 구현되어 있다고 가정한 이유는 사실 sequence가 종류에 따라 구현이 달라져야 함이 자명하기 때문인데, 예를 들어 다음과 같다.
+```js
+class Right extends Either {
+  // ...
+  sequence(of) {
+    return this.$value.map(Either.of);
+  }
+}
+```
+$value에 대해 곧장 map을 호출할 수 있는 이유는, $value가 Applicative임을 가정하기 때문이다. of를 인자로 받아놓고 쓰지 않는 이유는 인터페이스의 통일성 때문이다. Right와 Left는 같은 인터페이스를 사용하되 세부구현은 다르다는 것을 떠올려보자. Left의 sequence는 다음과 같은 형태일 것이다.
+
+```js
+class Left extends Either {
+  // ...
+  sequence(of) {
+    return of(this);
+  }
+}
+```
+typed language에서 outer type은 추론할 수 있으므로(Applicative만 사용할 수 있게 하면 되므로) 명시적으로 of를 사용할 필요는 없다는 사실도 기억해두자.
+
+### 효과 정리하기
+
 
 # fantasy-land specification
 js에는 아주 유명한 algebraic structure specifications가 있는데, 바로 fantasy-land이다. fp 솔루션을 제공하는 js의 거의 모든 라이브러리가 이 spec을 바탕으로 제작되었다고 해도 과언이 아니다. 모든 것을 살펴봐도 좋지만 바쁜 현대인들 답게 우선순위를 정해서 살펴보는 것이 좋겠다.
