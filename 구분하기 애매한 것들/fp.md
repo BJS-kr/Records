@@ -80,42 +80,7 @@ const compose = (...fns) => (...args) => fns.reduceRight((res, fn) => [fn.call(n
 여기서 주목할 만한점은 또 하나 있다. 이런 순간에 Currying이 매우 유용하다는 것이다. 
 compose되는 함수들은 항상 1 input 1 output을 따라야한다. 당연하게도, 이를 지키지 않으면 파이프를 이어붙이기가 힘들다(당연히 불가능하진 않지만, 추가적인 노력이 들어가야하고 가독성을 심각하게 저해시킬 것이다).
 
-# Monoid
-monoid는 세 가지 조건을 충족한다. 다음과 같다.
-1. 어떤 set에 포함된 두 값 a,b가 있다고 하자. a와 b를 concat한 결과값 c의 set과 a,b가 포함된 set이 같아야한다. 이를 magma라고 한다. 
-2. a,b,c가 한 set에 포함된다고 가정할 때, 다음을 만족한다. 이를 associativity라고 한다.
-```js
-concat(a, concat(b,c)) === concat(concat(a,b), c)
-```
-3. set은 neutral value를 포함해야한다. neutral value가 set의 다른 값 x와 concat되었을 때, x는 변하지 않아야한다. 이를 left identity, right identity라고 한다. 다음과 같다.
-```js
-concat(x, nv) === concat(nv, x) === x
-```
 
-와닿을 수 있는 실례를 들어보자. monoid는 자바스크립트에서 흔하게 찾아볼 수 있는데, number addition, string concatenation등이 그렇다. 예를 들어보자.
-```js
-// number
-1 + 1 === 2 // magma
-(1 + 2) + 3 === 1 + (2 + 3) // associativity
-1 + 0 === 0 + 1 === 1 // 0은 neutral value
-``` 
-string도 마찬가지이다. string의 neutral value는 빈 문자열("")이며 세 가지 조건을 모두 만족한다.
-
-놀라운 것은, 이 세가지 조건이 위에서 살펴본 compose함수에도 적용된다는 것이다. 함수와 함수를 합성한 결과가 함수이니 magma이고, associativity도 검증했으며, neutral은 x => x로 left와 right identity를 모두 만족한다.
-
-그래서 monoid가 언제 쓸모가 있는가? 세 가지 특성을 합한 연산은 reduce와 함께 강력한 힘을 발휘한다.
-```js
-reduce(concat, neutral_value)
-```
-concat은 monoid이고, monoid는 magma, associative하니, reduce의 결과도 또한 마찬가지 일 것을 알 수 있다. 또한 reduce의 시작은 neutral value로 처리할 수 있다.
-
-associative가 주는 장점은 하나 더 있는데, 연산을 분리할 수 있다는 것이다. number를 예로 들어보자.
-```js
-const add = (x, y) => x + y;
-add(reduce(add, 0)([1,2,3,4,5]), reduce(add, 0)([6,7,8,9,10])) ===
-reduce(add, 0)([1,2,3,4,5,6,7,8,9,10])
-```
-보이는 것과 같이 범위를 나워서 계산한 결과를 또 다시 concat하는 것과 전체를 한번에 concat하는 것은 차이가 없으므로, 필요한 만큼 연산을 나눠 진행할 수 있다.
 
 
 ### Pointfree
@@ -337,7 +302,7 @@ const hi_chain = compose(
   container_hi,
 );
 ```
-
+참고로 chain, bind, flatMap등은 모두 동일한 동작을 일컫는다.
 ## Monad's Rule
 규칙은 두 가지이며 순차적으로 살펴보겠다.
 첫 번째은 Associativity이다.
@@ -699,7 +664,7 @@ class Left extends Either {
 typed language에서 outer type은 추론할 수 있으므로(Applicative만 사용할 수 있게 하면 되므로) 명시적으로 of를 사용할 필요는 없다는 사실도 기억해두자.
 
 ### 효과를 정리해보기
-functor가 어떤 순서로 중첩되어 있느냐에 따라 그 값이 내포하는 효과는 달라진다. 예를 들어, [Maybe a]라면 possible values[](Left와 Right가 포함)다. 그러나 Maybe [a]라면 Nothing(default value) 혹은 a[](Right 값) 일 것이다. 
+functor가 어떤 순서로 중첩되어 있느냐에 따라 그 값이 내포하는 효과는 달라진다. 예를 들어, [Maybe a]라면 possible values[](Left와 Right가 포함)다. 그러나 Maybe [a]라면 Nothing(default value) 혹은 a[](Right 값) 일 것, 즉 All or Nothing일 것이다. 
 
 좀 더 자세한 예를 들어보자
 ```js
@@ -812,7 +777,62 @@ natLaw2(Either.of, maybeToEither)(Identity.of(Maybe.of('barlow one')))
 // Right(Identity('barlow one'))
 ```
 
+## 그래서 Traversable이 뭔데요?
+장황하게도 적었지만 한 마디로 표현하기가 어렵다. sequence와 traverse, 특히 traverse가 구현된 functor면 Traversable이라고 부른다. sequence는 중첩된 계층을 역전시키는 역할을 하고, traverse는 말하자면 sequence + map을 함께 수행하는 역할이다. 
+지금껏 살펴본 것처럼 traverse를 이용해서 sequence를 만들어도 좋고, sequence를 이용해서 traverse를 만들어도 된다. 정해진 것은 없다.
 # Monoid
+정확히 따지자면 monoid는 monad전에 등장했어야 한다. 모나드의 정의가 모노이드에 의존하고 있기 때문이다. 함수형 프로그래밍에서, 함수 합성은 모노이드의 형태를 띈다. 물론 인자 및 반환타입에 신경쓸 수 밖에 없기 때문에 엄밀히 말해 모노이드가 아니지만, 그렇게 할 수 있다는 것이다.
+
+**모나드는 내부 함자 범주의 모노이드 대상이다(monad is a monoid in the category of endofunctors. ~~What is the problem?~~)**  
+이번엔 모노이드를 조금 더 자세히 살펴보고 위의 정의를 파헤쳐보도록 하겠다.
+
+**모노이드는 항등원을 갖는, 결합 법칙을 따르는 이항 연산을 갖춘 대수 구조이다.**
+지루한 법칙 검증을 제대로 이해하기 위해 항등원의 정의도 짚고 넘어가자. **집합 S와 S에 대하여 닫힌 이항연산 *를 magma(이항연산을 갖춘 집합을 의미. S, *)가 있을 때, S의 모든 원소 a에 대하여 좌항등원(eL)과 우항등원(eR)이 같다면 e를 두고 항등원이라 한다. 즉, 다음 세 가지가 모두 만족되어야 한다. 1) eL * a = a, 2) a * eR = a, 3) eL = eR = e .** eL을 left identity element, eR을 right identity element, e를 identity element라고 부른 것을 볼 수 있는데, 결국 지금까지 검증했던 left right identity들은 이것들이 monoid인지를 검사하고자 했던 것임을 알 수 있다. 
+
+그런데 모노이드를 설명하자면 반군(semigroup)을 설명하지 않을 수 없다. 이들의 포함관계 때문이다.
+**반군은 결합법칙을 따르는 하나의 이항 연산이 부여된 대수 구조이다.** ·:S x S → S가 결합법칙을 만족하는 이항연산이라는 설명이 따라 붙게 되는데, S는 Set이지만 일단 type으로 이해하여도 문제가 없다. 같은 타입을 사용한 이항연산이 같은 타입을 반환한다는 것으로, 'S에 대하여 닫힌 연산'이다. 결합법칙은 지금껏 계속 살펴보았지만 정의를 짚고 넘어가자면 **한 식에서 연산이 두 번 이상 연속될 때, 앞 쪽의 연산을 먼저 계산한 값과 뒤 쪽의 연산을 먼저 계산할 결과가 항상 같음**을 의미한다.
+참고로 ·는 cdot이라는 기호인데 function을 의미한다.
+
+즉, semigroup은 monoid를 포함한다. 하나의 조건(항등원이 존재할 것)이 추가되었기 때문이다:
+
+마그마와 반군과 모노이드 군은 순서대로 진부분집합 관계이다. 이를 표현하면 다음과 같다: 마그마 ⊋ 반군 ⊋ 모노이드 <- 이 포함관계를 잘 기억하고 있자.
+
+수학적 정의는 이쯤 해두고 프로그래밍적으로 이런 개념들이 어떻게 적용되는지 살펴보자.
+monoid는 세 가지 조건을 충족한다. 다음과 같다.
+1. 어떤 set에 포함된 두 값 a,b가 있다고 하자. a와 b를 concat한 결과값 c의 set과 a,b가 포함된 set이 같아야한다(magma). 
+2. a,b,c가 한 set에 포함된다고 가정할 때, 다음을 만족한다. 이를 associativity라고 한다.
+```js
+concat(a, concat(b,c)) === concat(concat(a,b), c)
+```
+3. set은 neutral value를 포함해야한다. neutral value가 set의 다른 값 x와 concat되었을 때, x는 변하지 않아야한다. 이를 left identity, right identity라고 한다. 그리고 left identity와 right identity가 같을 때 그것을 identity(항등원)라고 한다. 다음과 같다.
+```js
+concat(x, nv) === concat(nv, x) === x
+```
+
+와닿을 수 있는 실례를 들어보자. monoid는 자바스크립트에서 흔하게 찾아볼 수 있는데, number addition, string concatenation등이 그렇다. 예를 들어보자.
+```js
+// number
+1 + 1 === 2 // magma
+(1 + 2) + 3 === 1 + (2 + 3) // associativity
+1 + 0 === 0 + 1 === 1 // 0은 neutral value
+``` 
+string도 마찬가지이다. string의 neutral value는 빈 문자열("")이며 세 가지 조건을 모두 만족한다.
+
+놀라운 것은, 이 세가지 조건이 위에서 살펴본 compose함수에도 적용된다는 것이다. 함수와 함수를 합성한 결과가 함수이니 magma이고, associativity도 검증했으며, neutral은 x => x로 left와 right identity를 모두 만족한다.
+
+그래서 monoid가 언제 쓸모가 있는가? 세 가지 특성을 합한 연산은 reduce와 함께 강력한 힘을 발휘한다.
+```js
+reduce(concat, neutral_value)
+```
+concat은 monoid이고, monoid는 magma, associative하니, reduce의 결과도 또한 마찬가지 일 것을 알 수 있다. 또한 reduce의 시작은 neutral value로 처리할 수 있다.
+
+associative가 주는 장점은 하나 더 있는데, 연산을 분리할 수 있다는 것이다. number를 예로 들어보자.
+```js
+const add = (x, y) => x + y;
+add(reduce(add, 0)([1,2,3,4,5]), reduce(add, 0)([6,7,8,9,10])) ===
+reduce(add, 0)([1,2,3,4,5,6,7,8,9,10])
+```
+보이는 것과 같이 범위를 나워서 계산한 결과를 또 다시 concat하는 것과 전체를 한번에 concat하는 것은 차이가 없으므로, 필요한 만큼 연산을 나눠 진행할 수 있다.
 
 
 # fantasy-land specification
