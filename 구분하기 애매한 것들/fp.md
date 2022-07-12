@@ -32,9 +32,6 @@ OOP에서 클래스 계층구조는 카테고리 형태이다. 카테고리 obje
 (카테고리 이론은 타입이론이다. https://cs.stackexchange.com/questions/3028/is-category-theory-useful-for-learning-functional-programming)  
 우리는 A와 B가 존재할 때, A가 B의 subtype이라면 화살표로 연결되었을 것으로 생각한다. 이런 화살표들은 합성가능한데 그 이유는 A와 B의 관계 뿐 아니라 B가 C의 subtype일 것이기에 A는 C의 subtype이기 때문이다(계층 구조니까). 게다가 A는 A의 subtype이므로 identity arrow 조건도 충족한다.
 
-#### The Hask Category
-Hask objects란 하스켈 언어의 모든 타입을 일컫는다. 이 타입들은 다른 언어의 타입들로도 일반화 될 수 있다. 프로그래밍적으로 생각해보자. 두 가지 다른 타입A,B가 있다. 그리고 변환 함수를 통해 A타입은 B로 변환될 수 있다(즉, 화살표). 그러므로 화살표의 합성은 프로그래밍적으로 함수의 합성이다. identity arrow는 자기 자신을 반환하는 identity function과 correspond하다. 
-
 #### Functor
 Functor F는 별개의 카테고리인 A와 B사이의 변환이다. 이걸 F : A → B라고 표현할 수 있다. F는 A에서 B로 object와 arrow 모든 것을 매핑해야한다. 무언가 빠진 변환이라는 것은 없다. 모두 변환되어야 한다. 즉, 다음이 성립한다. 
 1. a ∈ ob(A) 일 때,  F(a) ∈ ob(B) -> object가 모두 변환되므로 F: A->B일 때 a도 변환되어서 B에 속하게 되었을 것이므로 성립한다.
@@ -47,9 +44,9 @@ Functor F의 변환이 A카테고리 내부에서 일어나게 되면 이를 end
 
 먼저 type constructor라는 개념을 이해해보자. 핵심은 type constructor가 type을 parameter로 받는 generic type 이라는 사실이다. T라는 제네릭 파라미터를 본적이 있을텐데, T를 specify해야지 concrete type이 완성됨은 이미 이해하고 있을 것이다. 
 
-사실, Functor라는 개념은 프로그래밍에선 훨씬 좁은 의미를 가진다. FP에서 모든 Functor는 그저 Hask내의 endofunctor에 지나지 않는다. 게다가, 각 Functor F는 type constructor TC[_]와 관련되어있다. Hask내의 각 타입 A는 TC[A]로 변환된다. 예를 들어, TC가 List라면 F:int → List[int]이다. 다른 말로 하면, type constructor는 unique하게 Hask objects의 매핑을 정의한다.
+사실, Functor라는 개념은 프로그래밍에선 훨씬 좁은 의미를 가진다. FP에서 모든 Functor는 그저 endofunctor에 지나지 않는다. 게다가, 각 Functor F는 type constructor TC[_]와 관련되어있다. 각 타입 A는 TC[A]로 변환된다. 예를 들어, TC가 List라면 F:int → List[int]이다. 다른 말로 하면, type constructor는 unique하게 objects의 매핑을 정의한다.
 
-Functor를 정의하기 위해선 arrow 매핑도 정의해야 한다. arrows는 Hask에서 그저 함수일 뿐이다. 때문에 우리는 map: (A → B) → (TC[A] → TC[B])와 같은 시그니처를 가진 map함수가 필요하다(함수를 함수에 매핑하는 형태이다). 모든 arrow/function인 f:A->B는 또한 함수인 F(f):TR[A] → TC[B] projection/mapping을 반환한다.
+Functor를 정의하기 위해선 arrow 매핑도 정의해야 한다. arrows는 함수일 뿐이다. 때문에 우리는 map: (A → B) → (TC[A] → TC[B])와 같은 시그니처를 가진 map함수가 필요하다(함수를 함수에 매핑하는 형태이다). 모든 arrow/function인 f:A->B는 또한 함수인 F(f):TR[A] → TC[B] projection/mapping을 반환한다.
 
 요약하자면, FP의 Functor는 type constructor인 TC[_]와 상술한 시그니쳐를 가진 map함수에 의해 uniquely defined된다. 아래의 그림은 type constructor가 List인 Functor를 표현한다.
 
@@ -783,14 +780,14 @@ natLaw2(Either.of, maybeToEither)(Identity.of(Maybe.of('barlow one')))
 # Monoid
 정확히 따지자면 monoid는 monad전에 등장했어야 한다. 모나드의 정의가 모노이드에 의존하고 있기 때문이다. 함수형 프로그래밍에서, 함수 합성은 모노이드의 형태를 띈다. 물론 인자 및 반환타입에 신경쓸 수 밖에 없기 때문에 엄밀히 말해 모노이드가 아니지만, 그렇게 할 수 있다는 것이다.
 
-**모나드는 내부 함자 범주의 모노이드 대상이다(monad is a monoid in the category of endofunctors. ~~What is the problem?~~)**  
-이번엔 모노이드를 조금 더 자세히 살펴보고 위의 정의를 파헤쳐보도록 하겠다.
+**모나드는 내부 함자 범주의 모노이드 대상이다(monad is a monoid in the category of endofunctors. ~~What is the problem?~~).** 여담으로 보통 philip wadler(one of Haskell founders)가 했다고 알고 있는 이말은, 사실 james iry라는 사람이 쓴 글(Brief, Incomplete and Mostly Wrong History of Programming Languages)에서 마치 와들러가 말 한 것처럼 와전되어서 전해진 것이다. 
 
+이번엔 모노이드를 조금 더 자세히 살펴보고 위의 정의를 파헤쳐보도록 하겠다.
 **모노이드는 항등원을 갖는, 결합 법칙을 따르는 이항 연산을 갖춘 대수 구조이다.**
 지루한 법칙 검증을 제대로 이해하기 위해 항등원의 정의도 짚고 넘어가자. **집합 S와 S에 대하여 닫힌 이항연산 *를 magma(이항연산을 갖춘 집합을 의미. S, *)가 있을 때, S의 모든 원소 a에 대하여 좌항등원(eL)과 우항등원(eR)이 같다면 e를 두고 항등원이라 한다. 즉, 다음 세 가지가 모두 만족되어야 한다. 1) eL * a = a, 2) a * eR = a, 3) eL = eR = e .** eL을 left identity element, eR을 right identity element, e를 identity element라고 부른 것을 볼 수 있는데, 결국 지금까지 검증했던 left right identity들은 이것들이 monoid인지를 검사하고자 했던 것임을 알 수 있다. 
 
 그런데 모노이드를 설명하자면 반군(semigroup)을 설명하지 않을 수 없다. 이들의 포함관계 때문이다.
-**반군은 결합법칙을 따르는 하나의 이항 연산이 부여된 대수 구조이다.** ·:S x S → S가 결합법칙을 만족하는 이항연산이라는 설명이 따라 붙게 되는데, S는 Set이지만 일단 type으로 이해하여도 문제가 없다. 같은 타입을 사용한 이항연산이 같은 타입을 반환한다는 것으로, 'S에 대하여 닫힌 연산'이다. 결합법칙은 지금껏 계속 살펴보았지만 정의를 짚고 넘어가자면 **한 식에서 연산이 두 번 이상 연속될 때, 앞 쪽의 연산을 먼저 계산한 값과 뒤 쪽의 연산을 먼저 계산할 결과가 항상 같음**을 의미한다.
+**반군은 결합법칙을 따르는 하나의 이항 연산이 부여된 대수 구조이다.** ·:S x S → S가 결합법칙을 만족하는 이항연산이라는 설명이 따라 붙게 되는데, S는 Set이지만 일단 type으로 이해하여도 문제가 없다. 같은 타입을 사용한 이항연산이 같은 타입을 반환한다는 것으로, 'S는 연산·에 대하여 닫혀있다'이다. 결합법칙은 지금껏 계속 살펴보았지만 정의를 짚고 넘어가자면 **한 식에서 연산이 두 번 이상 연속될 때, 앞 쪽의 연산을 먼저 계산한 값과 뒤 쪽의 연산을 먼저 계산할 결과가 항상 같음**을 의미한다.
 참고로 ·는 cdot이라는 기호인데 function을 의미한다.
 
 즉, semigroup은 monoid를 포함한다. 하나의 조건(항등원이 존재할 것)이 추가되었기 때문이다:
@@ -798,16 +795,67 @@ natLaw2(Either.of, maybeToEither)(Identity.of(Maybe.of('barlow one')))
 마그마와 반군과 모노이드 군은 순서대로 진부분집합 관계이다. 이를 표현하면 다음과 같다: 마그마 ⊋ 반군 ⊋ 모노이드 <- 이 포함관계를 잘 기억하고 있자.
 
 수학적 정의는 이쯤 해두고 프로그래밍적으로 이런 개념들이 어떻게 적용되는지 살펴보자.
-monoid는 세 가지 조건을 충족한다. 다음과 같다.
-1. 어떤 set에 포함된 두 값 a,b가 있다고 하자. a와 b를 concat한 결과값 c의 set과 a,b가 포함된 set이 같아야한다(magma). 
-2. a,b,c가 한 set에 포함된다고 가정할 때, 다음을 만족한다. 이를 associativity라고 한다.
+먼저 semigroup이다.
+
+semigroup에는 concat이라는 ·:S x S → S를 만족하는 이항연산이 자리할 것이다. 숫자를 예로 들어보자
 ```js
-concat(a, concat(b,c)) === concat(concat(a,b), c)
+const Sum = x => ({
+  x,
+  concat: other => Sum(x + other.x)
+})
 ```
-3. set은 neutral value를 포함해야한다. neutral value가 set의 다른 값 x와 concat되었을 때, x는 변하지 않아야한다. 이를 left identity, right identity라고 한다. 그리고 left identity와 right identity가 같을 때 그것을 identity(항등원)라고 한다. 다음과 같다.
+semigroup 자체는 pointed도 아니고 functor도 아니다. 그러니 map도 필요없다. map이 필요없는 이유도 직관적이다. semigroup은 transform 시켜선 안되니 map이 존재해야할 이유가 없다.
+
+위의 예에서 주목할 만한점은 Sum함수가 계속 반환 객체를 재생산 할 수 있다는 점이다.
+
+이런 구현은 Sum뿐 아니라 곱하기, 최솟값, 최댓값 등에도 모두 구현할 수 있다.
 ```js
-concat(x, nv) === concat(nv, x) === x
+const Product = x => ({ x, concat: other => Product(x * other.x) })
+
+const Min = x => ({ x, concat: other => Min(x < other.x ? x : other.x) })
+
+const Max = x => ({ x, concat: other => Max(x > other.x ? x : other.x) })
 ```
+아니면 숫자에서 벗어날 수도 있다. 함수의 구체적 구현은 제시하지 않도록 하겠다.
+```js
+Any(false).concat(Any(true)) // Any(true)
+Any(false).concat(Any(false)) // Any(false)
+
+All(false).concat(All(true)) // All(false)
+All(true).concat(All(true)) // All(true)
+
+[1,2].concat([3,4]) // [1,2,3,4]
+
+"miracle grow".concat("n") // miracle grown"
+
+Map({day: 'night'}).concat(Map({white: 'nikes'})) // Map({day: 'night', white: 'nikes'})
+```
+concat을 좀 더 쓸모있게 사용해보자. 지금까지 다루었던 functor에 concat을 추가 시키는 것은 어떨까?
+```js
+Identity.prototype.concat = function(other) {
+  return new Identity(this.__value.concat(other.__value))
+}
+
+Identity.of(Sum(4)).concat(Identity.of(Sum(1))) // Identity(Sum(5))
+Identity.of(4).concat(Identity.of(1)) // TypeError: this.__value.concat is not a function
+```
+놀라운 가능성이 엿보인다. 우리가 어떤 연산이던 concat이라는 메서드를 정의해두면 위의 인터페이스로 무엇이던지 처리할 수 있을 것이다. 단지 인자를 semigroup으로 넘긴다는 것 으로 말이다. 당연히 Identity 뿐 아니라 다른 functor들에도 concat만 정의한다면 사용할 수 있다. 이런 방식은 array에도 추가구현 없이 그대로 사용가능하다는 점이 특히 더 유용하게 느껴진다.
+
+좀 더 쓸모가 느껴지는 연산으로 바꿔보자
+```js
+serverA.get('/friends').concat(serverB.get('/friends')) 
+// Task([friend1, friend2])
+
+// loadSetting :: String -> Task Error (Maybe (Map String Boolean))
+loadSetting('email').concat(loadSetting('general')) // Task(Maybe(Map({backgroundColor: true, autoSave: false})))
+```
+이런 식으로 원하는 결과 값을 합치기가 아주 간편해진다. 물론 number와 array를 concat하는 것은 불가능하다. 애초에 semigroup의 조건에서 벗어나니 말이다.
+그런데 우리가 S를 정의하면 어떻게 될까? 현실성이 없는 예이긴 하지만 number와 array가 하나로 추상화된다면 semigroup화 될 수 있다.
+
+concat을 보면서 chain을 해주거나 ap처럼 처리해도 될 것이라고 생각할 수 있는데, concat의 목적은 말 그대로 combination이기 때문에 훨씬 간결하게 접근하는 것이 올바르다는 것을 기억하기를 바란다. combine의 의미를 단지 더 하기, 쌓기 정도로 접근하는 것은 바르지 않다. 말 그대로 combine되어 같은 S가 나오기만 하면 될 뿐이다. 
+
+semigroup에 대한 이해는 이 정도면 충분하다. monoid를 살펴보도록 하자.
+앞서 언급했듯이, monoid는 semigroup에서 항등원을 추가하여 획득할 수 있다.
 
 와닿을 수 있는 실례를 들어보자. monoid는 자바스크립트에서 흔하게 찾아볼 수 있는데, number addition, string concatenation등이 그렇다. 예를 들어보자.
 ```js
@@ -816,11 +864,21 @@ concat(x, nv) === concat(nv, x) === x
 (1 + 2) + 3 === 1 + (2 + 3) // associativity
 1 + 0 === 0 + 1 === 1 // 0은 neutral value
 ``` 
-string도 마찬가지이다. string의 neutral value는 빈 문자열("")이며 세 가지 조건을 모두 만족한다.
+string도 마찬가지이다. string의 neutral value는 빈 문자열("")이며 세 가지 조건을 모두 만족한다.neutral, empty, identity등의 용어는 상관없다.
 
-놀라운 것은, 이 세가지 조건이 위에서 살펴본 compose함수에도 적용된다는 것이다. 함수와 함수를 합성한 결과가 함수이니 magma이고, associativity도 검증했으며, neutral은 x => x로 left와 right identity를 모두 만족한다.
+이런 항등원들을 다음과 같이 정의해두는 것도 방법이다.
+```js
+Array.empty = () => []
+String.empty = () => ""
+Sum.empty = () => Sum(0)
+Product.empty = () => Product(1)
+Min.empty = () => Min(Infinity)
+Max.empty = () => Max(-Infinity)
+All.empty = () => All(true)
+Any.empty = () => Any(false)
+```
 
-그래서 monoid가 언제 쓸모가 있는가? 세 가지 특성을 합한 연산은 reduce와 함께 강력한 힘을 발휘한다.
+그래서 monoid가 언제 쓸모가 있는가? monoid의 특성은 사실 매일같이 reduce와 함께 강력한 힘을 발휘하고 있다.
 ```js
 reduce(concat, neutral_value)
 ```
@@ -834,7 +892,60 @@ reduce(add, 0)([1,2,3,4,5,6,7,8,9,10])
 ```
 보이는 것과 같이 범위를 나워서 계산한 결과를 또 다시 concat하는 것과 전체를 한번에 concat하는 것은 차이가 없으므로, 필요한 만큼 연산을 나눠 진행할 수 있다.
 
+### fold로 유연한 연산하기
+일단 semigroup만 떠올려 연산을 한다고 가정해보자. 가령,
+```js
+[].reduce(fn) // Error! empty array with no initial value
+```
+과 같은 상황이 발생할 것이다. 그러나 우리는 항등원의 존재로 reduce를 안전하게 수행할 수 있음을 위에서 이미 살펴보았다. 이 개념을 통해 fold를 정의해보자.
+```js
+// fold :: Monoid m => m -> [m] -> m
+const fold = reduce(concat)
+```
+reduce는 arity 3인 함수이므로 initial value와 target(js적으로 표현하면 this)을 주입하는 식으로 작성이가능하다.
+예를 들어보자.
+```js
+const foldSum = fold(Sum.empty())
+const foldAny = fold(Any.empty())
+const foldEitherMax = fold(Either.of(Max.empty()))
 
+foldSum([Sum(1), Sum(2)]) // Sum(3)
+foldSum([]) // Sum(0) <- 더 이상 에러가 나지 않는다!
+
+foldAny([Any(false), Any(true)]) // Any(true)
+foldAny([]) // Any(false)
+
+fold(Either.of(Max.empty()), [Right(Max(3)), Right(Max(21)), Right(Max(11))]) // Right(Max(21))
+fold(Either.of(Max.empty()), [Right(Max(3)), Left('error retrieving value'), Right(Max(11))]) // Left('error retrieving value')
+```
+foldEitherMax가 직관적으로 느껴지지 않는다면 위의 Identity.prototype에서 concat을 지정하는 부분을 다시 읽고 학습하길 추천한다. 우리는 모든 S에 대하여 공통적인 interface를 사용하기 위하여 단순한 덧셈에도 concat이라는 메서드를 지정했음을 기억하자.
+
+#### 그럼 그냥 monoid만 쓰면 안되나요?
+monoid는 semigroup의 진부분집합임을 기억하자. 항등원이 존재하지 않는 경우도 쉽게 찾아볼 수 있다는 말이다. 예를 들어보자.
+```js
+const First = x => ({ x, concat: other => First(x) })
+
+Map({id: First(123), isPaid: Any(true), points: Sum(13)}).concat(Map({id: First(2242), isPaid: Any(false), points: Sum(1)}))
+// Map({id: First(123), isPaid: Any(true), points: Sum(14)})
+```
+위의 코드를 해석하자면 이렇다. First는 한 번 생성된 후로 값을 바꾸지 않는다. Map의 concat은 각 prop에 대하여 concat을 실행한다. 그 결과 First는 바뀌지 않았고, Any는 true가 하나라도 존재하니 true이고, Sum은 14가 되었다.
+
+First에 대하여 empty value를 지정할 순 없다.
+
+### 모나드를 깊게 이해하기 위한 모노이드의 이해
+먼저 모노이드를 좀 더 자세하게 짚고 넘어가자. 흔히들 monoid를 single object category라고 표현한다. 그런데 monoid는 semigroup에서 항등원이 추가된 개념인데, 왜 algebra에서 category로 넘어가는 것인가? 
+
+차례로 monoid가 어째서 category인지, 그리고 monad는 왜 monoid in the category of endofunctors인지 알아보겠다. 그리고 모나드는 모노이드이니, concat이 가능하고 neutral value가 존재한다. 
+
+#### monoid는, 카테고리다
+정확히 말하면 모노이드와 군(group)은 모두 카테고리이다. 군은 모노이드에 대하여 진부분집합이니 모노이드가 카테고리이면 군도 카테고리임은 추론하기 어렵지 않다.
+그렇다면 모노이드는 왜 카테고리인가? 먼저 카테고리에서 각 대상들은 하나의 타입임을 기억하자. 모노이드는 single object category이다. 즉, object가 하나와 endofunctor만을 가진 카테고리이다. 다음과 같다.   
+![single_object_category](https://www.euclideanspace.com/maths/discrete/category/concrete/monoid/monoidExternal1.png)
+monoid는 composition이 보장되고, morphism은 concat이고, empty(위에서 살펴본 nv)는 id일때 single object category이다. 어떤 함수가 a -> a일때, 정의역과 공역이 같은 집합에 포함될 경우 그것을 endomorphism이라고 부른다. 
+
+
+
+![Algebraic_structures](https://user-images.githubusercontent.com/78771384/178227778-2dd9b916-df1c-4672-a3b3-cdb642d1dc18.png)
 # fantasy-land specification
 js에는 아주 유명한 algebraic structure specifications가 있는데, 바로 fantasy-land이다. fp 솔루션을 제공하는 js의 거의 모든 라이브러리가 이 spec을 바탕으로 제작되었다고 해도 과언이 아니다. 모든 것을 살펴봐도 좋지만 바쁜 현대인들 답게 우선순위를 정해서 살펴보는 것이 좋겠다.
 
