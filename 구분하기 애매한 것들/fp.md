@@ -1,7 +1,4 @@
 **부족한 제 자신이 조금이라도 이해하기 위해 작성하는 글이니 신랄한 비판과 가르침 언제든지 대환영입니다!!!**
-
-# 정리가 안되었지만 기억해둘만한 내용
-1. 인터페이스가 순수해보이면 순수함수다
 # Monad
 Monad Functor와 동의어. 애초에 모나드가 Functor의 하위개념이다.
 모나드. 처음에는 정상과 오류가 하나로 추상화된 형태정도로 생각했다. 그 다음에는 함수 합성을 위해 모든 결과값을 하나로 추상화하는 것으로 생각했다. 그 다음에는 혼란에 빠져들었다. Ramda, FantasyLand, PureScript등의 모나드 정의를 읽어봐도 읽으면 읽을 수록 정의하기가 모호해졌다. 프로그래밍 세계에서의 모나드와 수학에서의 모나드는 그 범위가 상당히 차이가 나는 것 같았다. 요즘들어 알게 된 것은 모나드의 종류가 꽤나 다양하다는 것이고, 그 다양한 형태들이 합쳐져 새로운 형태를 이루기도 한다는 것이다. 그리고 모나드를 이해하기 위해선 하위 혹은 관련 개념들도 알아야하는데 대표적으로 이항연산, functor, monoid, lamda calculus, 카테고리 이론, kleisli composition 등이 있는 것 같았다.
@@ -794,6 +791,8 @@ natLaw2(Either.of, maybeToEither)(Identity.of(Maybe.of('barlow one')))
 
 마그마와 반군과 모노이드 군은 순서대로 진부분집합 관계이다. 이를 표현하면 다음과 같다: 마그마 ⊋ 반군 ⊋ 모노이드 <- 이 포함관계를 잘 기억하고 있자.
 
+![Algebraic_structures](https://user-images.githubusercontent.com/78771384/178227778-2dd9b916-df1c-4672-a3b3-cdb642d1dc18.png)
+
 수학적 정의는 이쯤 해두고 프로그래밍적으로 이런 개념들이 어떻게 적용되는지 살펴보자.
 먼저 semigroup이다.
 
@@ -933,19 +932,18 @@ Map({id: First(123), isPaid: Any(true), points: Sum(13)}).concat(Map({id: First(
 First에 대하여 empty value를 지정할 순 없다.
 
 ### 모나드를 깊게 이해하기 위한 모노이드의 이해
-먼저 모노이드를 좀 더 자세하게 짚고 넘어가자. 흔히들 monoid를 single object category라고 표현한다. 그런데 monoid는 semigroup에서 항등원이 추가된 개념인데, 왜 algebra에서 category로 넘어가는 것인가? 
+category theory에서 monoid로 판단하기 위해선 object M과 두 가지 사상이 필요한데, multiplication(μ:M ⊗ M → M)과 unit(η:I → M)이다. 이를 두고 카테고리에서 모노이드를 (M, μ, η)과 같이 표현한다. 
 
-차례로 monoid가 어째서 category인지, 그리고 monad는 왜 monoid in the category of endofunctors인지 알아보겠다. 그리고 모나드는 모노이드이니, concat이 가능하고 neutral value가 존재한다. 
+![monoid(category)](https://upload.wikimedia.org/wikipedia/commons/thumb/3/39/Monoid_multiplication.svg/550px-Monoid_multiplication.svg.png)
+위의 다이어그램은 모나드를 이해하는데 핵심이 된다.
 
-#### monoid는, 카테고리다
-정확히 말하면 모노이드와 군(group)은 모두 카테고리이다. 군은 모노이드에 대하여 진부분집합이니 모노이드가 카테고리이면 군도 카테고리임은 추론하기 어렵지 않다.
-그렇다면 모노이드는 왜 카테고리인가? 먼저 카테고리에서 각 대상들은 하나의 타입임을 기억하자. 모노이드는 single object category이다. 즉, object가 하나와 endofunctor만을 가진 카테고리이다. 다음과 같다.   
-![single_object_category](https://www.euclideanspace.com/maths/discrete/category/concrete/monoid/monoidExternal1.png)
-monoid는 composition이 보장되고, morphism은 concat이고, empty(위에서 살펴본 nv)는 id일때 single object category이다. 어떤 함수가 a -> a일때, 정의역과 공역이 같은 집합에 포함될 경우 그것을 endomorphism이라고 부른다. 
+모나드의 정의를 다시 한번 떠올려보자: monoid in the category of endofuctors. 
+endofunctors: C → C, C`→ C`, ...가 있다. 이들 사이의 자연 변환들을 사상으로 하는 카테고리가 category of endofunctors이다. 또한 이 'category of endofunctors'는 모노이드 범주(monoidal category)인데, 이 때문에 우리는 '모노이드 대상'을 정의할 수 있다. 위 정의에서 'monoid'란 'monoid object'와 동의어인데, monoid object란 monoid와 같은 성질을 가진 object를 일컫는다. monoid object를 설명하기 위해, monoidal category에서 필요한 개념만 가져와서 설명하겠다.
 
+monoidal category로 부터 출발할 필요는 없다. 모노이드 대상으로 부터 bottom-up으로 살펴보도록 하자. 먼저 monoidal category를 이루는 여러 요소 중에는 범주 C가 있다. 바로 이 C의 모노이드 대상이 우리의 타겟이다. monoid object는 (M, m, e)로 이루어진다. 핵심은 M, m, e 모두 C내부의 존재들이라는 것이다. 다시 말해, 범주 C가 모노이드 범주를 이루고 있는 요소일 때, C 내부의 M, m, e로 모노이드 대상을 정의한다는 것이다. M은 단지 C안의 대상일 뿐이니 크게 고려할 사항이 없다. m과 e는 사상인데, m(M ⊗ M → M)은 모노이드의 이항연산이고, e(I → M)는 모노이드의 항등원이다. 뜬금 없이 정의 되지 않은 I와 ⊗가 튀어나왔다! 바로 이 I와 ⊗가 monoidal category를 이루고 있는 요소들 중 일부이다. monoidal category의 정의에서 I란 "unit **object**" 또는 "identity **object**"이며 C에 속해 있다(I∈C). ⊗: C x C → C이다. 여기까지 살펴봤을 때, MC(C(M, I∈M, m, e), ⊗)임을 알 수 있다. category of endofunctors는 monoidal category에 속하기 때문에 M, m, e도 마찬가지로 존재하며, Monoid(M, m, e)가 바로 모나드인 것이다. 더 자세히 말하면 M들은 모두 endofunctors(fp에서 모든 functor는 endofunctor. map했을때 functor들이 항상 자신을 반환하는 것을 기억하자)이고, m은 위에서 살펴본 multiplication 즉, chain(혹은 flatMap)이며, e는 unit(I가 존재하니 성립)이다.
 
+지금까지 **모나드는 내부 함자 범주의 모노이드 대상이다** 라는 말의 의미를 살펴보았다.
 
-![Algebraic_structures](https://user-images.githubusercontent.com/78771384/178227778-2dd9b916-df1c-4672-a3b3-cdb642d1dc18.png)
 # fantasy-land specification
 js에는 아주 유명한 algebraic structure specifications가 있는데, 바로 fantasy-land이다. fp 솔루션을 제공하는 js의 거의 모든 라이브러리가 이 spec을 바탕으로 제작되었다고 해도 과언이 아니다. 모든 것을 살펴봐도 좋지만 바쁜 현대인들 답게 우선순위를 정해서 살펴보는 것이 좋겠다.
 
