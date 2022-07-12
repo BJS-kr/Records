@@ -934,7 +934,7 @@ First에 대하여 empty value를 지정할 순 없다.
 ### 모나드를 깊게 이해하기 위한 모노이드의 이해
 category theory에서 monoid로 판단하기 위해선 object M과 두 가지 사상이 필요한데, multiplication(μ:M ⊗ M → M)과 unit(η:I → M)이다. 이를 두고 카테고리에서 모노이드를 (M, μ, η)과 같이 표현한다. 
 
-![화면 캡처 2022-07-13 013657](https://user-images.githubusercontent.com/78771384/178546397-d6bc7de6-868f-4fcb-8645-b6f28b0208e2.jpg)
+![화면 캡처 2022-07-13 013657](https://user-images.githubusercontent.com/78771384/178546397-d6bc7de6-868f-4fcb-8645-b6f28b0208e2.jpg)  
 위의 다이어그램은 모나드를 이해하는데 핵심이 된다.
 
 모나드의 정의를 다시 한번 떠올려보자: monoid in the category of endofuctors. 
