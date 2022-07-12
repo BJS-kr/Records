@@ -934,11 +934,11 @@ First에 대하여 empty value를 지정할 순 없다.
 ### 모나드를 깊게 이해하기 위한 모노이드의 이해
 category theory에서 monoid로 판단하기 위해선 object M과 두 가지 사상이 필요한데, multiplication(μ:M ⊗ M → M)과 unit(η:I → M)이다. 이를 두고 카테고리에서 모노이드를 (M, μ, η)과 같이 표현한다. 
 
-![monoid(category)](https://upload.wikimedia.org/wikipedia/commons/thumb/3/39/Monoid_multiplication.svg/550px-Monoid_multiplication.svg.png)
+![화면 캡처 2022-07-13 013657](https://user-images.githubusercontent.com/78771384/178546397-d6bc7de6-868f-4fcb-8645-b6f28b0208e2.jpg)
 위의 다이어그램은 모나드를 이해하는데 핵심이 된다.
 
 모나드의 정의를 다시 한번 떠올려보자: monoid in the category of endofuctors. 
-endofunctors: C → C, C`→ C`, ...가 있다. 이들 사이의 자연 변환들을 사상으로 하는 카테고리가 category of endofunctors이다. 또한 이 'category of endofunctors'는 모노이드 범주(monoidal category)인데, 이 때문에 우리는 '모노이드 대상'을 정의할 수 있다. 위 정의에서 'monoid'란 'monoid object'와 동의어인데, monoid object란 monoid와 같은 성질을 가진 object를 일컫는다. monoid object를 설명하기 위해, monoidal category에서 필요한 개념만 가져와서 설명하겠다.
+endofunctors: C → C, C'→ C', ...가 있다. 이들 사이의 자연 변환들을 사상으로 하는 카테고리가 category of endofunctors이다. 또한 이 'category of endofunctors'는 모노이드 범주(monoidal category)인데, 이 때문에 우리는 '모노이드 대상'을 정의할 수 있다. 위 정의에서 'monoid'란 'monoid object'와 동의어인데, monoid object란 monoid와 같은 성질을 가진 object를 일컫는다. monoid object를 설명하기 위해, monoidal category에서 필요한 개념만 가져와서 설명하겠다.
 
 monoidal category로 부터 출발할 필요는 없다. 모노이드 대상으로 부터 bottom-up으로 살펴보도록 하자. 먼저 monoidal category를 이루는 여러 요소 중에는 범주 C가 있다. 바로 이 C의 모노이드 대상이 우리의 타겟이다. monoid object는 (M, m, e)로 이루어진다. 핵심은 M, m, e 모두 C내부의 존재들이라는 것이다. 다시 말해, 범주 C가 모노이드 범주를 이루고 있는 요소일 때, C 내부의 M, m, e로 모노이드 대상을 정의한다는 것이다. M은 단지 C안의 대상일 뿐이니 크게 고려할 사항이 없다. m과 e는 사상인데, m(M ⊗ M → M)은 모노이드의 이항연산이고, e(I → M)는 모노이드의 항등원이다. 뜬금 없이 정의 되지 않은 I와 ⊗가 튀어나왔다! 바로 이 I와 ⊗가 monoidal category를 이루고 있는 요소들 중 일부이다. monoidal category의 정의에서 I란 "unit **object**" 또는 "identity **object**"이며 C에 속해 있다(I∈C). ⊗: C x C → C이다. 여기까지 살펴봤을 때, MC(C(M, I∈M, m, e), ⊗)임을 알 수 있다. category of endofunctors는 monoidal category에 속하기 때문에 M, m, e도 마찬가지로 존재하며, Monoid(M, m, e)가 바로 모나드인 것이다. 더 자세히 말하면 M들은 모두 endofunctors(fp에서 모든 functor는 endofunctor. map했을때 functor들이 항상 자신을 반환하는 것을 기억하자)이고, m은 위에서 살펴본 multiplication 즉, chain(혹은 flatMap)이며, e는 unit(I가 존재하니 성립)이다.
 
