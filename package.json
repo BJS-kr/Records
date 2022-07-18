@@ -4,6 +4,7 @@
   "description": "timid hints of what I've been thorough",
   "main": "index.js",
   "scripts": {
+    "update": "git commit -am 'update'",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
