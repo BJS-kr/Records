@@ -1120,4 +1120,22 @@ abstraction, application 등을 wikipedia의 람다 대수 설명을 읽고 적�
 
 ## 왜 Promise는 Functor or Monad or Applicative가 아닌가?
 
+## Promise를 Functor로 확장하기
+```ts
+Promise.prototype.map = function <T1>(f: (v: any) => T1) {
+ return new Promise<T1>((resolve, reject) => {
+ this.then(x => resolve(f(x))).catch(reject);
+ });
+};
+```
+위와 같은 확장을 추가하면, 아래와 같은 형태의 연산이 가능해진다.
+
+```ts
+MockSomething
+.methodReturningPromise()
+.map(x => x.someProp)
+.then(prop => prop.someMethod())
+.catch(e => console.error(e))
+```
+
 

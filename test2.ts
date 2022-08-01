@@ -1,1 +1,3 @@
-type Where<A, B extends boolean>(where: A, condition: B = true) {}
+type Continuation<T> = (callback: (x: T) => void) => void;
+var continuation: Continuation<number> = (resolve) => resolve(5);
+continuation((x) => console.log(x));
