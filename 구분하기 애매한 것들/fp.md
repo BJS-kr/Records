@@ -1,13 +1,7 @@
 **부족한 제 자신이 조금이라도 이해하기 위해 작성하는 글이니 신랄한 비판과 가르침 언제든지 대환영입니다!!!**
-# Monad
-Monad Functor와 동의어. 애초에 모나드가 Functor의 하위개념이다.
-모나드. 처음에는 정상과 오류가 하나로 추상화된 형태정도로 생각했다. 그 다음에는 함수 합성을 위해 모든 결과값을 하나로 추상화하는 것으로 생각했다. 그 다음에는 혼란에 빠져들었다. Ramda, FantasyLand, PureScript등의 모나드 정의를 읽어봐도 읽으면 읽을 수록 정의하기가 모호해졌다. 프로그래밍 세계에서의 모나드와 수학에서의 모나드는 그 범위가 상당히 차이가 나는 것 같았다. 요즘들어 알게 된 것은 모나드의 종류가 꽤나 다양하다는 것이고, 그 다양한 형태들이 합쳐져 새로운 형태를 이루기도 한다는 것이다. 그리고 모나드를 이해하기 위해선 하위 혹은 관련 개념들도 알아야하는데 대표적으로 이항연산, functor, monoid, lamda calculus, 카테고리 이론, kleisli composition 등이 있는 것 같았다.
-
-지금도 이해 수준이 바닥이지만 한번 최대한 의미에 집중하여 풀어가보려고 한다.
-먼저 자주 발견되는 용어들부터 정리해야할 필요성을 느낀다.
 
 ## Curry
-(curry, partial application등의 개념은 알고 있을 것이라고 생각하고 넘어갑니다)
+이 글에서는 curry나 partial application을 적극적으로 활용한다.
 재사용성 극대화도 물론 너무 좋지만(OOP유저들은 잘 이해하지 못하지만 FP환경을 생각해보면 재사용성은 OOP의 몇 배는 뛰는 것 같다)핵심은 결국 합성이다. 더 algebraic하게 말하면 composition의 가능성을 높여준다. 가독성이 높아짐은 물론이거니와 예외처리도 단계별로 실행할 수 있어 훨씬 직관적으로 변한다.
 
 # 카테고리 이론 for functional programming
@@ -51,7 +45,7 @@ Functor를 정의하기 위해선 arrow 매핑도 정의해야 한다. arrows는
 
 
 # Composition
-함수형 프로그래밍을 이해하기 위한 기초단계에 진입해보자. Composition은 사실상 함수형 프로그래밍의 전체에 관여하므로 잘 이해하고 다음 단계로 넘어가야한다.
+이제 본격적으로 프로그래밍 측면에서 함수형을 이해하기 위한 기초단계에 진입해보자. Composition은 사실상 함수형 프로그래밍의 전체에 관여하므로 잘 이해하고 다음 단계로 넘어가야한다.
 ```js
 const compose = (f, g) => x => f(g(x));
 ```
@@ -73,9 +67,6 @@ const compose = (...fns) => (...args) => fns.reduceRight((res, fn) => [fn.call(n
 
 여기서 주목할 만한점은 또 하나 있다. 이런 순간에 Currying이 매우 유용하다는 것이다. 
 compose되는 함수들은 항상 1 input 1 output을 따라야한다. 당연하게도, 이를 지키지 않으면 파이프를 이어붙이기가 힘들다(당연히 불가능하진 않지만, 추가적인 노력이 들어가야하고 가독성을 심각하게 저해시킬 것이다).
-
-
-
 
 ### Pointfree
 pointfree 스타일은 함수 합성이 간편하고 가독성을 좋게 만든다는 점에서 자주 쓰인다. 더 정확히말하면 동작만을 나열함으로써 매우 Declarative한 코드를 완성할 수 있다.
@@ -177,7 +168,7 @@ const map = curry((f, anyFunctor) => anyFunctor.map(f))
 ## IO(그리고 추상화에 대하여)
 함수형 프로그래밍을 하다보면 무조건 마주치게 되는 문제가 있다. 아무리 순수 함수를 작성하려고 해도 도저히 불가능할 때가 있는데, 바로 외부와 소통하는 상황(fs, db 등등..)즉, IO이다. 
 
-순수함수의 의미를 되짚어보자. 순수 함수란 dictionary와 하등 다를바 없는 mapping이라는 것을 이해하고 있으면 된다. 이와 같은 특성으로 인해 순수함수는 cacheable하고, parallel으로 실행하기에 완벽하다. 또한 순수함수는 절대로 외부(partial application으로 인한 클로저를 제외한 상위 스코프, 외부 프로세스 등등...) 참조하지 않는다. 즉 함수가 실행된 컨텍스트에서 모든 것이 일어난다. 이러한 특성으로 인해 순수 함수는 '시점'과 '횟수'에 아무런 영향을 받지 않는다. 
+순수함수의 의미를 되짚어보자. 순수 함수란 dictionary와 하등 다를바 없는 mapping이라는 것을 이해하고 있으면 된다(same input -> same output). 이와 같은 특성으로 인해 순수함수는 cacheable하고, parallel으로 실행하기에 완벽하다. 또한 순수함수는 절대로 외부(partial application으로 인한 클로저를 제외한 상위 스코프, 외부 프로세스 등등...) 참조하지 않는다. 즉 함수가 실행된 컨텍스트에서 모든 것이 일어난다. 이러한 특성으로 인해 순수 함수는 '시점'과 '횟수'에 아무런 영향을 받지 않는다. 
 
 보통 거의 모든 글이 위의 문단에서 설명을 끝낸다.
 잠시만 진행을 멈추고 생각해보자. 윗 문단의 내용이 과연 맞는 말인가?
@@ -777,7 +768,7 @@ natLaw2(Either.of, maybeToEither)(Identity.of(Maybe.of('barlow one')))
 # Monoid
 정확히 따지자면 monoid는 monad전에 등장했어야 한다. 모나드의 정의가 모노이드에 의존하고 있기 때문이다. 함수형 프로그래밍에서, 함수 합성은 모노이드의 형태를 띈다. 물론 인자 및 반환타입에 신경쓸 수 밖에 없기 때문에 엄밀히 말해 모노이드가 아니지만, 그렇게 할 수 있다는 것이다.
 
-**모나드는 내부 함자 범주의 모노이드 대상이다(monad is a monoid in the category of endofunctors. ~~What is the problem?~~).** 여담으로 보통 philip wadler(one of Haskell founders)가 했다고 알고 있는 이말은, 사실 james iry라는 사람이 쓴 글(Brief, Incomplete and Mostly Wrong History of Programming Languages)에서 마치 와들러가 말 한 것처럼 와전되어서 전해진 것이다. 
+**모나드는 내부 함자 범주의 모노이드 대상이다(monad is a monoid in the category of endofunctors. ~~What is the problem?~~).** 여담으로 보통 philip wadler(one of the Haskell founders)가 했다고 알고 있는 이말은, 사실 james iry라는 사람이 쓴 글(Brief, Incomplete and Mostly Wrong History of Programming Languages)에서 마치 와들러가 말 한 것처럼 와전되어서 전해진 것이다. 
 
 이번엔 모노이드를 조금 더 자세히 살펴보고 위의 정의를 파헤쳐보도록 하겠다.
 **모노이드는 항등원을 갖는, 결합 법칙을 따르는 이항 연산을 갖춘 대수 구조이다.**
@@ -940,7 +931,7 @@ category theory에서 monoid로 판단하기 위해선 object M과 두 가지 �
 모나드의 정의를 다시 한번 떠올려보자: monoid in the category of endofuctors. 
 endofunctors: C → C, C'→ C', ...가 있다. 이들 사이의 자연 변환들을 사상으로 하는 카테고리가 category of endofunctors이다. 또한 이 'category of endofunctors'는 모노이드 범주(monoidal category)인데, 이 때문에 우리는 '모노이드 대상'을 정의할 수 있다. 위 정의에서 'monoid'란 'monoid object'와 동의어인데, monoid object란 monoid와 같은 성질을 가진 object를 일컫는다. monoid object를 설명하기 위해, monoidal category에서 필요한 개념만 가져와서 설명하겠다.
 
-monoidal category로 부터 출발할 필요는 없다. 모노이드 대상으로 부터 bottom-up으로 살펴보도록 하자. 먼저 monoidal category를 이루는 여러 요소 중에는 범주 C가 있다. 바로 이 C의 모노이드 대상이 우리의 타겟이다. monoid object는 (M, m, e)로 이루어진다. 핵심은 M, m, e 모두 C내부의 존재들이라는 것이다. 다시 말해, 범주 C가 모노이드 범주를 이루고 있는 요소일 때, C 내부의 M, m, e로 모노이드 대상을 정의한다는 것이다. M은 단지 C안의 대상일 뿐이니 크게 고려할 사항이 없다. m과 e는 사상인데, m(M ⊗ M → M)은 모노이드의 이항연산이고, e(I → M)는 모노이드의 항등원이다. 뜬금 없이 정의 되지 않은 I와 ⊗가 튀어나왔다! 바로 이 I와 ⊗가 monoidal category를 이루고 있는 요소들 중 일부이다. monoidal category의 정의에서 I란 "unit **object**" 또는 "identity **object**"이며 C에 속해 있다(I∈C). ⊗: C x C → C이다. 여기까지 살펴봤을 때, MC(C(M, I∈M, m, e), ⊗)임을 알 수 있다. category of endofunctors는 monoidal category에 속하기 때문에 M, m, e도 마찬가지로 존재하며, Monoid(M, m, e)가 바로 모나드인 것이다. 더 자세히 말하면 M들은 모두 endofunctors(fp에서 모든 functor는 endofunctor. map했을때 functor들이 항상 자신을 반환하는 것을 기억하자)이고, m은 위에서 살펴본 multiplication 즉, chain(혹은 flatMap)이며, e는 unit(I가 존재하니 성립)이다.
+monoidal category자체로 부터 출발할 필요는 없다. 모노이드 대상으로 부터 bottom-up으로 살펴보도록 하자. 먼저 monoidal category를 이루는 여러 요소 중에는 범주 C가 있다. 바로 이 C의 모노이드 대상이 우리의 타겟이다. monoid object는 (M, m, e)로 이루어진다. 핵심은 M, m, e 모두 C내부의 존재들이라는 것이다. 다시 말해, 범주 C가 모노이드 범주를 이루고 있는 요소일 때, C 내부의 M, m, e로 모노이드 대상을 정의한다는 것이다. M은 단지 C안의 대상일 뿐이니 크게 고려할 사항이 없다. m과 e는 사상인데, m(M ⊗ M → M)은 모노이드의 이항연산이고, e(I → M)는 모노이드의 항등원이다. 뜬금 없이 정의 되지 않은 I와 ⊗가 튀어나왔다! 바로 이 I와 ⊗가 monoidal category를 이루고 있는 요소들 중 일부이다. monoidal category의 정의에서 I란 "unit **object**" 또는 "identity **object**"이며 C에 속해 있다(I∈C). ⊗: C x C → C이다. 여기까지 살펴봤을 때, MC(C(M, I∈M, m, e), ⊗)임을 알 수 있다. category of endofunctors는 monoidal category에 속하기 때문에 M, m, e도 마찬가지로 존재하며, Monoid(M, m, e)가 바로 모나드인 것이다. 더 자세히 말하면 M들은 모두 endofunctors(fp에서 모든 functor는 endofunctor. map했을때 functor들이 항상 자신을 반환하는 것을 기억하자)이고, m은 위에서 살펴본 multiplication 즉, chain(혹은 flatMap)이며, e는 unit(I가 존재하니 성립)이다.
 
 지금까지 **모나드는 내부 함자 범주의 모노이드 대상이다** 라는 말의 의미를 살펴보았다.
 
