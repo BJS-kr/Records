@@ -14,7 +14,7 @@ class MaxHeap {
     // 마지막에 푸쉬한 요소 index의 나누기 2라고 함은:
     // 예를 들어 6,7 인덱스 모두 부모 인덱스는 3인 것이다.
     // 즉, 자동적으로 항상 이진트리가 완성된다.
-    // 인덱스 번호 자체가 중요한 것이 아니고 '그렇게 친다'는 표현이 적절하다.
+    // 인덱스 번호 자체가 중요한 것이 아니고 '그렇게 정한다'는 표현이 적절하다.
     // 이렇게 해도 되는 이유는, heap은 어차피 root값만 의미가 있으며
     // 나머지 높이에서는 부모노드보다 자식 노드가 작기만 하면(혹은 크기만하면)되기 때문이다.
     let parentIndex = Math.floor(currentIndex / 2);
@@ -34,12 +34,14 @@ class MaxHeap {
   }
 
   pop() {
+    if (this.heap.length === 2) return this.heap.pop();
     // return 할 값은 최상위 노드로 정해져있다
     const result = this.heap[1];
     // 1번 자리가 무조건 가장 작아야 연산이 시작되기 때문에, heap의 마지막 자리는 항상 나머지 모든 층의 부모노드보다 작기 때문에
     // 1번 자리를 0 같은 걸로 지정하면안된다. 넣지 않은 값이 자리를 차지하게 되기 때문이다.
     this.heap[1] = this.heap.pop();
     let parentIndex = 1;
+    // push할땐 left right child구분 안하면서
     // nextParentIndex가 자식 노드 중 더 큰 값이어야 하는 이유:
     // 안 그러면 currentIndex와의 위치 교환이 제대로 이뤄지지 않을 수 있다.
     // 예를 들어, heap에 총 4개의 값이 들어있었다고 가정하자. 순서대로 77,22,11,11이라고 하겠다.
