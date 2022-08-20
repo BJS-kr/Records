@@ -7,13 +7,13 @@ function permutations(arr, n) {
   arr.forEach((fixed, idx, arr) => {
     // 현재 index를 제외한 요소를 추출한다.
     // index번째는 선택된 요소
-    const rest = arr.filter((_, index) => index !== idx);
     // 선택된 요소를 제외하고 재귀 호출한다.
-    const perms = permutations(rest, n - 1);
+    const perms = permutations(
+      arr.filter((_, index) => index !== idx),
+      n - 1
+    );
     // 선택된 요소와 재귀 호출을 통해 구한 순열을 합쳐준다.
-    const combine = perms.map((v) => [fixed, ...v]);
-    // 결과 값을 추가한다.
-    result.push(...combine);
+    perms.forEach((perm) => result.push([fixed].concat(perm)));
   });
 
   // 결과 반환
@@ -29,16 +29,13 @@ function combinations(arr, n) {
   arr.forEach((fixed, idx, arr) => {
     // 현재 index 이후 요소를 추출한다.
     // index번째는 선택된 요소
-    const rest = arr.slice(idx + 1);
     // 선택된 요소 이전 요소들을 제외하고 재귀 호출한다.
-    const combis = combinations(rest, n - 1);
+    const combis = combinations(arr.slice(idx + 1), n - 1);
     // 선택된 요소와 재귀 호출을 통해 구한 조합을 합쳐준다.
-    const combine = combis.map((v) => [fixed, ...v]);
-    // 결과 값을 추가한다.
-    result.push(...combine);
+    combis.forEach((combi) => result.push([fixed].concat(combi)));
   });
 
-  // 결과 반화
+  // 결과 반환
   return result;
 }
 const fruits = ['Apple', 'Banana', 'Coconut'];
