@@ -9,7 +9,7 @@
  * 자세한 내용은 아래의 공변성과 반공변성을 살펴보며 설명하겠지만
  * 일단은 subtype은 supertype이 사용되는 곳에 그대로 사용이 가능해야 함만 기억하면 된다.
  *
- * 정말 마지막으로 invariance만 짚고 넘어가도록 하자.
+ * 본격적으로 시작하기 전에 invariance만 짚고 넘어가도록 하자.
  * invariance란 type간에 variance가 없음을 뜻하는데, 이게 무슨 말일까?
  * 예를 들어, A의 subtype A'가 있다고 가정하자.
  * 그리고 generic function type인 T::(T) -> T가 존재한다고 가정하자
@@ -94,7 +94,7 @@ type F<T> = (arg: T) => T;
  * 자, 마지막으로 정리해보자.
  * 어떤 함수 타입의 서브 타입이 되려면?
  * T는 T'에 대하여 ->
- * 1. 인자는 contravariance supertype이어야 하고,
+ * 1. 인자는 contravariant supertype이어야 하고,
  * 2. 반환값은 covariant한 supertype이어야 한다!
  */
 
@@ -102,12 +102,12 @@ type F<T> = (arg: T) => T;
 // 왜일까? 기본적으로 IDE나 언어의 성능이 뛰어나기 때문이다.
 // 컴파일되지 않도록 에러를 표시한다는 것이다.
 // IDE가 정보를 시각적으로 전달함은 말할 것도 없다.
-// 그러나 기본적으로 이러한 개념들은 '코드'자체로 바라 보며 고려해볼 핊요가 있다. 언어나 IDE의 도움이 없는 환경 코드라는 문자열 자체로서 말이다.
+// 그러나 기본적으로 이러한 개념들은 '코드'자체로 바라 보며 고려해볼 핊요가 있다. 언어나 IDE의 도움이 없는 환경, 코드라는 문자열 자체로서 말이다.
 // 컴파일 되지 않는다고 해도 왜 컴파일 되지 않는 지를 알아야함은 물론이다.
 // 더구나, TS가 기본적으로 bivariant한 것처럼 언어 기능이 훌륭하지 않을 수도 있고 모든 contravariant를 잡아낼 수 있는 것도 아니다.
 // kotlin처럼 공변성과 반공변성까지 조절할 수 있는 언어라면 모르겠지만 말이다.
 
-// 마지막으로 예시를 작성하여 마무리 하겠다.
+// 이제 설명한 개념들을 한데 모은 예시를 작성해보자.
 // 지금까지 설명했듯, 어떤 함수 타입에 대하여 subtype으로 대체하는 식으로 진행된다.
 type Mammal = { breastfeed: true };
 type Human = Mammal & { bipedal: true };
@@ -116,8 +116,6 @@ type African = Human & { skin: 'black' };
 
 type GenericFunction<T> = (arg: T) => T;
 type HmHm = GenericFunction<Human>;
-
-type HigerOrderFunction = (f: HmHm) => void;
 
 // test_1: Ok! super-sub는 자신을 포함한다는 것을 기억하고 있을 것이다.
 const test_1: HmHm = (arg: Human) => ({} as Human);
@@ -132,32 +130,32 @@ const test_4: HmHm = (arg: Mammal) => ({} as Mammal);
 const test_5: HmHm = (arg: Mammal) => ({} as Mongolian);
 
 // 모든 설명의 결론이 test_5에 녹아있다. 함수의 서브타입을 표현한 것이다.
-// 마지막으로, 지금까지 잘 이해했다면 사실상 test_1은 간접적으로 test_5를 표현한다는 것을 알 수 있다.
+// 지금까지 잘 이해했다면 사실상 test_1은 간접적으로 test_5를 표현한다는 것을 알 수 있다.
 
-// 정말 마지막으로, TS가 모든 것을 잡아내지 못하므로 개발자가 이를 이해하고 코드를 짜야한다는 것이 무슨 말인지 알아보자
-
-// higer_1: Ok!...Ok...? 아니다 에러가 나야한다!
+// TS가 모든 것을 잡아내지 못하므로 개발자가 이를 이해하고 코드를 짜야한다는 것이 무슨 말인지 알아보자
+type HigherOrderFunction = (f: HmHm) => void;
+// higher_1: Ok!...Ok...? 아니다 에러가 나야한다!
 // 이는 contravariance나 strictFunctionsType과도 관계 없는 TS자체의 기능 부재다.
 // 이러한 현상은 함수 타입 내부에 parameter가 함수일 때, 그 타입을 단순한 값처럼 평가해버리는데서 기인한다.
-const higher_1: HigerOrderFunction = (f: (arg: Mongolian) => Human) => {};
+const higher_1: HigherOrderFunction = (f: (arg: Mongolian) => Human) => {};
 // higher_2: Error...? 맞는 구현인데?
 // 이건 더 황당하다. 올바른 구현에 TS가 에러를 표시하는 실수를 저지르고 있다.
-const higher_2: HigerOrderFunction = (f: (arg: Mammal) => Human) => {};
+const higher_2: HigherOrderFunction = (f: (arg: Mammal) => Human) => {};
 
 // 위와 같은 현상을 해결하려면 함수 타입이 평가되는 부분을 분리해야한다
 // Generic을 적극적으로 활용해보자
-type FixedHigerOrderFunction<F extends HmHm> = (f: F) => void;
+type FixedHigherOrderFunction<F extends HmHm> = (f: F) => void;
 
 // 당연하게도 원래의 HigherOrderFunction 타입과 Fixed 타입은 사실상 같다!
 // 단지 타입 파라미터를 받는 형식으로 분리했을 뿐이다.
 // 정말로 TS의 동작이 달라지는지 확인해보자. 구현부는 higher_1, higher_2와 완전히 같다.
 
 // Error! 정상적으로 에러가 난다. Mongolian은 Human parameter에 적합하지 않기 때문이다
-const fixed_1: FixedHigerOrderFunction<(arg: Mongolian) => Human> = (
+const fixed_1: FixedHigherOrderFunction<(arg: Mongolian) => Human> = (
   f: (arg: Mongolian) => Human
 ) => {};
 // Ok! 지겹게 살펴본대로 에러가 나지 않는다. Generic하게 바꿨을 뿐인데 말이다.
-const fixed_2: FixedHigerOrderFunction<(arg: Mammal) => African> = (
+const fixed_2: FixedHigherOrderFunction<(arg: Mammal) => African> = (
   f: (arg: Mammal) => Human
 ) => {};
 
