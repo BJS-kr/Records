@@ -18,13 +18,27 @@ type Curry<T> = T extends (...args: infer Arguments) => infer ReturnValue
     : never
   : never;
 
+// 이 커리 함수는 모던 자바스크립트 튜토리얼을 참고했다.
+// https://javascript.info/currying-partials
+function curry(this: any, func: (...args: any[]) => any) {
+  const curried = (...args: any[]) => {
+    if (args.length >= func.length) {
+      return func.apply(this, args);
+    } else {
+      return (...args2: any[]) => {
+        return curried.apply(this, args.concat(args2));
+      };
+    }
+  };
+
+  return curried;
+}
+
 // original
 const testFunction = (x: string, y: number, z: string) => x + y + z;
 
 // curried
-const testFunctionCurried: Curry<typeof testFunction> =
-  (x: string) => (y: number) => (z: string) =>
-    testFunction(x, y, z);
+const testFunctionCurried: Curry<typeof testFunction> = curry(testFunction);
 
 // example 1
 console.log(testFunctionCurried('hello')(1)('hi'));
