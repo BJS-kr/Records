@@ -21,7 +21,7 @@ const vertexes = Array(n + 1).fill(false, 1);
 function dfs(start) {
   const visited = vertexes.slice();
   const result = [];
-  function recur(start) {
+  return (function recur(start) {
     if (visited[start]) return result;
     visited[start] = true;
     result.push(start);
@@ -30,16 +30,14 @@ function dfs(start) {
     }
 
     return result;
-  }
-
-  return recur(start);
+  })(start);
 }
 
 function bfs(start) {
   const visited = vertexes.slice();
   visited[start] = true;
   const toVisit = map[start];
-  let result = [start];
+  const result = [start];
 
   while (toVisit.length) {
     const next = toVisit.shift();
