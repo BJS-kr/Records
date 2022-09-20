@@ -1,7 +1,7 @@
 /**
  * Variance(변성)
  * 타입 언어에서 variance가 중요한 이유는 Generic한 타입을 작성함에 있어서 type-safe한 코드를 작성하는 역량의 근간이 되기 때문이다.
- * 먼저 variance란, type hierachy에서 타입간의 관계가 어떠한지를 나타내는 개념이다.
+ * 먼저 variance란, type hierarchy에서 타입간의 관계가 어떠한지를 나타내는 개념이다.
  * T와 T'간의 관계? 어디선가 들어본 적이 있다. 바로 SOLID의 L, Liskov's Substitution principle이다.
  *
  * 또, supertype과 subtype도 제대로 짚고 넘어가도록 하자.
@@ -140,7 +140,7 @@ type HigherOrderFunction = (f: HmHm) => void;
 const higher_1: HigherOrderFunction = (f: (arg: Mongolian) => Human) => {};
 // higher_2: Error...? 맞는 구현인데?
 // 이건 더 황당하다. 올바른 구현에 TS가 에러를 표시하는 실수를 저지르고 있다.
-const higher_2: HigherOrderFunction = (f: (arg: Mammal) => Human) => {};
+const higher_2: HigherOrderFunction = (f: (arg: Mammal) => African) => {};
 
 // 위와 같은 현상을 해결하려면 함수 타입이 평가되는 부분을 분리해야한다
 // Generic을 적극적으로 활용해보자
@@ -151,12 +151,14 @@ type FixedHigherOrderFunction<F extends HmHm> = (f: F) => void;
 // 정말로 TS의 동작이 달라지는지 확인해보자. 구현부는 higher_1, higher_2와 완전히 같다.
 
 // Error! 정상적으로 에러가 난다. Mongolian은 Human parameter에 적합하지 않기 때문이다
-const fixed_1: FixedHigherOrderFunction<(arg: Mongolian) => Human> = (
+type MgHm = (arg: Mongolian) => Human;
+const fixed_1: FixedHigherOrderFunction<MgHm> = (
   f: (arg: Mongolian) => Human
 ) => {};
 // Ok! 지겹게 살펴본대로 에러가 나지 않는다. Generic하게 바꿨을 뿐인데 말이다.
-const fixed_2: FixedHigherOrderFunction<(arg: Mammal) => African> = (
-  f: (arg: Mammal) => Human
+type MmAf = (arg: Mammal) => African;
+const fixed_2: FixedHigherOrderFunction<MmAf> = (
+  f: (arg: Mammal) => African
 ) => {};
 
 // 마지막 예제로 살펴 보았듯, 직접 이해하지 않고 컴파일러가 알아서 해주길 기대하면
