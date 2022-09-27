@@ -1,12 +1,12 @@
 // 목표 스펙
 // pop_front: 상수시간
 // pop_back: 상수시간
-// push_front: 상수시간 & 선형시간
+// push_front: 상수시간
 // push_back: 상수시간
 // rotate: 상수시간
 
 // 1번 구현
-// push_front가 unshift로 이루어질 수 있어 매우 위험하다.
+// 상수시간 목표와 다르게 push_front가 unshift로 이루어질 수 있어 매우 위험하다.
 // 그러나 코드가 적고 구현이 쉬워 코테에 활용할 가능성이 높다.
 class Deque {
   head = 0;
