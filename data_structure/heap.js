@@ -7,28 +7,35 @@ class MaxHeap {
   }
   push(n) {
     this.#heap.push(n);
-    let cI = this.#heap.length - 1;
-    let pI = Math.floor(cI / 2);
+    let child = this.#heap.length - 1;
+    let parent = Math.floor(child / 2);
 
-    while (this.#heap[cI] > this.#heap[pI] && pI !== 0) {
-      [this.#heap[cI], this.#heap[pI]] = [this.#heap[pI], this.#heap[cI]];
-      cI = pI;
-      pI = Math.floor(cI / 2);
+    while (this.#heap[child] > this.#heap[parent] && parent !== 0) {
+      [this.#heap[child], this.#heap[parent]] = [
+        this.#heap[parent],
+        this.#heap[child],
+      ];
+      child = parent;
+      parent = Math.floor(child / 2);
     }
-    console.log(this.#heap);
   }
   pop() {
     const result = this.#heap[1];
     this.#heap[1] = this.#heap.pop();
-    let pI = 1;
-    let cI = this.#heap[2] > this.#heap[3] ? 2 : 3;
-    while (this.#heap[pI] < this.#heap[cI]) {
-      [this.#heap[pI], this.#heap[cI]] = [this.#heap[cI], this.#heap[pI]];
-      pI = cI;
-      cI = this.#heap[pI * 2] > this.#heap[pI * 2 + 1] ? pI * 2 : pI * 2 + 1;
+    let parent = 1;
+    let child = this.#heap[2] > this.#heap[3] ? 2 : 3;
+    while (this.#heap[parent] < this.#heap[child]) {
+      [this.#heap[parent], this.#heap[child]] = [
+        this.#heap[child],
+        this.#heap[parent],
+      ];
+      parent = child;
+      child =
+        this.#heap[parent * 2] > this.#heap[parent * 2 + 1]
+          ? parent * 2
+          : parent * 2 + 1;
     }
 
-    console.log(result);
     return result;
   }
   len() {
@@ -38,13 +45,25 @@ class MaxHeap {
 
 const h = new MaxHeap();
 
-h.heapify([1, 2, 2, 3, 2, 1, 3, 5, 4, 3, 7]);
+// 속도 비교
+const forSort = Array.from(Array(150000), () => Math.random());
+const forHeap = forSort.slice();
+// 1. 150000개 요소 정렬 후 최댓값 10개 순차적으로 찾기
+// 556 ~ 589ms
+console.time('sort');
+forSort.sort();
+for (let i = 0; i < 10; i++) {
+  forSort.pop();
+}
+console.timeEnd('sort');
+// 2. 150000개 요소 heapify 후 최댓값 10개 순차적으로 찾기
+// 너무 불공평한 비교가 되지 않도록 배열의 요소를 하나하나 전부 heap push한다.
+// 31 ~ 39ms
+console.time('heap');
+h.heapify(forHeap);
+for (let i = 0; i < 10; i++) {
+  h.pop();
+}
+console.timeEnd('heap');
 
-h.pop();
-h.pop();
-h.pop();
-h.pop();
-h.pop();
-h.pop();
-h.pop();
-h.pop();
+// 위의 실험조건 기준 대략 15배 정도 빠르다.
