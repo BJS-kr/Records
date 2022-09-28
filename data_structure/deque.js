@@ -122,7 +122,7 @@ class Deque2 {
     this.tail = this.tail.post;
     this.tail.post = null;
   }
-  travel() {
+  traverse() {
     let cur = this.head;
     let result = [];
     while (cur) {
