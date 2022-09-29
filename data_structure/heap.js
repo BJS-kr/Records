@@ -9,7 +9,7 @@ class MaxHeap {
   push(n) {
     this.#heap.push(n);
     let child = this.#heap.length - 1;
-    let parent = Math.floor(child / 2);
+    let parent = (child / 2) | 0;
 
     while (this.#heap[child] > this.#heap[parent] && parent !== 0) {
       [this.#heap[child], this.#heap[parent]] = [
@@ -17,7 +17,7 @@ class MaxHeap {
         this.#heap[child],
       ];
       child = parent;
-      parent = Math.floor(child / 2);
+      parent = (child / 2) | 0;
     }
   }
   pop() {

@@ -28,8 +28,7 @@ class Queue {
     return result;
   }
   isEmpty() {
-    if (this.head > this.tail) return true;
-    return false;
+    return this.head > this.tail;
   }
 }
 
