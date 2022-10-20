@@ -167,3 +167,8 @@ closing frame(opcode 0x08)이 전송된다. 추가로, close frame은 close의 �
 ## TCP socket vs WebSocket
 
 위의 설명에서 느껴지듯이 WebSocket의 기능은 사실 일반적인 TCP socket에 WS protocol을 따르는 frame headers를 씌운 형태에 불과하다.  어디선가 WS의 message를 수신하는 곳에서 TCP chunks를 하나의 완성된 message로 reassemble한 후 handler를 invoke할 뿐이다.
+
+## 왜 WS는 UDP대신 TCP를 사용하는가
+(개인 의견입니다. 옳지 않을 수 있습니다)
+1. WS의 message는 frame단위로 분리 될 수 있으며, reassemble하기 위해선 데이터 손실이 발생해서는 안된다. 데이터 손실 가능성이 있는 UDP는 적절하지 않다.
+2. opcode 0x00을 고려했을 때, 이전 frame이라는 표현이 성립하려면 모든 frame이 순서에 맞게 수신되어야 한다. 순서를 보장할 수 없는 UDP는 적절하지 않다.
