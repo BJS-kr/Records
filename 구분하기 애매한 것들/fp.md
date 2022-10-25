@@ -1,9 +1,5 @@
 **부족한 제 자신이 조금이라도 이해하기 위해 작성하는 글이니 신랄한 비판과 가르침 언제든지 대환영입니다!!!**
 
-## Curry
-이 글에서는 curry나 partial application을 적극적으로 활용한다.
-재사용성 극대화도 물론 너무 좋지만(OOP유저들은 잘 이해하지 못하지만 FP환경을 생각해보면 재사용성은 OOP의 몇 배는 뛰는 것 같다)핵심은 결국 합성이다. 더 algebraic하게 말하면 composition의 가능성을 높여준다. 가독성이 높아짐은 물론이거니와 예외처리도 단계별로 실행할 수 있어 훨씬 직관적으로 변한다.
-
 # 카테고리 이론 for functional programming
 Category, Functor, Monad등의 개념들은 원래 카테고리 이론에서 정의된것이다.
 ## Category
