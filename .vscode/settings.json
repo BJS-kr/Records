@@ -4,5 +4,15 @@
     "vector": "cpp",
     "array": "cpp",
     "ostream": "cpp"
-  }
+  },
+  "sqltools.connections": [
+    {
+      "previewLimit": 50,
+      "server": "localhost",
+      "driver": "PostgreSQL",
+      "name": "test",
+      "group": "TEST",
+      "connectString": "postgresql://postgres:test@localhost:5432/"
+    }
+  ]
 }

@@ -9,3 +9,5 @@ test.*
 prac.cpp
 test.*
 test2.*
+.env
+docker-compose.yml
