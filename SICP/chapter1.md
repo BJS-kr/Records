@@ -108,18 +108,94 @@ function plus(a, b) {
 #### 1.9 A)
 
 plus(2,1)
-* 1번 plus: 반복적
+* 1번 plus: 재귀적
 inc(plus(1, 1));
 inc(inc(plus(0,1)));
 inc(inc(1));
 inc(2);
 3
 
-* 2번 plus: 재귀적
+* 2번 plus: 반복적
 plus(1, 2);
 plus(0, 3);
 3;
 
+#### 1.10) A가 애커만 함수일 때, 다음 각 A의 호출은 어떻게 평가되는가? 또 한 A를 사용하여 작성된 함수 f, g, h가 계산하는 함수를 간결한 수식으로 표현하라
+```js
+A(1, 10); 
+A(2, 4);
+A(3, 3);
+
+function f(n) {
+  return A(0, n);
+}
+
+function g(n) {
+  return A(1, n);
+}
+
+function h(n) {
+  return A(2, n);
+}
+```
+
+#### 1.10 A
+1024
+65536
+65536
+
+f: 2 * n
+g: 2 ** n
+h: 2 ** h(n - 1)
+
+#### 1.11) n < 3 이면 f(n) = n이고 n >= 3이면 f(n) = f(n - 1) + 2f(n - 2) + 3f(n - 3)인 함수를 재귀적인 방법과 반복적인 방식으로 작동하도록 각각 작성하라
+#### 1.11 A
+```js
+function f(n) {
+  return n < 3 
+          ? n 
+          : (f(n - 1) + 2 * f(n - 2) + 3 * f(n - 3));
+}
+
+function f2(n) {
+  return n < 3 
+          ? n 
+          : n === 3 
+          ? 4 
+          : f_iter(n, 4, 1, 2, 4);
+}
+
+function f_iter(target, count, pre3, pre2, pre1) {
+  const dynamics = pre1 + pre2 * 2 + pre3 * 3;
+
+  return count >= target
+          ? dynamics
+          : f_iter(target, ++count, pre2, pre1, dynamics);
+}
+```
+
+#### 1.12) 파스칼 삼각형의 성분들을 재귀적으로 계산하는 함수를 작성하라
+#### 1.12 A
+```js
+function pascal(row, target, current = 0, leftUpper = 0, rightUpper = 1) {
+  return target === 0 || target === row + 1
+          ? 1
+          : target === 1
+          ? row + 1
+          : target === current 
+          ? leftUpper + rightUpper
+          : pascal(
+              row, 
+              target, 
+              current + 1, 
+              rightUpper, 
+              pascal(row - 1, current + 1)
+            );
+}
+
+// 5번 째 줄의 3번 째 요소
+console.log(pascal(4, 2));
+```
 
 
 
