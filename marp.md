@@ -22,16 +22,19 @@ _header: '![w:150](data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAOEAAADhCAMAAAA
 ![bg right: 33%](https://assets-global.website-files.com/614c84345b19bbf21bb9a03e/63495c1035d9db70756c6382_Notion_app_logo.png)
 
 ---
+![bg 70%](https://www.pathfindersalliance.org.uk/wp-content/uploads/2021/08/pros-cons.jpg)
+
+---
 ![bg left](https://w0.peakpx.com/wallpaper/628/51/HD-wallpaper-laptop-book-aesthetics.jpg)
 
 ---
 <style scoped>
   {
     font-size: 30px;
-    font-family: "Times New Roman",cursive;
+    font-family: "Times New Roman";
   }
 </style>
-### 긴 여정
+
 ![bg right](https://i.pinimg.com/originals/34/49/13/3449138f656d278b1eeaf93e17138d4f.jpg)
 
 ---
