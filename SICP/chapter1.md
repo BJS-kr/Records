@@ -196,6 +196,42 @@ function pascal(row, target, current = 0, leftUpper = 0, rightUpper = 1) {
 // 5번 째 줄의 3번 째 요소
 console.log(pascal(4, 2));
 ```
+#### 1.16) 연속 제곱을 이용하고 단계수가 로그인 반복적 거듭제곱을 설계하라
+
+#### 1.16A
+```js
+function isEven(n) {
+  return !(n % 2);
+}
+function fast_expt_iter(a, b, n) {
+  return n === 0 
+          ? 1
+          : n === 1
+          ? a
+          : isEven(n)
+          ? fast_expt_iter(a, b ** 2, n / 2)
+          : fast_expt_iter(a * b, b, n -1);
+}
+```
+
+#### 1.17)  짝수를 절반으로 나누는 함수, 그리고 정수를 두배로 만드는 함수가 있다고 가정하자. 이를 이용해 증가차수가 로그인 곱셈함수를 설계하라
+
+#### 1.17 A
+```js
+function halve(n) { return n / 2 };
+function double(n) { return n * 2 };
+function fast_multi_iter(a, b, r = 0) {
+  return b === 0
+          ? 0
+          : b === 1
+          ? r
+          : isEven(b)
+          ? fast_multi_iter(double(a), halve(b), r)
+          : fast_multi_iter(a, b - 1, r + a);
+}
+```
+
+
 
 
 
