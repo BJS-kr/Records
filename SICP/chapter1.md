@@ -224,7 +224,7 @@ function fast_multi_iter(a, b, r = 0) {
   return b === 0
           ? 0
           : b === 1
-          ? r
+          ? r + a
           : isEven(b)
           ? fast_multi_iter(double(a), halve(b), r)
           : fast_multi_iter(a, b - 1, r + a);
