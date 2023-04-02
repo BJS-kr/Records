@@ -7,22 +7,22 @@ class Either<T> {
     return new Right(value);
   }
 
-  constructor(private value) {}
+  constructor(private value:any) {}
 
   map<U>(fn:(v:T) => U) {
     try {
       return this.isRight() ? Either.right(fn(this.value)) : this;
-    } catch (error) {
-      return Either.left(error);
+    } catch (err) {
+      return Either.left(err);
     }
   }
 
-  getOrElse(defaultValue) {
+  getOrElse({defaultValue}:{defaultValue:any}) {
     return this.isRight() ? this.value : defaultValue;
   }
 
   chain(fn) {
-    return this.map(fn).getOrElse(null);
+    return this.map(fn).getOrElse({defaultValue: null});
   }
 
   fold(leftFn, rightFn) {
@@ -50,19 +50,4 @@ class Right<T> extends Either<T> {
   }
 }
 
-// type argument에서 L 타입은 개발팀마다 다를 것이므로 그냥 생략함
-const right = <T>(value: T): Either<T> => Either.right(value);
-
-const getUserName = (user: { name: string }): string => user.name;
-const toUpperCase = (name: string): string => name.toUpperCase();
-const getGreeting = (name: string): string => `Hello, ${name}!`;
-
-const pipe = <T, U>(...fns: Array<(x: T) => U>): (x: T) => Either<U> => x =>
-  fns.reduce((v, f) => right(f(v.getOrElse(null))), right(x));
-
-const getGreetingForUser = pipe(getUserName, toUpperCase, getGreeting);
-
-const user = { name: 'John Doe' };
-const greeting = getGreetingForUser(user).getOrElse('Error');
-
-console.log(greeting);
+// type argument에서 L 타입은 개발팀마다 다를 것이므로 그냥 생
