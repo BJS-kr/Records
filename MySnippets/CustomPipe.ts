@@ -1,21 +1,17 @@
-
 type UnaryFunction<A = any, R = any> = (arg: A) => R;
+
 type ResolvedUnaryFunction<A = any, R = any> = ((
-  arg: Awaited<A>,
+  arg: Awaited<A>
 ) => R) extends (arg: Awaited<Either<infer ET>>) => R
   ? (arg: ET) => R
   : (arg: Awaited<A>) => R;
-type DefaultValue<T> = { defaultValue: T };
+
 type Folded<T> = T extends Either<infer I>
   ? I
   : T extends Promise<Either<infer I>>
   ? I
   : T;
 type PromiseEitherChained<T> = Promise<Either<Folded<T>>>;
-
-function identity<T>(arg: T): T {
-  return arg;
-}
 
 export type EitherT<T extends Either<any>> = T extends Either<infer I>
   ? I
@@ -49,9 +45,19 @@ export class Either<T> {
 
   fold<LR, RR>(
     leftFn: (error: any) => LR,
-    rightFn: (result: T) => RR,
-  ): LR | RR {
-    return this.isRight() ? rightFn(this.value) : leftFn(this.value);
+    rightFn: (result: T) => RR
+  ): LR | RR | Promise<LR | RR> {
+    if (this.isRight()) {
+      if (this.value instanceof Promise) {
+        return this.value.then(rightFn);
+      }
+      return rightFn(this.value);
+    } else {
+      if (this.value instanceof Promise) {
+        return this.value.then(leftFn);
+      }
+      return leftFn(this.value);
+    }
   }
 
   isRight(): boolean {
@@ -71,220 +77,62 @@ class Right<T> extends Either<T> {
   }
 }
 class Pipe {
-  syncPipe<A, B>(f1: UnaryFunction<A, B>): (arg: A) => Either<B>;
-  syncPipe<A, B, C>(
-    f1: UnaryFunction<A, B>,
-    f2: UnaryFunction<B, C>,
-  ): (arg: A) => Either<C>;
-  syncPipe<A, B, C, D>(
-    f1: UnaryFunction<A, B>,
-    f2: UnaryFunction<B, C>,
-    f3: UnaryFunction<C, D>,
-  ): (arg: A) => Either<D>;
-  syncPipe<A, B, C, D, E>(
-    f1: UnaryFunction<A, B>,
-    f2: UnaryFunction<B, C>,
-    f3: UnaryFunction<C, D>,
-    f4: UnaryFunction<D, E>,
-  ): (arg: A) => Either<E>;
-  syncPipe<A, B, C, D, E, F>(
-    f1: UnaryFunction<A, B>,
-    f2: UnaryFunction<B, C>,
-    f3: UnaryFunction<C, D>,
-    f4: UnaryFunction<D, E>,
-    f5: UnaryFunction<E, F>,
-  ): (arg: A) => Either<F>;
-  syncPipe<A, B, C, D, E, F, G>(
-    f1: UnaryFunction<A, B>,
-    f2: UnaryFunction<B, C>,
-    f3: UnaryFunction<C, D>,
-    f4: UnaryFunction<D, E>,
-    f5: UnaryFunction<E, F>,
-    f6: UnaryFunction<F, G>,
-  ): (arg: A, defaultValue: DefaultValue<G>) => Either<G>;
-  syncPipe(...fns: UnaryFunction[]) {
-    return (arg: any) =>
-      fns.reduce<Either<unknown>>(
-        (result, fn) => result.map(fn),
-        Either.right(arg),
-      );
-  }
-
   asyncPipe<A, B>(
-    f1: ResolvedUnaryFunction<A, B>,
+    f1: ResolvedUnaryFunction<A, B>
   ): (arg: A) => PromiseEitherChained<B>;
   asyncPipe<A, B, C>(
     f1: ResolvedUnaryFunction<A, B>,
-    f2: ResolvedUnaryFunction<B, C>,
+    f2: ResolvedUnaryFunction<B, C>
   ): (arg: A) => PromiseEitherChained<C>;
   asyncPipe<A, B, C, D>(
     f1: ResolvedUnaryFunction<A, B>,
     f2: ResolvedUnaryFunction<B, C>,
-    f3: ResolvedUnaryFunction<C, D>,
+    f3: ResolvedUnaryFunction<C, D>
   ): (arg: A) => PromiseEitherChained<D>;
   asyncPipe<A, B, C, D, E>(
     f1: ResolvedUnaryFunction<A, B>,
     f2: ResolvedUnaryFunction<B, C>,
     f3: ResolvedUnaryFunction<C, D>,
-    f4: ResolvedUnaryFunction<D, E>,
+    f4: ResolvedUnaryFunction<D, E>
   ): (arg: A) => PromiseEitherChained<E>;
   asyncPipe<A, B, C, D, E, F>(
     f1: ResolvedUnaryFunction<A, B>,
     f2: ResolvedUnaryFunction<B, C>,
     f3: ResolvedUnaryFunction<C, D>,
     f4: ResolvedUnaryFunction<D, E>,
-    f5: ResolvedUnaryFunction<E, F>,
+    f5: ResolvedUnaryFunction<E, F>
   ): (arg: A) => PromiseEitherChained<F>;
-  asyncPipe<A, B, C, D, E, F, G>(
-    f1: ResolvedUnaryFunction<A, B>,
-    f2: ResolvedUnaryFunction<B, C>,
-    f3: ResolvedUnaryFunction<C, D>,
-    f4: ResolvedUnaryFunction<D, E>,
-    f5: ResolvedUnaryFunction<E, F>,
-    f6: ResolvedUnaryFunction<F, G>,
-  ): (arg: A) => PromiseEitherChained<G>;
-  asyncPipe<A, B, C, D, E, F, G, H>(
-    f1: ResolvedUnaryFunction<A, B>,
-    f2: ResolvedUnaryFunction<B, C>,
-    f3: ResolvedUnaryFunction<C, D>,
-    f4: ResolvedUnaryFunction<D, E>,
-    f5: ResolvedUnaryFunction<E, F>,
-    f6: ResolvedUnaryFunction<F, G>,
-    f7: ResolvedUnaryFunction<G, H>,
-  ): (arg: A) => PromiseEitherChained<H>;
-  asyncPipe<A, B, C, D, E, F, G, H, I>(
-    f1: ResolvedUnaryFunction<A, B>,
-    f2: ResolvedUnaryFunction<B, C>,
-    f3: ResolvedUnaryFunction<C, D>,
-    f4: ResolvedUnaryFunction<D, E>,
-    f5: ResolvedUnaryFunction<E, F>,
-    f6: ResolvedUnaryFunction<F, G>,
-    f7: ResolvedUnaryFunction<G, H>,
-    f8: ResolvedUnaryFunction<H, I>,
-  ): (arg: A) => PromiseEitherChained<I>;
-  asyncPipe<A, B, C, D, E, F, G, H, I, J>(
-    f1: ResolvedUnaryFunction<A, B>,
-    f2: ResolvedUnaryFunction<B, C>,
-    f3: ResolvedUnaryFunction<C, D>,
-    f4: ResolvedUnaryFunction<D, E>,
-    f5: ResolvedUnaryFunction<E, F>,
-    f6: ResolvedUnaryFunction<F, G>,
-    f7: ResolvedUnaryFunction<G, H>,
-    f8: ResolvedUnaryFunction<H, I>,
-    f9: ResolvedUnaryFunction<I, J>,
-  ): (arg: A) => PromiseEitherChained<J>;
-  asyncPipe<A, B, C, D, E, F, G, H, I, J, K>(
-    f1: ResolvedUnaryFunction<A, B>,
-    f2: ResolvedUnaryFunction<B, C>,
-    f3: ResolvedUnaryFunction<C, D>,
-    f4: ResolvedUnaryFunction<D, E>,
-    f5: ResolvedUnaryFunction<E, F>,
-    f6: ResolvedUnaryFunction<F, G>,
-    f7: ResolvedUnaryFunction<G, H>,
-    f8: ResolvedUnaryFunction<H, I>,
-    f9: ResolvedUnaryFunction<I, J>,
-    f10: ResolvedUnaryFunction<J, K>,
-  ): (arg: A) => PromiseEitherChained<K>;
-  asyncPipe<A, B, C, D, E, F, G, H, I, J, K, L>(
-    f1: ResolvedUnaryFunction<A, B>,
-    f2: ResolvedUnaryFunction<B, C>,
-    f3: ResolvedUnaryFunction<C, D>,
-    f4: ResolvedUnaryFunction<D, E>,
-    f5: ResolvedUnaryFunction<E, F>,
-    f6: ResolvedUnaryFunction<F, G>,
-    f7: ResolvedUnaryFunction<G, H>,
-    f8: ResolvedUnaryFunction<H, I>,
-    f9: ResolvedUnaryFunction<I, J>,
-    f10: ResolvedUnaryFunction<J, K>,
-    f11: ResolvedUnaryFunction<K, L>,
-  ): (arg: A) => PromiseEitherChained<L>;
-  asyncPipe<A, B, C, D, E, F, G, H, I, J, K, L, M>(
-    f1: ResolvedUnaryFunction<A, B>,
-    f2: ResolvedUnaryFunction<B, C>,
-    f3: ResolvedUnaryFunction<C, D>,
-    f4: ResolvedUnaryFunction<D, E>,
-    f5: ResolvedUnaryFunction<E, F>,
-    f6: ResolvedUnaryFunction<F, G>,
-    f7: ResolvedUnaryFunction<G, H>,
-    f8: ResolvedUnaryFunction<H, I>,
-    f9: ResolvedUnaryFunction<I, J>,
-    f10: ResolvedUnaryFunction<J, K>,
-    f11: ResolvedUnaryFunction<K, L>,
-    f12: ResolvedUnaryFunction<L, M>,
-  ): (arg: A) => PromiseEitherChained<M>;
-  asyncPipe<A, B, C, D, E, F, G, H, I, J, K, L, M, N>(
-    f1: ResolvedUnaryFunction<A, B>,
-    f2: ResolvedUnaryFunction<B, C>,
-    f3: ResolvedUnaryFunction<C, D>,
-    f4: ResolvedUnaryFunction<D, E>,
-    f5: ResolvedUnaryFunction<E, F>,
-    f6: ResolvedUnaryFunction<F, G>,
-    f7: ResolvedUnaryFunction<G, H>,
-    f8: ResolvedUnaryFunction<H, I>,
-    f9: ResolvedUnaryFunction<I, J>,
-    f10: ResolvedUnaryFunction<J, K>,
-    f11: ResolvedUnaryFunction<K, L>,
-    f12: ResolvedUnaryFunction<L, M>,
-    f13: ResolvedUnaryFunction<M, N>,
-  ): (arg: A) => PromiseEitherChained<N>;
-  asyncPipe<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O>(
-    f1: ResolvedUnaryFunction<A, B>,
-    f2: ResolvedUnaryFunction<B, C>,
-    f3: ResolvedUnaryFunction<C, D>,
-    f4: ResolvedUnaryFunction<D, E>,
-    f5: ResolvedUnaryFunction<E, F>,
-    f6: ResolvedUnaryFunction<F, G>,
-    f7: ResolvedUnaryFunction<G, H>,
-    f8: ResolvedUnaryFunction<H, I>,
-    f9: ResolvedUnaryFunction<I, J>,
-    f10: ResolvedUnaryFunction<J, K>,
-    f11: ResolvedUnaryFunction<K, L>,
-    f12: ResolvedUnaryFunction<L, M>,
-    f13: ResolvedUnaryFunction<M, N>,
-    f14: ResolvedUnaryFunction<N, O>,
-  ): (arg: A) => PromiseEitherChained<O>;
-  asyncPipe<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P>(
-    f1: ResolvedUnaryFunction<A, B>,
-    f2: ResolvedUnaryFunction<B, C>,
-    f3: ResolvedUnaryFunction<C, D>,
-    f4: ResolvedUnaryFunction<D, E>,
-    f5: ResolvedUnaryFunction<E, F>,
-    f6: ResolvedUnaryFunction<F, G>,
-    f7: ResolvedUnaryFunction<G, H>,
-    f8: ResolvedUnaryFunction<H, I>,
-    f9: ResolvedUnaryFunction<I, J>,
-    f10: ResolvedUnaryFunction<J, K>,
-    f11: ResolvedUnaryFunction<K, L>,
-    f12: ResolvedUnaryFunction<L, M>,
-    f13: ResolvedUnaryFunction<M, N>,
-    f14: ResolvedUnaryFunction<N, O>,
-    f15: ResolvedUnaryFunction<O, P>,
-  ): (arg: A) => PromiseEitherChained<P>;
 
   asyncPipe(...fns: UnaryFunction[]) {
     return (arg: any) =>
       fns.reduce(
         (result, fn) =>
           result.then((either) => {
+            // left거나 promise가 아닌 경우 value는 instanceof Promise를 통과하지 못한다.
+            // 이 경우 단순히 map하면 된다.
             const value = either.getValue({ defaultValue: null });
 
             return value instanceof Promise
-              ? value.then(
-                  (resolved) =>
+              ? value
+                  .then((resolved) =>
+                    // pipe의 연산 결과를 받을 경우
                     resolved instanceof Either
-                      ? resolved.map(fn).fold(Either.left, Either.right)
-                      : Either.right(resolved).map(fn),
-                  Either.left,
-                )
+                      ? // resolve된 값이 Either라면 안전하게 map할 수 있다.
+                        resolved.map(fn)
+                      : // Either.right(fn(resolved))는 아래와 다르다. fn의 연산 중의 에러가 발생한다면 left로 변환할 수 없기 때문이다.
+                        Either.right(resolved).map(fn)
+                  )
+                  .catch(Either.left)
               : // left이거나 promise가 아닌 경우
                 Promise.resolve(either.map(fn));
           }),
-        Promise.resolve(Either.right(arg)),
+        // 어떤 인자건 아래와 같이 출발 시킨다.
+        Promise.resolve(Either.right(arg))
       );
   }
 }
 
-export const { syncPipe, asyncPipe } = new Pipe();
+export const { asyncPipe } = new Pipe();
 
 function double(x: number) {
   return x * 2;
@@ -298,8 +146,31 @@ function addOne(x: number) {
   return x + 1;
 }
 
-const pipe1 = asyncPipe(double, double);
-const pipe2 = asyncPipe(double, halve);
-const pipe = asyncPipe(pipe1, pipe2, addOne);
+function rejector(x: number) {
+  return Promise.reject(x);
+}
 
-pipe(1).then((either) => console.log(either.getValue({ defaultValue: null })));
+const log = <F extends (arg: any) => any>(fn: F, prefix: string) =>
+  asyncPipe(fn, (x: ReturnType<F>) => {
+    console.log(prefix);
+    console.dir(x, { depth: null });
+    return x;
+  }) as F;
+
+const doubleWithLog = log(double, "double");
+const halveWithLog = log(halve, "halve");
+const addOneWithLog = log(addOne, "addOne");
+
+// start from 1
+const pipe1 = asyncPipe(double, double); // 2 -> 4
+const pipe2 = asyncPipe(double, halve); // 8 -> 4
+const pipe3 = asyncPipe(pipe1, pipe2, addOne); // 8 -> 16 -> 32 -> 16 -> 17 -> Left(17)
+
+const pipeline = asyncPipe(pipe1, pipe2, pipe3); // rejector때문에 18이 되지 못하고 Left(17)에 머문다
+
+pipeline(1).then((either) =>
+  either.fold(
+    (e) => console.error("error detected:", e),
+    (r) => console.log("result:", r)
+  )
+);
