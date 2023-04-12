@@ -49,15 +49,21 @@ export class Either<T> {
   ): LR | RR | Promise<LR | RR> {
     if (this.isRight()) {
       if (this.value instanceof Promise) {
-        return this.value.then(rightFn);
+        return this.value.then(
+          (r) => (r instanceof Either ? r.fold(leftFn, rightFn) : rightFn(r)),
+          leftFn
+        );
       }
       return rightFn(this.value);
-    } else {
-      if (this.value instanceof Promise) {
-        return this.value.then(leftFn);
-      }
-      return leftFn(this.value);
     }
+
+    if (this.value instanceof Promise) {
+      return this.value.then(
+        (r) => (r instanceof Either ? r.fold(leftFn, leftFn) : leftFn(r)),
+        leftFn
+      );
+    }
+    return leftFn(this.value);
   }
 
   isRight(): boolean {
@@ -108,10 +114,7 @@ class Pipe {
       fns.reduce(
         (result, fn) =>
           result.then((either) => {
-            // left거나 promise가 아닌 경우 value는 instanceof Promise를 통과하지 못한다.
-            // 이 경우 단순히 map하면 된다.
             const value = either.getValue({ defaultValue: null });
-
             return value instanceof Promise
               ? value
                   .then((resolved) =>
@@ -150,6 +153,10 @@ function rejector(x: number) {
   return Promise.reject(x);
 }
 
+function thrower(x: number) {
+  throw x;
+}
+
 const log = <F extends (arg: any) => any>(fn: F, prefix: string) =>
   asyncPipe(fn, (x: ReturnType<F>) => {
     console.log(prefix);
@@ -162,11 +169,12 @@ const halveWithLog = log(halve, "halve");
 const addOneWithLog = log(addOne, "addOne");
 
 // start from 1
-const pipe1 = asyncPipe(double, double); // 2 -> 4
-const pipe2 = asyncPipe(double, halve); // 8 -> 4
-const pipe3 = asyncPipe(pipe1, pipe2, addOne); // 8 -> 16 -> 32 -> 16 -> 17 -> Left(17)
+const pipe1 = asyncPipe(doubleWithLog, doubleWithLog); // 2 -> 4
+const pipe2 = asyncPipe(doubleWithLog, halveWithLog); // 8 -> 4
+const pipe3 = asyncPipe(pipe1, pipe2, addOneWithLog, rejector); // 8 -> 16 -> 32 -> 16 -> 17 -> Left(17)
+const pipe4 = asyncPipe(pipe1, pipe2, pipe3);
 
-const pipeline = asyncPipe(pipe1, pipe2, pipe3); // rejector때문에 18이 되지 못하고 Left(17)에 머문다
+const pipeline = asyncPipe(pipe1, pipe2, pipe3, pipe4);
 
 pipeline(1).then((either) =>
   either.fold(
