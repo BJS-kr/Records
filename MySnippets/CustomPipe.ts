@@ -194,7 +194,7 @@ const log = feedExecutionId(v4());
 
 const pipe1 = asyncPipe(double, double); // 2 -> 4
 const pipe2 = asyncPipe(double, halve); // 8 -> 4
-const pipe3 = asyncPipe(pipe1, pipe2, addOne); // 8 -> 16 -> 32 -> 16 -> 17 -> Left(17)
+const pipe3 = asyncPipe(pipe1, rejector, pipe2, addOne); // 8 -> 16 -> 32 -> 16 -> 17 -> Left(17)
 const pipeline = asyncPipe(log(pipe1), log(pipe2), log(pipe3));
 
 pipeline(1).then((either) =>
