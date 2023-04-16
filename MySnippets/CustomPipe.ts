@@ -179,8 +179,7 @@ const feedExecutionId =
   (executionId) =>
   <F extends (arg: any) => any>(fn: F) =>
     asyncPipe(fn, (r: ReturnType<F>) => {
-      console.log(executionId);
-      console.dir(r, { depth: null });
+      console.dir({ "execution ID": executionId, value: r }, { depth: null });
       return r;
     }) as F;
 const log = feedExecutionId(`asyncPipe ${Date.now()}`);
