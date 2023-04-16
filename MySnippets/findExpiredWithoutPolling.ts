@@ -14,29 +14,84 @@ import { MongoClient } from "mongodb";
  * 그 이유는 한 번 이라도 DB I/O를 줄일 수 있기 때문이다.
  */
 
-const mc = new MongoClient("mongodb://localhost:27017/", { replicaSet: "rs0" });
+function addTestPropIfTest(doc: Record<string, any>, env: string) {
+  return { ...doc, ...(env === "test" && { test: true }) };
+}
 
-const SEC = 1000;
-const MIN = SEC * 60;
-const HOUR = MIN * 60;
+function after(time: number, type: "hour" | "min" | "sec") {
+  const types = {
+    hour: 60 * 60 * 1000,
+    min: 60 * 1000,
+    sec: 1000,
+  };
+
+  return new Date(Date.now() + time * types[type]);
+}
+
+function isDuplicateKeyError(e: any) {
+  return e.message.includes("duplicate key error");
+}
+const env = process.env.ENV;
+const mc = new MongoClient("mongodb://localhost:27017/", { replicaSet: "rs0" });
 
 async function run() {
   const c = await mc.connect();
   const db = c.db("test");
   const col = db.collection<any>("test");
+  const logs = db.collection<any>("logs");
+  await col.deleteMany({});
+  await logs.deleteMany({});
   col.createIndex({ ttl: 1 }, { expireAfterSeconds: 0 });
 
   const deleteStream = col.watch([{ $match: { operationType: "delete" } }]);
 
+  // 두개의 서버가 둘다 스트림을 받고 있다고 가정해봅시다.
+  // 이 경우 처리가 까다롭습니다. 한 쪽만 실행되어야 하니까요
+  // 아래와 같이 duplicate key error를 통해 작업이 한번만 실행됨을 보장해봅시다.
   deleteStream.on("change", async (change: any) => {
     const deletedKey = change.documentKey._id;
-    console.log(deletedKey);
+    console.log("1", deletedKey);
+
+    try {
+      await logs.insertOne({ _id: deletedKey });
+      // if (env === 'prod' || env === 'test' && deletedKey.test)
+      console.log("작업 1");
+    } catch (e) {
+      if (isDuplicateKeyError(e)) {
+        /**message already sent */
+      } else {
+        /**handle unexpected errors */
+      }
+    }
   });
 
-  await col.insertOne({
-    _id: { hi: "there", hello: "im bjs" },
-    ttl: new Date(Date.now() + 2 * HOUR + 30 * MIN + 30 * SEC),
+  deleteStream.on("change", async (change: any) => {
+    const deletedKey = change.documentKey._id;
+    console.log("2", deletedKey);
+    try {
+      await logs.insertOne({ _id: deletedKey });
+      console.log("작업 2");
+    } catch (e) {
+      if (isDuplicateKeyError(e)) {
+        /**message already sent */
+      } else {
+        /**handle unexpected errors */
+      }
+    }
   });
+
+  await col.insertOne(
+    addTestPropIfTest(
+      {
+        _id: {
+          hi: "there",
+          hello: "im bjs",
+        },
+        ttl: after(2, "hour"),
+      },
+      env
+    )
+  );
 }
 
 run();
