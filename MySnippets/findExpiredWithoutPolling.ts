@@ -31,6 +31,15 @@ function after(time: number, type: "hour" | "min" | "sec") {
 function isDuplicateKeyError(e: any) {
   return e.message.includes("duplicate key error");
 }
+
+function task() {
+  console.log("task");
+}
+
+function safeRun(fn, testObject) {
+  if (env !== "prod" && testObject.test === true) return fn();
+  return false;
+}
 const env = process.env.ENV;
 const mc = new MongoClient("mongodb://localhost:27017/", { replicaSet: "rs0" });
 
@@ -39,8 +48,10 @@ async function run() {
   const db = c.db("test");
   const col = db.collection<any>("test");
   const logs = db.collection<any>("logs");
+
   await col.deleteMany({});
   await logs.deleteMany({});
+
   col.createIndex({ ttl: 1 }, { expireAfterSeconds: 0 });
 
   const deleteStream = col.watch([{ $match: { operationType: "delete" } }]);
@@ -49,13 +60,12 @@ async function run() {
   // 이 경우 처리가 까다롭습니다. 한 쪽만 실행되어야 하니까요
   // 아래와 같이 duplicate key error를 통해 작업이 한번만 실행됨을 보장해봅시다.
   deleteStream.on("change", async (change: any) => {
-    const deletedKey = change.documentKey._id;
-    console.log("1", deletedKey);
+    const taskInfo = change.documentKey._id;
+    console.log("1", taskInfo);
 
     try {
-      await logs.insertOne({ _id: deletedKey });
-      // if (env === 'prod' || env === 'test' && deletedKey.test)
-      console.log("작업 1");
+      await logs.insertOne({ _id: taskInfo });
+      return safeRun(task, taskInfo);
     } catch (e) {
       if (isDuplicateKeyError(e)) {
         /**message already sent */
@@ -66,11 +76,12 @@ async function run() {
   });
 
   deleteStream.on("change", async (change: any) => {
-    const deletedKey = change.documentKey._id;
-    console.log("2", deletedKey);
+    const taskInfo = change.documentKey._id;
+    console.log("1", taskInfo);
+
     try {
-      await logs.insertOne({ _id: deletedKey });
-      console.log("작업 2");
+      await logs.insertOne({ _id: taskInfo });
+      return safeRun(task, taskInfo);
     } catch (e) {
       if (isDuplicateKeyError(e)) {
         /**message already sent */
