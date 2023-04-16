@@ -61,8 +61,7 @@ export class Either<T> {
 
   map<U>(fn: (v: T) => U): Either<any> {
     try {
-      const result = fn(this.value);
-      return this.isRight() ? Either.right(result) : this;
+      return this.isRight() ? Either.right(fn(this.value)) : this;
     } catch (err) {
       return Either.left(err);
     }
@@ -195,7 +194,7 @@ const log = feedExecutionId(v4());
 
 const pipe1 = asyncPipe(double, double); // 2 -> 4
 const pipe2 = asyncPipe(double, halve); // 8 -> 4
-const pipe3 = asyncPipe(pipe1, pipe2, addOne, rejector); // 8 -> 16 -> 32 -> 16 -> 17 -> Left(17)
+const pipe3 = asyncPipe(pipe1, pipe2, addOne); // 8 -> 16 -> 32 -> 16 -> 17 -> Left(17)
 const pipeline = asyncPipe(log(pipe1), log(pipe2), log(pipe3));
 
 pipeline(1).then((either) =>
