@@ -18,8 +18,9 @@ function addTestPropIfTest(doc: Record<string, any>, env: string) {
   return { ...doc, ...(env === "test" && { test: true }) };
 }
 
-function after(time: number, type: "hour" | "min" | "sec") {
+function after(time: number, type: "hour" | "min" | "sec" | "day") {
   const types = {
+    day: 24 * 60 * 60 * 1000,
     hour: 60 * 60 * 1000,
     min: 60 * 1000,
     sec: 1000,
@@ -52,7 +53,8 @@ async function run() {
   await col.deleteMany({});
   await logs.deleteMany({});
 
-  col.createIndex({ ttl: 1 }, { expireAfterSeconds: 0 });
+  col.createIndex({ expire: 1 }, { expireAfterSeconds: 0 });
+  logs.createIndex({ expire: 1 }, { expireAfterSeconds: 0 });
 
   const deleteStream = col.watch([{ $match: { operationType: "delete" } }]);
 
@@ -64,7 +66,7 @@ async function run() {
     console.log("1", taskInfo);
 
     try {
-      await logs.insertOne({ _id: taskInfo });
+      await logs.insertOne({ _id: taskInfo, expire: after(30, "day") });
       return safeRun(task, taskInfo);
     } catch (e) {
       if (isDuplicateKeyError(e)) {
@@ -98,7 +100,7 @@ async function run() {
           hi: "there",
           hello: "im bjs",
         },
-        ttl: after(2, "hour"),
+        expire: after(2, "hour"),
       },
       env
     )
