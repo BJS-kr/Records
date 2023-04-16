@@ -1,5 +1,3 @@
-import { v4 } from "uuid";
-
 type UnaryFunction<A = any, R = any> = (arg: A) => R;
 
 type ResolvedUnaryFunction<A = any, R = any> = ((
@@ -177,10 +175,6 @@ function rejector(x: number) {
   return Promise.reject(x);
 }
 
-function thrower(x: number) {
-  throw x;
-}
-
 const feedExecutionId =
   (executionId) =>
   <F extends (arg: any) => any>(fn: F) =>
@@ -189,17 +183,15 @@ const feedExecutionId =
       console.dir(r, { depth: null });
       return r;
     }) as F;
-const log = feedExecutionId(v4());
+const log = feedExecutionId(`asyncPipe ${Date.now()}`);
 // start from 1
 
 const pipe1 = asyncPipe(double, double); // 2 -> 4
 const pipe2 = asyncPipe(double, halve); // 8 -> 4
-const pipe3 = asyncPipe(pipe1, rejector, pipe2, addOne); // 8 -> 16 -> 32 -> 16 -> 17 -> Left(17)
-const pipeline = asyncPipe(log(pipe1), log(pipe2), log(pipe3));
+const pipe3 = asyncPipe(pipe1, pipe2, addOne, rejector); // 8 -> 16 -> 32 -> 16 -> 17 -> Left(17)
+const pipe4 = asyncPipe(pipe1, pipe2, pipe3);
+const pipeline = asyncPipe(log(pipe1), log(pipe2), log(pipe3), log(pipe4));
 
 pipeline(1).then((either) =>
-  either.fold(
-    (e) => (console.log("error: ", e), e),
-    (r) => r
-  )
+  either.fold((e) => (console.error("error: ", e), e), console.log)
 );
