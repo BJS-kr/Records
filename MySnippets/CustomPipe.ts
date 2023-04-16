@@ -1,3 +1,5 @@
+import { v4 } from "uuid";
+
 type UnaryFunction<A = any, R = any> = (arg: A) => R;
 
 type ResolvedUnaryFunction<A = any, R = any> = ((
@@ -17,6 +19,36 @@ export type EitherT<T extends Either<any>> = T extends Either<infer I>
   ? I
   : never;
 export class Either<T> {
+  private handleRejection = (e, leftFn) => {
+    if (e instanceof Promise) {
+      return e.then(
+        (r) => (r instanceof Either ? r.fold(leftFn, leftFn) : leftFn(r)),
+        (e) => Either.left(e).fold(leftFn, leftFn)
+      );
+    }
+
+    return leftFn(e);
+  };
+
+  private handleResolved = (r, leftFn, rightFn) => {
+    if (r instanceof Either) {
+      return r.fold(leftFn, rightFn);
+    }
+
+    return rightFn(r);
+  };
+
+  private handle(leftFn, rightFn) {
+    if (this.value instanceof Promise) {
+      return this.value.then(
+        (r) => this.handleResolved(r, leftFn, rightFn),
+        (e) => this.handleRejection(e, leftFn)
+      );
+    }
+
+    return rightFn(this.value);
+  }
+
   static left(value) {
     return new Left(value);
   }
@@ -29,7 +61,8 @@ export class Either<T> {
 
   map<U>(fn: (v: T) => U): Either<any> {
     try {
-      return this.isRight() ? Either.right(fn(this.value)) : this;
+      const result = fn(this.value);
+      return this.isRight() ? Either.right(result) : this;
     } catch (err) {
       return Either.left(err);
     }
@@ -47,23 +80,15 @@ export class Either<T> {
     leftFn: (error: any) => LR,
     rightFn: (result: T) => RR
   ): LR | RR | Promise<LR | RR> {
+    /**
+     * Promise.resolve의 체인은 then으로 모두 해결되나, Promise.reject(Promise.resolve())의 경우 then해도 reject까지만 실행되기 때문에
+     * catch된 값이 Promise인지는 다시 한번 검사해야한다.
+     */
     if (this.isRight()) {
-      if (this.value instanceof Promise) {
-        return this.value.then(
-          (r) => (r instanceof Either ? r.fold(leftFn, rightFn) : rightFn(r)),
-          leftFn
-        );
-      }
-      return rightFn(this.value);
+      return this.handle(leftFn, rightFn);
     }
 
-    if (this.value instanceof Promise) {
-      return this.value.then(
-        (r) => (r instanceof Either ? r.fold(leftFn, leftFn) : leftFn(r)),
-        leftFn
-      );
-    }
-    return leftFn(this.value);
+    return this.handle(leftFn, leftFn);
   }
 
   isRight(): boolean {
@@ -157,28 +182,25 @@ function thrower(x: number) {
   throw x;
 }
 
-const log = <F extends (arg: any) => any>(fn: F, prefix: string) =>
-  asyncPipe(fn, (x: ReturnType<F>) => {
-    console.log(prefix);
-    console.dir(x, { depth: null });
-    return x;
-  }) as F;
-
-const doubleWithLog = log(double, "double");
-const halveWithLog = log(halve, "halve");
-const addOneWithLog = log(addOne, "addOne");
-
+const feedExecutionId =
+  (executionId) =>
+  <F extends (arg: any) => any>(fn: F) =>
+    asyncPipe(fn, (r: ReturnType<F>) => {
+      console.log(executionId);
+      console.dir(r, { depth: null });
+      return r;
+    }) as F;
+const log = feedExecutionId(v4());
 // start from 1
-const pipe1 = asyncPipe(doubleWithLog, doubleWithLog); // 2 -> 4
-const pipe2 = asyncPipe(doubleWithLog, halveWithLog); // 8 -> 4
-const pipe3 = asyncPipe(pipe1, pipe2, addOneWithLog, rejector); // 8 -> 16 -> 32 -> 16 -> 17 -> Left(17)
-const pipe4 = asyncPipe(pipe1, pipe2, pipe3);
 
-const pipeline = asyncPipe(pipe1, pipe2, pipe3, pipe4);
+const pipe1 = asyncPipe(double, double); // 2 -> 4
+const pipe2 = asyncPipe(double, halve); // 8 -> 4
+const pipe3 = asyncPipe(pipe1, pipe2, addOne, rejector); // 8 -> 16 -> 32 -> 16 -> 17 -> Left(17)
+const pipeline = asyncPipe(log(pipe1), log(pipe2), log(pipe3));
 
 pipeline(1).then((either) =>
   either.fold(
-    (e) => console.error("error detected:", e),
-    (r) => console.log("result:", r)
+    (e) => (console.log("error: ", e), e),
+    (r) => r
   )
 );
