@@ -13,6 +13,8 @@ type Folded<T> = T extends Either<infer I>
   : T;
 type PromiseEitherChained<T> = Promise<Either<Folded<T>>>;
 
+type OrPromise<T> = T | Promise<T>;
+
 export type EitherT<T extends Either<any>> = T extends Either<infer I>
   ? I
   : never;
@@ -57,9 +59,21 @@ export class Either<T> {
 
   constructor(private value: any) {}
 
-  map<U>(fn: (v: T) => U): Either<any> {
+  map<U>(fn: (v: T) => U): Either<any> | Promise<Either<any>> {
     try {
-      return this.isRight() ? Either.right(fn(this.value)) : this;
+      if (this.isRight()) {
+        const result = fn(this.value);
+        if (result instanceof Promise) {
+          return result.then(
+            (resolved) =>
+              resolved instanceof Either ? resolved : Either.right(resolved),
+            Either.left
+          );
+        }
+        return Either.right(result);
+      }
+
+      return this;
     } catch (err) {
       return Either.left(err);
     }
@@ -67,10 +81,6 @@ export class Either<T> {
 
   getValue({ defaultValue }: { defaultValue: T }): T {
     return this.isRight() ? this.value : defaultValue;
-  }
-
-  chain(fn) {
-    return this.map(fn).getValue({ defaultValue: this.value });
   }
 
   fold<LR, RR>(
@@ -107,29 +117,79 @@ class Right<T> extends Either<T> {
 class Pipe {
   asyncPipe<A, B>(
     f1: ResolvedUnaryFunction<A, B>
-  ): (arg: A) => PromiseEitherChained<B>;
+  ): (arg: OrPromise<A>) => PromiseEitherChained<B>;
   asyncPipe<A, B, C>(
     f1: ResolvedUnaryFunction<A, B>,
     f2: ResolvedUnaryFunction<B, C>
-  ): (arg: A) => PromiseEitherChained<C>;
+  ): (arg: OrPromise<A>) => PromiseEitherChained<C>;
   asyncPipe<A, B, C, D>(
     f1: ResolvedUnaryFunction<A, B>,
     f2: ResolvedUnaryFunction<B, C>,
     f3: ResolvedUnaryFunction<C, D>
-  ): (arg: A) => PromiseEitherChained<D>;
+  ): (arg: OrPromise<A>) => PromiseEitherChained<D>;
   asyncPipe<A, B, C, D, E>(
     f1: ResolvedUnaryFunction<A, B>,
     f2: ResolvedUnaryFunction<B, C>,
     f3: ResolvedUnaryFunction<C, D>,
     f4: ResolvedUnaryFunction<D, E>
-  ): (arg: A) => PromiseEitherChained<E>;
+  ): (arg: OrPromise<A>) => PromiseEitherChained<E>;
   asyncPipe<A, B, C, D, E, F>(
     f1: ResolvedUnaryFunction<A, B>,
     f2: ResolvedUnaryFunction<B, C>,
     f3: ResolvedUnaryFunction<C, D>,
     f4: ResolvedUnaryFunction<D, E>,
     f5: ResolvedUnaryFunction<E, F>
-  ): (arg: A) => PromiseEitherChained<F>;
+  ): (arg: OrPromise<A>) => PromiseEitherChained<F>;
+  asyncPipe<A, B, C, D, E, F, G>(
+    f1: ResolvedUnaryFunction<A, B>,
+    f2: ResolvedUnaryFunction<B, C>,
+    f3: ResolvedUnaryFunction<C, D>,
+    f4: ResolvedUnaryFunction<D, E>,
+    f5: ResolvedUnaryFunction<E, F>,
+    f6: ResolvedUnaryFunction<F, G>
+  ): (arg: OrPromise<A>) => PromiseEitherChained<G>;
+  asyncPipe<A, B, C, D, E, F, G, H>(
+    f1: ResolvedUnaryFunction<A, B>,
+    f2: ResolvedUnaryFunction<B, C>,
+    f3: ResolvedUnaryFunction<C, D>,
+    f4: ResolvedUnaryFunction<D, E>,
+    f5: ResolvedUnaryFunction<E, F>,
+    f6: ResolvedUnaryFunction<F, G>,
+    f7: ResolvedUnaryFunction<G, H>
+  ): (arg: OrPromise<A>) => PromiseEitherChained<H>;
+  asyncPipe<A, B, C, D, E, F, G, H, I>(
+    f1: ResolvedUnaryFunction<A, B>,
+    f2: ResolvedUnaryFunction<B, C>,
+    f3: ResolvedUnaryFunction<C, D>,
+    f4: ResolvedUnaryFunction<D, E>,
+    f5: ResolvedUnaryFunction<E, F>,
+    f6: ResolvedUnaryFunction<F, G>,
+    f7: ResolvedUnaryFunction<G, H>,
+    f8: ResolvedUnaryFunction<H, I>
+  ): (arg: OrPromise<A>) => PromiseEitherChained<I>;
+  asyncPipe<A, B, C, D, E, F, G, H, I, J>(
+    f1: ResolvedUnaryFunction<A, B>,
+    f2: ResolvedUnaryFunction<B, C>,
+    f3: ResolvedUnaryFunction<C, D>,
+    f4: ResolvedUnaryFunction<D, E>,
+    f5: ResolvedUnaryFunction<E, F>,
+    f6: ResolvedUnaryFunction<F, G>,
+    f7: ResolvedUnaryFunction<G, H>,
+    f8: ResolvedUnaryFunction<H, I>,
+    f9: ResolvedUnaryFunction<I, J>
+  ): (arg: OrPromise<A>) => PromiseEitherChained<J>;
+  asyncPipe<A, B, C, D, E, F, G, H, I, J, K>(
+    f1: ResolvedUnaryFunction<A, B>,
+    f2: ResolvedUnaryFunction<B, C>,
+    f3: ResolvedUnaryFunction<C, D>,
+    f4: ResolvedUnaryFunction<D, E>,
+    f5: ResolvedUnaryFunction<E, F>,
+    f6: ResolvedUnaryFunction<F, G>,
+    f7: ResolvedUnaryFunction<G, H>,
+    f8: ResolvedUnaryFunction<H, I>,
+    f9: ResolvedUnaryFunction<I, J>,
+    f10: ResolvedUnaryFunction<J, K>
+  ): (arg: OrPromise<A>) => PromiseEitherChained<K>;
 
   asyncPipe(...fns: UnaryFunction[]) {
     return (arg: any) =>
@@ -140,16 +200,12 @@ class Pipe {
             return value instanceof Promise
               ? value
                   .then((resolved) =>
-                    // pipe의 연산 결과를 받을 경우
                     resolved instanceof Either
-                      ? // resolve된 값이 Either라면 안전하게 map할 수 있다.
-                        resolved.map(fn)
-                      : // Either.right(fn(resolved))는 아래와 다르다. fn의 연산 중의 에러가 발생한다면 left로 변환할 수 없기 때문이다.
-                        Either.right(resolved).map(fn)
+                      ? resolved.map(fn)
+                      : Either.right(resolved).map(fn)
                   )
                   .catch(Either.left)
-              : // left이거나 promise가 아닌 경우
-                Promise.resolve(either.map(fn));
+              : Promise.resolve(either.map(fn));
           }),
         // 어떤 인자건 아래와 같이 출발 시킨다.
         Promise.resolve(Either.right(arg))
@@ -159,38 +215,33 @@ class Pipe {
 
 export const { asyncPipe } = new Pipe();
 
-function double(x: number) {
-  return x * 2;
-}
+const resolver = (a: number) => Promise.resolve(a);
+const rejector = (a: number) => Promise.reject(a);
+const double = (a: number) => a * 2;
+const halve = (a: number) => a / 2;
+const add = (a: number) => (b: number) => a + b;
 
-function halve(x: number) {
-  return x / 2;
-}
+const pipe = asyncPipe(
+  asyncPipe(
+    resolver,
+    asyncPipe(
+      double,
+      asyncPipe(resolver, double),
+      asyncPipe(
+        resolver,
+        asyncPipe(resolver, asyncPipe(resolver, asyncPipe(halve))),
+        asyncPipe(add(1)),
+        asyncPipe(double, rejector, asyncPipe(add(3))), // <- rejector is here!
+        halve
+      )
+    )
+  )
+);
 
-function addOne(x: number) {
-  return x + 1;
-}
-
-function rejector(x: number) {
-  return Promise.reject(x);
-}
-
-const feedExecutionId =
-  (executionId) =>
-  <F extends (arg: any) => any>(fn: F) =>
-    asyncPipe(fn, (r: ReturnType<F>) => {
-      console.dir({ "execution ID": executionId, value: r }, { depth: null });
-      return r;
-    }) as F;
-const log = feedExecutionId(`asyncPipe ${Date.now()}`);
-// start from 1
-
-const pipe1 = asyncPipe(double, double); // 2 -> 4
-const pipe2 = asyncPipe(double, halve); // 8 -> 4
-const pipe3 = asyncPipe(pipe1, pipe2, addOne, rejector); // 8 -> 16 -> 32 -> 16 -> 17 -> Left(17)
-const pipe4 = asyncPipe(pipe1, pipe2, pipe3);
-const pipeline = asyncPipe(log(pipe1), log(pipe2), log(pipe3), log(pipe4));
-
-pipeline(1).then((either) =>
-  either.fold((e) => (console.error("error: ", e), e), console.log)
+pipe(3).then(
+  (e) =>
+    e.fold(
+      (e) => console.log("error", e),
+      (e) => console.log("result", e)
+    ) // error 14
 );
