@@ -11,7 +11,9 @@ type Folded<T> = T extends Either<infer I>
   : T extends Promise<Either<infer I>>
   ? I
   : T;
-type PromiseEitherChained<T> = Promise<Either<Folded<T>>>;
+
+type PromiseEitherFolded<T> = Promise<Either<Folded<T>>>;
+type Chain<T> = T extends PromiseEitherFolded<infer I> ? Chain<I> : T;
 
 type OrPromise<T> = T | Promise<T>;
 
@@ -117,29 +119,29 @@ class Right<T> extends Either<T> {
 class Pipe {
   asyncPipe<A, B>(
     f1: ResolvedUnaryFunction<A, B>
-  ): (arg: OrPromise<A>) => PromiseEitherChained<B>;
+  ): (arg: OrPromise<A>) => PromiseEitherFolded<Chain<B>>;
   asyncPipe<A, B, C>(
     f1: ResolvedUnaryFunction<A, B>,
     f2: ResolvedUnaryFunction<B, C>
-  ): (arg: OrPromise<A>) => PromiseEitherChained<C>;
+  ): (arg: OrPromise<A>) => PromiseEitherFolded<Chain<C>>;
   asyncPipe<A, B, C, D>(
     f1: ResolvedUnaryFunction<A, B>,
     f2: ResolvedUnaryFunction<B, C>,
     f3: ResolvedUnaryFunction<C, D>
-  ): (arg: OrPromise<A>) => PromiseEitherChained<D>;
+  ): (arg: OrPromise<A>) => PromiseEitherFolded<Chain<D>>;
   asyncPipe<A, B, C, D, E>(
     f1: ResolvedUnaryFunction<A, B>,
     f2: ResolvedUnaryFunction<B, C>,
     f3: ResolvedUnaryFunction<C, D>,
     f4: ResolvedUnaryFunction<D, E>
-  ): (arg: OrPromise<A>) => PromiseEitherChained<E>;
+  ): (arg: OrPromise<A>) => PromiseEitherFolded<Chain<E>>;
   asyncPipe<A, B, C, D, E, F>(
     f1: ResolvedUnaryFunction<A, B>,
     f2: ResolvedUnaryFunction<B, C>,
     f3: ResolvedUnaryFunction<C, D>,
     f4: ResolvedUnaryFunction<D, E>,
     f5: ResolvedUnaryFunction<E, F>
-  ): (arg: OrPromise<A>) => PromiseEitherChained<F>;
+  ): (arg: OrPromise<A>) => PromiseEitherFolded<Chain<F>>;
   asyncPipe<A, B, C, D, E, F, G>(
     f1: ResolvedUnaryFunction<A, B>,
     f2: ResolvedUnaryFunction<B, C>,
@@ -147,7 +149,7 @@ class Pipe {
     f4: ResolvedUnaryFunction<D, E>,
     f5: ResolvedUnaryFunction<E, F>,
     f6: ResolvedUnaryFunction<F, G>
-  ): (arg: OrPromise<A>) => PromiseEitherChained<G>;
+  ): (arg: OrPromise<A>) => PromiseEitherFolded<Chain<G>>;
   asyncPipe<A, B, C, D, E, F, G, H>(
     f1: ResolvedUnaryFunction<A, B>,
     f2: ResolvedUnaryFunction<B, C>,
@@ -156,7 +158,7 @@ class Pipe {
     f5: ResolvedUnaryFunction<E, F>,
     f6: ResolvedUnaryFunction<F, G>,
     f7: ResolvedUnaryFunction<G, H>
-  ): (arg: OrPromise<A>) => PromiseEitherChained<H>;
+  ): (arg: OrPromise<A>) => PromiseEitherFolded<Chain<H>>;
   asyncPipe<A, B, C, D, E, F, G, H, I>(
     f1: ResolvedUnaryFunction<A, B>,
     f2: ResolvedUnaryFunction<B, C>,
@@ -166,7 +168,7 @@ class Pipe {
     f6: ResolvedUnaryFunction<F, G>,
     f7: ResolvedUnaryFunction<G, H>,
     f8: ResolvedUnaryFunction<H, I>
-  ): (arg: OrPromise<A>) => PromiseEitherChained<I>;
+  ): (arg: OrPromise<A>) => PromiseEitherFolded<Chain<I>>;
   asyncPipe<A, B, C, D, E, F, G, H, I, J>(
     f1: ResolvedUnaryFunction<A, B>,
     f2: ResolvedUnaryFunction<B, C>,
@@ -177,7 +179,7 @@ class Pipe {
     f7: ResolvedUnaryFunction<G, H>,
     f8: ResolvedUnaryFunction<H, I>,
     f9: ResolvedUnaryFunction<I, J>
-  ): (arg: OrPromise<A>) => PromiseEitherChained<J>;
+  ): (arg: OrPromise<A>) => PromiseEitherFolded<Chain<J>>;
   asyncPipe<A, B, C, D, E, F, G, H, I, J, K>(
     f1: ResolvedUnaryFunction<A, B>,
     f2: ResolvedUnaryFunction<B, C>,
@@ -189,7 +191,7 @@ class Pipe {
     f8: ResolvedUnaryFunction<H, I>,
     f9: ResolvedUnaryFunction<I, J>,
     f10: ResolvedUnaryFunction<J, K>
-  ): (arg: OrPromise<A>) => PromiseEitherChained<K>;
+  ): (arg: OrPromise<A>) => PromiseEitherFolded<Chain<K>>;
 
   asyncPipe(...fns: UnaryFunction[]) {
     return (arg: any) =>
