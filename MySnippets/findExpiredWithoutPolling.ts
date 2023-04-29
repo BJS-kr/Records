@@ -47,6 +47,11 @@ const mc = new MongoClient("mongodb://localhost:27017/", { replicaSet: "rs0" });
 async function run() {
   const c = await mc.connect();
   const db = c.db("test");
+  const currentOps = await db.command({
+    currentOp: true,
+    $or: [{ "txnStats.inTransaction": true }, { "txnStats.active": true }],
+  });
+
   const col = db.collection<any>("test");
   const logs = db.collection<any>("logs");
 
